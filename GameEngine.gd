@@ -14,8 +14,23 @@ func resume():
 
 func get_fade_anim():
 	return player.get_node("Camera2D/HUD/Fade/AnimationPlayer")
-	
-func enter_scene(scene:String, entry_point:String):
+
+func remove_player_from_scene():
+	if player and player.get_parent(): current_scene.remove_child(player)
+
+func new_game(scene:String, entry_point:String):
+	clear_game()
+	enter_scene(scene, entry_point)
+
+func clear_game():
+	remove_player_from_scene()
+	if player: player.call_deferred("free")
+	player = null
+	for scene_key in scenes.keys():
+		scenes[scene_key].call_deferred("free")
+	scenes = {}
+
+func enter_scene(scene:String, entry_point = null):
 	var anim
 	
 	if not player: player = load("res://Player.tscn").instance()
@@ -27,17 +42,18 @@ func enter_scene(scene:String, entry_point:String):
 	if not scenes.has(scene): scenes[scene] = load(scene).instance()
 	
 	if current_scene:
-		current_scene.remove_child(player)
+		remove_player_from_scene()
 		current_scene.get_parent().remove_child(current_scene)
 	
 	get_tree().paused = true
 
 	current_scene = scenes[scene]
 	get_tree().current_scene.add_child(current_scene)
-	var entry_node = current_scene.get_node(entry_point)
-	current_scene.add_child(player)
-	player.position = entry_node.position
-	player.enter_current_scene()
+	if entry_point:
+		var entry_node = current_scene.get_node(entry_point)
+		current_scene.add_child(player)
+		player.position = entry_node.position
+		player.enter_current_scene()
 
 	get_tree().paused = false
 		
