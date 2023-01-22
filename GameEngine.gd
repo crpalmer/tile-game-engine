@@ -18,7 +18,7 @@ func get_fade_anim():
 func enter_scene(scene:String, entry_point:String):
 	var anim
 	
-	if not player: player = load("res://GameEngine/Actors/Player.tscn").instance()
+	if not player: player = load("res://Player.tscn").instance()
 	else:
 		anim = get_fade_anim()
 		anim.play("Fade")
