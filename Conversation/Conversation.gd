@@ -12,6 +12,9 @@ func _ready():
 	actor = get_parent()
 	tracking_area = actor.get_node("CloseArea")
 
+func name():
+	return get_parent().display_name
+	
 func start():
 	if $Canvas.visible: return
 	
@@ -23,7 +26,6 @@ func start():
 	$Canvas.visible = true
 	already_talked = true
 
-func name(): return "Somebody"
 func hello(): return "Hello."
 func attacked(): return "Die!"
 
