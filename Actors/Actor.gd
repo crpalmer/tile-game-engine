@@ -20,11 +20,8 @@ export var next_action = 0
 
 var player_position
 
-var conversation
-
 func _ready():
 	randomize()
-	conversation = get_node_or_null("Conversation")
 	$VisionArea.visible = true
 	$CloseArea.visible = true
 	set_vision_range(vision_radius)
@@ -96,8 +93,7 @@ func player_is_visible():
 			return true
 	return false
 
-func default_process(delta):
-	if conversation: conversation.process(self, $CloseArea.player_is_in_area)
+func default_process(_delta):
 	if GameEngine.paused: return
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_area:
 		attack(GameEngine.player)
@@ -121,11 +117,13 @@ func physics_process(delta):
 
 func _process(delta):
 	if GameEngine.time < next_action: return
+	if GameEngine.paused: return
 	process(delta)
 
 func _physics_process(delta):
 	if GameEngine.time < next_action: return
-	if not GameEngine.paused: physics_process(delta)
+	if GameEngine.paused: return
+	physics_process(delta)
 	
 func damage_popup(hit, damage = 0):
 	$DamagePopup/Damage.text = String(damage)

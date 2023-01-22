@@ -20,12 +20,13 @@ func killed(who):
 	xp += who.xp_value
 	HUD.update_player_stats(self)
 	
-func process(delta):
+func process(_delta):
 	if GameEngine.paused: return
 
-	process_attack()
-	process_use()
-	process_look()
+	if Input.is_action_just_released("attack"): process_attack()
+	if Input.is_action_just_released("use"): process_use()
+	if Input.is_action_just_released("look"): process_look()
+	if Input.is_action_just_released("talk"): process_talk()
 	
 func physics_process(delta):
 	var dir = Vector2(0, 0)
@@ -37,27 +38,30 @@ func physics_process(delta):
 	if dir.length() > 0:
 		var moved = dir.normalized()*speed*delta
 		var _collision:KinematicCollision2D = move_and_collide(moved)
-	
+
 func process_attack():
-	if Input.is_action_pressed("attack"):
-		var in_area:Array = $CloseArea.who_is_in_area()
-		if in_area.size() > 0: attack(in_area[randi() % in_area.size()])
+	var in_area:Array = $CloseArea.who_is_in_area()
+	if in_area.size() > 0: attack(in_area[randi() % in_area.size()])
 
 func process_use():
-	if Input.is_action_just_released("use"):
-		for use_on in $CloseArea.who_is_in_area():
-			if use_on is InventoryThing: add_to_inventory(use_on)
-			elif use_on is Thing: use_on.used_by(self)
+	for use_on in $CloseArea.who_is_in_area():
+		if use_on is InventoryThing: add_to_inventory(use_on)
+		elif use_on is Thing: use_on.used_by(self)
 
 func process_look():
-	if Input.is_action_just_released("look"):
-		var what = ""
-		for thing in $CloseArea.who_is_in_area():
-			print_debug(thing)
-			if what.length() > 0: what = what + ", "
-			what = what + thing.to_string()
-		if what.length() == 0: what = "nothing"
-		show_message("You see: " + what)
+	var what = ""
+	for thing in $CloseArea.who_is_in_area():
+		if what.length() > 0: what = what + ", "
+		what = what + thing.to_string()
+	if what.length() == 0: what = "nothing"
+	show_message("You see: " + what)
+
+func process_talk():
+	for thing in $CloseArea.who_is_in_area():
+		var conversation = thing.get_node_or_null("Conversation")
+		if conversation:
+			conversation.start()
+			return
 
 func add_to_inventory(to_add):
 	show_message("You picked up " + to_add.to_string())
