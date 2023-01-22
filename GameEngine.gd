@@ -5,7 +5,6 @@ var player
 var paused = false
 var current_scene
 var time = 0.0
-var modulate:CanvasModulate
 var pixels_per_foot = 4.0
 
 func pause():
