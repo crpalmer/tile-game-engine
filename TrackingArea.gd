@@ -13,7 +13,7 @@ func _ready():
 	_err = connect("body_exited", self, "area_exited")
 
 func set_tracking_radius(radius:int):
-	$Circle.shape.set_radius(radius)
+	$Circle.shape.set_radius(GameEngine.feet_to_pixels(radius))
 	
 func who_is_in_area():
 	var res = []

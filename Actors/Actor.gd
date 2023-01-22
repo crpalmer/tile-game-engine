@@ -12,8 +12,8 @@ export var damage_dice = { "n": 1, "d": 6, "plus":0 }
 export var speed = 30
 export var xp_value = 1
 export var secs_between_attacks = 1.0
-export var close_radius = 40
-export var vision_radius = 250
+export var close_radius = 6
+export var vision_radius = 120
 export var xp = 0
 export var mood = Mood.FRIENDLY
 export var next_action = 0
@@ -104,7 +104,7 @@ func default_physics_process(delta):
 	if mood == Mood.HOSTILE and player_is_visible():
 		var dir:Vector2 = player_position - position
 		if dir.length() > 5:
-			var move_vector = dir.normalized() * delta * speed
+			var move_vector = dir.normalized() * delta * GameEngine.feet_to_pixels(speed)
 			var collision = move_and_collide(move_vector)
 			if collision and collision.collider != GameEngine.player:
 				var _collision = move_and_collide(collision.remainder.length() * collision.normal)

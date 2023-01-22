@@ -6,6 +6,7 @@ var paused = false
 var current_scene
 var time = 0.0
 var modulate:CanvasModulate
+var pixels_per_foot = 4.0
 
 func pause():
 	paused = true
@@ -73,3 +74,6 @@ func add_node_at(to_add:Node, position:Vector2):
 	current_scene.add_child(to_add)
 	
 func _process(delta): time += delta
+
+func feet_to_pixels(feet): return feet * pixels_per_foot
+func pixels_to_feet(pixels): return pixels / pixels_per_foot

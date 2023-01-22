@@ -36,7 +36,7 @@ func physics_process(delta):
 	if Input.is_action_pressed("down"): dir.y += 1
 	
 	if dir.length() > 0:
-		var moved = dir.normalized()*speed*delta
+		var moved = dir.normalized()*delta*GameEngine.feet_to_pixels(speed)
 		var _collision:KinematicCollision2D = move_and_collide(moved)
 
 func process_attack():
