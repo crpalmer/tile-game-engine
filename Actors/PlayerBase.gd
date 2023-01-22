@@ -36,7 +36,6 @@ func physics_process(delta):
 	
 	if dir.length() > 0:
 		var moved = dir.normalized()*speed*delta
-		print("Player moved " + String(moved))
 		var _collision:KinematicCollision2D = move_and_collide(moved)
 	
 func process_attack():
