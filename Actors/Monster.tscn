@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://GameEngine/Actors/Monster.gd" type="Script" id=1]
+[ext_resource path="res://GameEngine/Actors/Actor.tscn" type="PackedScene" id=2]
+
+[node name="Monster" instance=ExtResource( 2 )]
+script = ExtResource( 1 )
+mood = 1
+hp_dice = {
+"d": 8,
+"n": 1,
+"plus": 1
+}
+gp_dice = {
+"d": 0,
+"n": 0,
+"plus": 0
+}

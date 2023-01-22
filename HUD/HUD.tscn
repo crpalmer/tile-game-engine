@@ -1,0 +1,164 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://GameEngine/HUD/Messages.gd" type="Script" id=1]
+[ext_resource path="res://GameEngine/HUD/Pong Font.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://GameEngine/HUD/Messages.png" type="Texture" id=3]
+[ext_resource path="res://GameEngine/HUD/HUD.gd" type="Script" id=4]
+
+[sub_resource type="DynamicFont" id=2]
+size = 18
+font_data = ExtResource( 2 )
+
+[sub_resource type="DynamicFont" id=1]
+font_data = ExtResource( 2 )
+
+[sub_resource type="Animation" id=3]
+resource_name = "Fade"
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
+}
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource( 4 )
+
+[node name="Stats" type="ColorRect" parent="."]
+margin_right = 132.0
+margin_bottom = 79.0
+rect_clip_content = true
+color = Color( 0.0666667, 0.435294, 0.176471, 1 )
+
+[node name="HPLabel" type="Label" parent="Stats"]
+margin_left = 8.0
+margin_top = 4.0
+margin_right = 126.0
+margin_bottom = 28.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "HP:           (        )"
+
+[node name="ACLabel" type="Label" parent="Stats"]
+margin_left = 10.0
+margin_top = 29.0
+margin_right = 133.0
+margin_bottom = 51.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "AC:"
+
+[node name="XPLabel" type="Label" parent="Stats"]
+margin_left = 10.0
+margin_top = 54.0
+margin_right = 133.0
+margin_bottom = 76.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "XP:"
+
+[node name="HPRect" type="ColorRect" parent="Stats"]
+margin_left = 44.0
+margin_top = 5.0
+margin_right = 76.0
+margin_bottom = 27.0
+color = Color( 0.545098, 0.478431, 0.478431, 1 )
+
+[node name="HP" type="Label" parent="Stats/HPRect"]
+margin_right = 32.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "999"
+align = 1
+valign = 1
+
+[node name="HPMaxRect" type="ColorRect" parent="Stats"]
+margin_left = 88.0
+margin_top = 5.0
+margin_right = 120.0
+margin_bottom = 27.0
+color = Color( 0.545098, 0.478431, 0.478431, 1 )
+
+[node name="HPMax" type="Label" parent="Stats/HPMaxRect"]
+margin_right = 32.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "999"
+align = 1
+valign = 1
+
+[node name="ACRect" type="ColorRect" parent="Stats"]
+margin_left = 44.0
+margin_top = 30.0
+margin_right = 76.0
+margin_bottom = 52.0
+color = Color( 0.545098, 0.478431, 0.478431, 1 )
+
+[node name="AC" type="Label" parent="Stats/ACRect"]
+margin_right = 31.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "999"
+align = 1
+valign = 1
+
+[node name="XPRect" type="ColorRect" parent="Stats"]
+margin_left = 44.0
+margin_top = 55.0
+margin_right = 108.0
+margin_bottom = 77.0
+color = Color( 0.545098, 0.478431, 0.478431, 1 )
+
+[node name="XP" type="Label" parent="Stats/XPRect"]
+margin_right = 64.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "99999"
+align = 1
+valign = 1
+
+[node name="Messages" type="CanvasLayer" parent="."]
+script = ExtResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="Messages"]
+light_mask = 0
+position = Vector2( 640, 39.875 )
+scale = Vector2( 1, 0.3 )
+texture = ExtResource( 3 )
+
+[node name="Text" type="Label" parent="Messages"]
+light_mask = 0
+margin_left = 144.0
+margin_top = 8.0
+margin_right = 1136.0
+margin_bottom = 71.0
+custom_fonts/font = SubResource( 1 )
+text = "These are some sample messages that will be shown in the text area when the ame generates messages....  Long messages are not going to get wrapped.
+Testing
+Test."
+clip_text = true
+max_lines_visible = 3
+
+[node name="Timer" type="Timer" parent="Messages"]
+
+[node name="Fade" type="ColorRect" parent="."]
+modulate = Color( 1, 1, 1, 0 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0, 0, 0, 1 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Fade"]
+anims/Fade = SubResource( 3 )
+
+[connection signal="timeout" from="Messages/Timer" to="Messages" method="_on_Timer_timeout"]
