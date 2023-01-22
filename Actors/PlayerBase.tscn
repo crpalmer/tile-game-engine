@@ -7,16 +7,6 @@
 [node name="PlayerBase" instance=ExtResource( 3 )]
 z_index = 1
 script = ExtResource( 5 )
-ac = 15
-hp = 75
-max_hp = 75
-to_hit_modifiers = 5
-damage_dice = {
-"d": 8,
-"n": 1,
-"plus": 1
-}
-xp_value = 0
 
 [node name="Camera2D" type="Camera2D" parent="." index="0"]
 modulate = Color( 0, 0, 0, 1 )

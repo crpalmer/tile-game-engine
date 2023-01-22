@@ -1,5 +1,5 @@
 extends Actor
-class_name Player
+class_name PlayerBase
 
 var HUD
 var inventory = []
