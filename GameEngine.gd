@@ -5,6 +5,7 @@ var player
 var paused = false
 var current_scene
 var time = 0.0
+var modulate:CanvasModulate
 
 func pause():
 	paused = true

@@ -10,7 +10,7 @@ func _ready():
 func enter_current_scene():
 	HUD = $Camera2D/HUD
 	HUD.update_player_stats(self)
-	pass
+	$Camera2D/AmbientLight.set_radius(vision_radius)
 	
 func take_damage(damage:int, from):
 	.take_damage(damage, from)
@@ -82,3 +82,10 @@ func died():
 
 func show_message(message):
 	HUD.message(message)
+
+func set_ambient_light(percent):
+	$Camera2D/AmbientLight.set_brightness(percent)
+
+func set_light_source(radius, brightness):
+	$Camera2D/LightSource.set_radius(radius)
+	$Camera2D/LightSource.set_brightness(brightness)
