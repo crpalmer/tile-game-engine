@@ -17,7 +17,6 @@ export var vision_radius = 120
 export var xp = 0
 export var mood = Mood.FRIENDLY
 export var next_action = 0
-
 var player_position
 
 func _ready():
@@ -80,7 +79,7 @@ func player_is_visible():
 	return false
 
 func default_process(_delta):
-	if GameEngine.paused: return
+	if GameEngine.is_paused(): return
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_area:
 		attack(GameEngine.player)
 	elif mood == Mood.NEUTRAL and player_is_visible():
@@ -103,12 +102,12 @@ func physics_process(delta):
 
 func _process(delta):
 	if GameEngine.time < next_action: return
-	if GameEngine.paused: return
+	if GameEngine.is_paused(): return
 	process(delta)
 
 func _physics_process(delta):
 	if GameEngine.time < next_action: return
-	if GameEngine.paused: return
+	if GameEngine.is_paused(): return
 	physics_process(delta)
 	
 func damage_popup(hit, damage = 0):

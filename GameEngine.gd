@@ -2,16 +2,18 @@ extends Node
 
 var scenes:Dictionary
 var player
-var paused = false
+var paused:int = 0
 var current_scene
 var time = 0.0
 var pixels_per_foot = 4.0
 
 func pause():
-	paused = true
+	paused += 1
 
 func resume():
-	paused = false
+	if paused > 0: paused -= 1
+
+func is_paused(): return paused > 0
 
 func get_fade_anim():
 	return player.get_node("Camera2D/HUD/Fade/AnimationPlayer")
@@ -21,8 +23,9 @@ func remove_player_from_scene():
 
 func new_game(scene:String, entry_point:String):
 	clear_game()
+	paused = 0
 	enter_scene(scene, entry_point)
-
+	
 func clear_game():
 	remove_player_from_scene()
 	if player: player.call_deferred("free")

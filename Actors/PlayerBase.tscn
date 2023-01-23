@@ -8,7 +8,6 @@
 [node name="PlayerBase" instance=ExtResource( 3 )]
 z_index = 1
 script = ExtResource( 5 )
-speed = 30
 
 [node name="Camera2D" type="Camera2D" parent="." index="0"]
 modulate = Color( 0, 0, 0, 1 )

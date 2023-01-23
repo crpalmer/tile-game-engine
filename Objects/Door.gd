@@ -3,7 +3,7 @@ class_name Door
 
 export var is_locked = false
 export var is_closed = true
-var key:Node = null
+export var key_group:String
 
 func _ready():
 	ensure_state()
@@ -19,7 +19,7 @@ func ensure_state():
 func used_by(who):
 	if who is Actor:
 		if is_locked:
-			if who.has_a(key): is_locked = false
+			if who.has_a_thing_in_group(key_group): is_locked = false
 			else: GameEngine.player.show_message("The door appears to be locked")
 		if not is_locked:
 			is_closed = not is_closed

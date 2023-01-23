@@ -2,7 +2,6 @@ extends Actor
 class_name PlayerBase
 
 var HUD
-var inventory = []
 
 func _ready():
 	enter_current_scene()
@@ -21,7 +20,7 @@ func killed(who):
 	HUD.update_player_stats(self)
 	
 func process(_delta):
-	if GameEngine.paused: return
+	if GameEngine.is_paused(): return
 
 	if Input.is_action_just_released("attack"): process_attack()
 	if Input.is_action_just_released("use"): process_use()
@@ -63,19 +62,20 @@ func process_talk():
 			conversation.start()
 			return
 
-func add_to_inventory(to_add):
-	show_message("You picked up " + to_add.to_string())
-	to_add.get_parent().remove_child(to_add)
-	for i in inventory:
-		if i == to_add:
-			i.n = i.n + to_add.n
-			return
-	inventory.push_back(to_add)
-
-func has_a(node):
-	for i in inventory: if i == node: return true
+func add_to_inventory(thing):
+	for c in get_children():
+		if c.is_in_group("InventoryContainers") and c.add_thing(thing):
+			show_message("You picked up " + thing.to_string())
+			return true
+	show_message("You are carrying too much to pick up " + thing.to_string())
 	return false
 	
+func has_a(thing):
+	return $Inventory.has_a(thing)
+
+func has_a_thing_in_group(group_name):
+	return $Inventory.has_a_thing_in_group(group_name)
+
 func died():
 	print_debug("Player died!")
 	$Sprite.visible = false
