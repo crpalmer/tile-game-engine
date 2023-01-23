@@ -76,3 +76,17 @@ func _process(delta): time += delta
 
 func feet_to_pixels(feet): return feet * pixels_per_foot
 func pixels_to_feet(pixels): return pixels / pixels_per_foot
+
+func Dice(n, d, plus): return { "n": n, "d" : d, "plus": plus }
+func D(d): return Dice(1, d, 0)
+
+func roll(dice):
+	var total = dice.plus
+	for i in dice.n:
+		var roll = randi()%dice.d + 1
+		total += roll
+	return total
+
+func roll_test(dice, success, always = null):
+	var got = roll(dice)
+	return got >= success or (always and got == always)

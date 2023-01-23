@@ -52,25 +52,11 @@ func attack(who:Actor):
 	who.mood = Mood.HOSTILE
 	next_action = GameEngine.time + secs_between_attacks
 
-	var roll = roll_die(20)
-	if roll == 20 or roll + to_hit_modifiers >= who.ac:
-		var damage = roll_dice(damage_dice)
+	if GameEngine.roll_test(GameEngine.D(20), who.ac - to_hit_modifiers, 20):
+		var damage = GameEngine.roll(damage_dice)
 		who.take_damage(damage, self)
 	else:
 		who.damage_popup(false)
-		
-func roll(n:int, d:int, plus:int = 0):
-	var total = plus
-	for i in n:
-		var roll = randi()%d + 1
-		total += roll
-	return total + plus
-
-func roll_die(d:int):
-	return roll(1, d, 0)
-
-func roll_dice(d:Dictionary):
-	return roll(d.n, d.d, d.plus)
 
 func died():
 	show_message(display_name + " died!")
