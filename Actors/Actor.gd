@@ -38,7 +38,7 @@ func set_close_range(radius:int):
 
 func take_damage(damage:int, from:Actor):
 	hp -= damage
-	show_message(display_name + " takes " + String(damage) + " damage.")
+	GameEngine.message(display_name + " takes " + String(damage) + " damage.")
 	if hp <= 0:
 		from.killed(self)
 		died()
@@ -57,7 +57,7 @@ func attack(who:Actor, attack):
 		who.damage_popup(false)
 
 func died():
-	show_message(display_name + " died!")
+	GameEngine.message(display_name + " died!")
 	for i in get_children():
 		if i is InventoryThing: GameEngine.add_node_at(i, position)
 		queue_free()
@@ -134,9 +134,6 @@ func damage_popup(hit, damage = 0):
 	$DamagePopup.visible = true
 	$DamagePopupTimer.start(0.5)
 	pass
-
-func show_message(msg:String):
-	GameEngine.player.show_message(msg)
 
 func _on_DamagePopupTimer_timeout():
 	$DamagePopup.visible = false

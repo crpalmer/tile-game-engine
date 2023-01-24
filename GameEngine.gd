@@ -1,11 +1,16 @@
 extends Node
 
+signal player_created
+signal message
+
 var scenes:Dictionary
 var player
 var paused:int = 0
 var current_scene
 var time = 0.0
 var pixels_per_foot = 4.0
+
+var fade_anim
 
 func pause():
 	paused += 1
@@ -14,9 +19,6 @@ func resume():
 	if paused > 0: paused -= 1
 
 func is_paused(): return paused > 0
-
-func get_fade_anim():
-	return player.get_node("Camera2D/HUD/Fade/AnimationPlayer")
 
 func remove_player_from_scene():
 	if player and player.get_parent(): current_scene.remove_child(player)
@@ -35,13 +37,13 @@ func clear_game():
 	scenes = {}
 
 func enter_scene(scene:String, entry_point = null):
-	var anim
-	
-	if not player: player = load("res://Player.tscn").instance()
+	if not player:
+		player = load("res://Player.tscn").instance()
+		emit_signal("player_created")
 	else:
-		anim = get_fade_anim()
-		anim.play("Fade")
-		yield(anim, "animation_finished")
+		if fade_anim:
+			fade_anim.play("Fade")
+			yield(fade_anim, "animation_finished")
 	
 	if not scenes.has(scene): scenes[scene] = load(scene).instance()
 	
@@ -61,8 +63,7 @@ func enter_scene(scene:String, entry_point = null):
 
 	get_tree().paused = false
 		
-	anim = get_fade_anim()
-	anim.play_backwards("Fade")
+	if fade_anim: fade_anim.play_backwards("Fade")
 
 func add_scene_at(path:String, position:Vector2):
 	var to_add = load(path).instance()
@@ -80,7 +81,7 @@ func _process(delta): time += delta
 func feet_to_pixels(feet): return feet * pixels_per_foot
 func pixels_to_feet(pixels): return pixels / pixels_per_foot
 
-func Dice(n, d, plus): return { "n": n, "d" : d, "plus": plus }
+func Dice(n, d, plus = 0): return { "n": n, "d" : d, "plus": plus }
 func D(d): return Dice(1, d, 0)
 
 func roll(dice):
@@ -93,3 +94,26 @@ func roll(dice):
 func roll_test(dice, success, always = null):
 	var got = roll(dice)
 	return got >= success or (always and got == always)
+
+func ability_modifier(score):
+	match score:
+		1: return -5
+		2, 3: return -4
+		4, 5: return -3
+		6, 7: return -2
+		8, 9: return -1
+		10, 11: return 0
+		12, 13: return 1
+		14, 15: return 2
+		16, 17: return 3
+		18, 19: return 4
+		20, 21: return 5
+		22, 23: return 6
+		24, 25: return 7
+		26, 27: return 8
+		28, 29: return 9
+		_: return 10
+
+func message(msg):
+	emit_signal("message", msg)
+	

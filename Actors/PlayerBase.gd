@@ -1,26 +1,34 @@
 extends Actor
 class_name PlayerBase
 
-var HUD
+signal player_stats_changed
+
+var level = 1
+var strength
+var dexterity
+var constitution
 
 var attacks = []
 
 func _ready():
 	enter_current_scene()
+	strength = GameEngine.roll(GameEngine.Dice(3, 6))
+	dexterity = GameEngine.roll(GameEngine.Dice(3, 6))
+	constitution = GameEngine.roll(GameEngine.Dice(3, 6))
+	print("Str: " + String(strength) + " Dex: " + String(dexterity) + " Con: " + String(constitution))
 	on_inventory_changed()
 	
 func enter_current_scene():
-	HUD = $Camera2D/HUD
-	HUD.update_player_stats(self)
+	emit_signal("player_stats_changed")
 	$Camera2D/AmbientLight.set_radius(vision_radius)
 	
 func take_damage(damage:int, from):
 	.take_damage(damage, from)
-	HUD.update_player_stats(self)
+	emit_signal("player_stats_changed")
 
 func killed(who):
 	xp += who.xp_value
-	HUD.update_player_stats(self)
+	emit_signal("player_stats_changed")
 	
 func process(_delta):
 	if GameEngine.is_paused(): return
@@ -77,7 +85,7 @@ func process_look():
 		if what.length() > 0: what = what + ", "
 		what = what + thing.to_string()
 	if what.length() == 0: what = "nothing"
-	show_message("You see: " + what)
+	GameEngine.message("You see: " + what)
 
 func process_talk():
 	for thing in $CloseArea.who_is_in_area():
@@ -89,9 +97,9 @@ func process_talk():
 func add_to_inventory(thing):
 	for c in get_children():
 		if c.is_in_group("InventoryContainers") and c.add_thing(thing):
-			show_message("You picked up " + thing.to_string())
+			GameEngine.message("You picked up " + thing.to_string())
 			return true
-	show_message("You are carrying too much to pick up " + thing.to_string())
+	GameEngine.message("You are carrying too much to pick up " + thing.to_string())
 	return false
 	
 func has_a(thing):
@@ -104,9 +112,6 @@ func died():
 	print_debug("Player died!")
 	$Sprite.visible = false
 
-func show_message(message):
-	HUD.message(message)
-
 func set_ambient_light(percent):
 	$Camera2D/AmbientLight.set_brightness(percent)
 
@@ -116,10 +121,10 @@ func set_light_source(radius, brightness):
 
 func on_inventory_changed():
 	print("inventory_changed")
-	ac = $Inventory.get_ac()
-	to_hit_modifier = $Inventory.get_to_hit_modifier()
+	ac = $Inventory.get_ac() + GameEngine.ability_modifier(dexterity)
+	to_hit_modifier = $Inventory.get_to_hit_modifier() + GameEngine.ability_modifier(strength)
 	attacks = []
 	for thing in $Inventory.get_equipped_things():
 		if thing.can_attack_with: attacks.push_back(thing)
 	if attacks.size() == 0: attacks.push_back(punch)
-	HUD.update_player_stats(self)
+	emit_signal("player_stats_changed")
