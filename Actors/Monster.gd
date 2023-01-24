@@ -12,6 +12,6 @@ func _ready():
 func died():
 	var gp = GameEngine.roll(gp_dice)
 	if gp > 0:
-		var gp_thing:InventoryThing = GameEngine.add_scene_at("res://InventoryItems/GP.tscn", position)
+		var gp_thing:InventoryThing = GameEngine.add_scene_at("res://Inventory/GP.tscn", position)
 		gp_thing.n = gp
 	.died()

@@ -3,8 +3,11 @@ class_name PlayerBase
 
 var HUD
 
+var attacks = []
+
 func _ready():
 	enter_current_scene()
+	on_inventory_changed()
 	
 func enter_current_scene():
 	HUD = $Camera2D/HUD
@@ -38,9 +41,30 @@ func physics_process(delta):
 		var moved = dir.normalized()*delta*GameEngine.feet_to_pixels(speed)
 		var _collision:KinematicCollision2D = move_and_collide(moved)
 
+func select_attack():
+	for attack in attacks:
+		if attack.may_use():
+			attack.used_by(self)
+			return attack
+	return null
+	
+func select_attack_target():
+	var hostiles = []
+	var others = []
+	for who in $CloseArea.who_is_in_area():
+		if who is Actor:
+			if who.mood == Mood.HOSTILE: hostiles.push_back(who)
+			else: others.push_back(who)
+	if hostiles.size() > 0: return hostiles[randi() % hostiles.size()]
+	if others.size() > 0: return others[randi() % others.size()]
+	return null
+	
 func process_attack():
-	var in_area:Array = $CloseArea.who_is_in_area()
-	if in_area.size() > 0: attack(in_area[randi() % in_area.size()])
+	var attack = select_attack()
+	if attack == null: return
+	var opponent = select_attack_target()
+	if opponent == null: return
+	attack(opponent, attack)
 
 func process_use():
 	for use_on in $CloseArea.who_is_in_area():
@@ -89,3 +113,13 @@ func set_ambient_light(percent):
 func set_light_source(radius, brightness):
 	$Camera2D/LightSource.set_radius(radius)
 	$Camera2D/LightSource.set_brightness(brightness)
+
+func on_inventory_changed():
+	print("inventory_changed")
+	ac = $Inventory.get_ac()
+	to_hit_modifier = $Inventory.get_to_hit_modifier()
+	attacks = []
+	for thing in $Inventory.get_equipped_things():
+		if thing.can_attack_with: attacks.push_back(thing)
+	if attacks.size() == 0: attacks.push_back(punch)
+	HUD.update_player_stats(self)

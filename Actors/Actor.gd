@@ -7,17 +7,17 @@ export var display_name:String
 export var ac = 10
 export var hp = 1
 export var max_hp = 1
-export var to_hit_modifiers = 0
-export var damage_dice = { "n": 1, "d": 6, "plus":0 }
+export var to_hit_modifier = 0
 export var speed = 30
 export var xp_value = 1
-export var secs_between_attacks = 1.0
 export var close_radius = 6
 export var vision_radius = 120
 export var xp = 0
 export var mood = Mood.FRIENDLY
 export var next_action = 0
+
 var player_position
+var punch = load("res://GameEngine/Actors/Punch.tscn").instance()
 
 func _ready():
 	randomize()
@@ -45,14 +45,13 @@ func take_damage(damage:int, from:Actor):
 	else:
 		damage_popup(true, damage)
 
-func attack(who:Actor):
-	if not who: return
-	
+func attack(who:Actor, attack):
 	who.mood = Mood.HOSTILE
-	next_action = GameEngine.time + secs_between_attacks
-
-	if GameEngine.roll_test(GameEngine.D(20), who.ac - to_hit_modifiers, 20):
-		var damage = GameEngine.roll(damage_dice)
+	next_action = GameEngine.time + attack.use_time
+	
+	print(display_name + " attacks " + who.display_name + " with " + attack.display_name)
+	if GameEngine.roll_test(GameEngine.D(20), who.ac - to_hit_modifier - attack.to_hit_modifier, 20):
+		var damage = GameEngine.roll(attack.damage_dice)
 		who.take_damage(damage, self)
 	else:
 		who.damage_popup(false)
@@ -81,9 +80,26 @@ func player_is_visible():
 func default_process(_delta):
 	if GameEngine.is_paused(): return
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_area:
-		attack(GameEngine.player)
+		process_attack()
 	elif mood == Mood.NEUTRAL and player_is_visible():
 		mood = Mood.HOSTILE
+
+func select_attack():
+	var has_attacks = false
+	for attack in get_children():
+		if attack is Attack:
+			has_attacks = true
+			if attack.may_use():
+				attack.used_by(self)
+				return attack
+	if not has_attacks:
+		punch.used_by(self)
+		return punch
+	return null
+
+func process_attack():
+	var attack = select_attack()
+	if attack: attack(GameEngine.player, attack)
 
 func default_physics_process(delta):
 	if mood == Mood.HOSTILE and player_is_visible():

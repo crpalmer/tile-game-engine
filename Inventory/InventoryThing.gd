@@ -6,6 +6,14 @@ export var plural:String
 export var singular:String
 export var group:String
 
+export var weight = 0
+export var ac = 0
+export var ac_modifier = 0
+export var to_hit_modifier = 0
+export var damage_dice = { "n": 1, "d": 4, "plus": 0}
+
+export var can_attack_with = false
+export var always_equipped = false
 export var can_be_in_hands = false
 export var requires_two_hands = false
 export var can_be_on_head = false
@@ -22,8 +30,3 @@ func _ready():
 func to_string():
 	if n > 1: return String(n) + " " + plural
 	else: return singular
-
-func weight(): return 0
-func ac_modifier(): return 0
-func attack_modifier(): return 0
-func damage_dice(): return []

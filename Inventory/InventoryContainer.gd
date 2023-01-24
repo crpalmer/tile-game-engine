@@ -23,3 +23,11 @@ func has_a_thing_in_group(group_name):
 		if (c.is_in_group("InventoryContainers") or c.is_in_group("InventoryHolders")) and c.has_a_thing_in_group(group_name):
 			return true
 	return false
+
+func get_equipped_things():
+	var things = []
+	for c in get_children():
+		if c.is_in_group("InventoryContainers") or c.is_in_group("InventoryHolders"):
+			var new_things = c.get_equipped_things()
+			if new_things: things.append_array(new_things)
+	return things
