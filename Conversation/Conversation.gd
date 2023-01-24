@@ -1,61 +1,58 @@
 extends Node2D
 class_name Conversation
 
+signal actor_said
+signal more_needed
+signal more_pressed
+signal waiting_for_player
+
 export var initiate_conversation = false
 
 var already_talked = false
 var actor:Actor
 var tracking_area:TrackingArea
+var in_conversation = false
 
 func _ready():
-	var _err = $Canvas/PlayerText.connect("text_entered", self, "text_entered")
 	actor = get_parent()
 	tracking_area = actor.get_node("CloseArea")
 
 func name():
 	return get_parent().display_name
-	
+
 func start():
-	if $Canvas.visible: return
-	
-	GameEngine.pause()
-	
-	$Canvas/SpeakerName.text = name()
-	$Canvas/SpeakerText.text = hello()
-	reset_text_box()
-	$Canvas.visible = true
-	already_talked = true
+	GameEngine.start_conversation(self, name())
+	in_conversation = true
+	say(hello())
 
 func hello(): return "Hello."
 func attacked(): return "Die!"
 
 func end(text = "", delay = 2.0):
-	if not $Canvas.visible: return
-	
-	$Canvas/PlayerText.visible = false
-	$Canvas/PlayerPrompt.visible = false
+	if not in_conversation: return
 	if text.length() > 0:
-		$Canvas/SpeakerText.text = text
+		say(text)
 		yield(get_tree().create_timer(delay), "timeout")
-	$Canvas.visible = false
-	
-	GameEngine.resume()
+	GameEngine.end_conversation()
+	in_conversation = false
 
-func say(text:String):
-	$Canvas/SpeakerText.text = text
-	reset_text_box()
+func say(text):
+	emit_signal("actor_said", text)
+	emit_signal("waiting_for_player")
 
 func say_in_parts(parts:Array):
-	$Canvas/PlayerText.visible = false
-	$Canvas/More.visible = true
 	for i in parts.size():
-		$Canvas/SpeakerText.text = parts[i]
-		if (i < parts.size()-1): yield($Canvas/More, "pressed")
-	reset_text_box()
+		emit_signal("actor_said", parts[i])
+		emit_signal("more_needed")
+		if (i < parts.size()-1): yield(self, "more_pressed")
+	emit_signal("waiting_for_player")
 
-func text_entered(player_text:String):
-	player_said(player_text, tokenize(player_text))
-	
+func more_pressed():
+	emit_signal("more_pressed")
+
+func player_entered(text):
+	player_said(text, tokenize(text))
+
 func player_said(text:String, words:Array):
 	if "hi" in words:
 		say("Hello.")
@@ -94,10 +91,3 @@ func _process(_delta):
 		start()
 	elif actor.mood == Actor.Mood.HOSTILE:
 		end(attacked(), 0.75)
-
-func reset_text_box():
-	$Canvas/PlayerText.text = ""
-	$Canvas/PlayerText.visible = true
-	$Canvas/PlayerPrompt.visible = true
-	$Canvas/More.visible = false
-	$Canvas/PlayerText.grab_focus()

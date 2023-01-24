@@ -2,6 +2,8 @@ extends Node
 
 signal player_created
 signal message
+signal conversation_started
+signal conversation_ended
 
 var scenes:Dictionary
 var player
@@ -116,4 +118,11 @@ func ability_modifier(score):
 
 func message(msg):
 	emit_signal("message", msg)
-	
+
+func start_conversation(conversation, name):
+	emit_signal("conversation_started", conversation, name)
+	GameEngine.pause()
+
+func end_conversation():
+	emit_signal("conversation_ended")
+	GameEngine.resume()
