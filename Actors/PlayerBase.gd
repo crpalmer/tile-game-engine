@@ -22,7 +22,7 @@ func enter_current_scene():
 	emit_signal("player_stats_changed")
 	$Camera2D/AmbientLight.set_radius(vision_radius)
 	
-func take_damage(damage:int, from):
+func take_damage(damage:int, from = null):
 	.take_damage(damage, from)
 	emit_signal("player_stats_changed")
 
@@ -82,8 +82,10 @@ func process_use():
 func process_look():
 	var what = ""
 	for thing in $CloseArea.who_is_in_area():
-		if what.length() > 0: what = what + ", "
-		what = what + thing.to_string()
+		var this_what = thing.looked_at()
+		if this_what:
+			if what.length() > 0: what = what + ", "
+			what = what + thing.looked_at()
 	if what.length() == 0: what = "nothing"
 	GameEngine.message("You see: " + what)
 
@@ -128,3 +130,7 @@ func on_inventory_changed():
 		if thing.can_attack_with: attacks.push_back(thing)
 	if attacks.size() == 0: attacks.push_back(punch)
 	emit_signal("player_stats_changed")
+
+func strength_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(strength)), needed)
+func dexterity_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(dexterity)), needed)
+func constitution_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(constitution)), needed)

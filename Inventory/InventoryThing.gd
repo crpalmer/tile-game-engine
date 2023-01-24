@@ -27,6 +27,6 @@ func _ready():
 	add_to_group("InventoryThings")
 	if group and group != "": add_to_group(group)
 	
-func to_string():
+func looked_at():
 	if n > 1: return String(n) + " " + plural
 	else: return singular

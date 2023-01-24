@@ -1,6 +1,8 @@
 extends Area2D
 class_name TrackingArea
 
+export var tracking_radius = 30
+
 var in_area:Dictionary
 var player_is_in_area = false
 
@@ -12,8 +14,14 @@ func _ready():
 	_err = connect("area_exited", self, "area_exited")
 	_err = connect("body_exited", self, "area_exited")
 
+	update_tracking_radius()
+
 func set_tracking_radius(radius:int):
-	$Circle.shape.set_radius(GameEngine.feet_to_pixels(radius))
+	tracking_radius = radius
+	update_tracking_radius()
+
+func update_tracking_radius():
+	$Circle.shape.set_radius(GameEngine.feet_to_pixels(tracking_radius))
 	
 func who_is_in_area():
 	var res = []
