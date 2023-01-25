@@ -13,7 +13,7 @@ func get_persistent_data():
 	
 func load_persistent_data(p):
 	for c in get_children():
-		if p[c]: c.load_persistent_data(c)
+		if p.has(c.name): c.load_persistent_data(p[c.name])
 
 func _ready():
 	add_to_group("InventoryContainers")

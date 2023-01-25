@@ -15,13 +15,14 @@ func get_persistent_data():
 	var thing = get_thing()
 	if thing:
 		return {
-			"filename": filename,
-			"data": thing.get_persistent_data()
+			"filename": thing.filename,
+			"data": thing.get_persistent_data(),
+			"position": thing.position
 		}
 	else: return null
 
 func load_persistent_data(p):
-	var thing = GameEngine.instantiate_thing(p.filename, p.data)
+	var thing = GameEngine.instantiate_thing(p.filename, p.data, p.position)
 	add_child(thing)
 
 func _ready():
@@ -43,7 +44,6 @@ func can_accept_thing(thing):
 	return true
 
 func add_thing(thing):
-	print("add_thing: " + thing.name + " to " + name)
 	if get_thing(): return false
 	if not can_accept_thing(thing): return false
 	if thing.get_parent(): thing.get_parent().remove_child(thing)

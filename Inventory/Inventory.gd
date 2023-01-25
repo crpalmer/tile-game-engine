@@ -4,11 +4,14 @@ func get_persistent_data():
 	var p = {}
 	for c in get_children():
 		if c.is_in_group("InventoryContainers") or c.is_in_group("InventoryHolders"):
-			p.merge({
-				c.name: c.get_persistent_data()
-			})
+			var d = c.get_persistent_data()
+			if d: p.merge({ c.name: d })
 	return p
-	
+
+func load_persistent_data(p):
+	for c in get_children():
+		if p.has(c.name): c.load_persistent_data(p[c.name])
+
 func _ready():
 	hide()
 	add_to_group("InventoryContainers")
@@ -27,11 +30,9 @@ func make_visible(is_visible):
 
 func add_thing(thing):
 	for c in get_children():
-		print("add_thing: " + c.name)
 		if c.is_in_group("InventoryContainers") and c.add_thing(thing):
 			return true
 	for c in get_children():
-		print("add_thing: " + c.name)
 		if c.is_in_group("InventoryHolders") and c.add_thing(thing):
 			return true
 	return false
@@ -66,7 +67,6 @@ func get_ac():
 
 func get_to_hit_modifier():
 	var to_hit_modifier = 0
-	print(String(get_equipped_things()))
 	for t in get_equipped_things():
 		if not t.can_attack_with: to_hit_modifier += t.to_hit_modifier
 	return to_hit_modifier

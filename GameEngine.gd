@@ -24,29 +24,38 @@ func resume():
 func is_paused(): return paused > 0
 
 func remove_player_from_scene():
-	if player and player.get_parent(): current_scene.remove_child(player)
+	if player and player.get_parent() and current_scene: current_scene.remove_child(player)
 
 func new_game(scene:String, entry_point:String):
-	emit_signal("new_game")
 	clear_game()
-	paused = 0
 	enter_scene(scene, entry_point)
+	time = 0
 	
 func clear_game():
+	emit_signal("new_game")
+	create_player()
+	paused = 0
+	scene_state = {}
+	if current_scene:
+		current_scene.queue_free()
+		current_scene = null
+
+func create_player():
 	remove_player_from_scene()
 	if player: player.call_deferred("free")
-	player = null
-	scene_state = {}
+	player = load("res://Player.tscn").instance()
+	emit_signal("player_created")
 
-func save_scene_state():
+func get_current_scene_state():
 	var actor_data = {}
 	var thing_data = {}
 	for a in get_tree().get_nodes_in_group("PersistentActors"):
-		actor_data.merge({
-			a.name: {
-			"data": a.get_persistent_data(),
-			"position": a.position
-		}})
+		if a != player:
+			actor_data.merge({
+				a.name: {
+				"data": a.get_persistent_data(),
+				"position": a.position
+			}})
 	for t in current_scene.get_children():
 		if t.is_in_group("PersistentThings"):
 			thing_data.merge({
@@ -59,6 +68,23 @@ func save_scene_state():
 		"actors": actor_data,
 		"things": thing_data
 	}
+
+func get_save_data():
+	scene_state[current_scene.filename] = get_current_scene_state()
+	return {
+		"current_scene": current_scene.filename,
+		"scene_state": scene_state,
+		"player": player.get_persistent_data(),
+		"player_position": player.position,
+		"time": time
+	}
+
+func save_game(filename):
+	var res = load("res://GameEngine/SaveGameTemplate.tres")
+	res.version = 1
+	res.data = get_save_data()
+	Directory.new().remove(filename)
+	return ResourceSaver.save(filename, res) == 0
 
 func load_scene_state(p):
 	for a in get_tree().get_nodes_in_group("PersistentActors"):
@@ -73,6 +99,27 @@ func load_scene_state(p):
 		var t = p.things[n]
 		current_scene.add_child(instantiate_thing(t.filename, t.data, t.position))
 
+func load_save_data(p):
+	clear_game()
+	scene_state = p.scene_state
+	if current_scene: current_scene.queue_free()
+	current_scene = null
+	create_player()
+	enter_scene(p.current_scene)
+	current_scene.add_child(player)
+	player.load_persistent_data(p.player)
+	player.position = p.player_position
+	time = p.time
+
+func load_saved_game(filename):
+	var file = File.new()
+	if not file.file_exists(filename): return false
+	var save_data = load(filename)
+	assert(save_data.version == 1)
+	load_save_data(save_data.data)
+	paused = 0
+	return true
+
 func instantiate_thing(filename, data, position = null):
 	var thing = load(filename).instance()
 	thing.load_persistent_data(data)
@@ -80,18 +127,13 @@ func instantiate_thing(filename, data, position = null):
 	return thing
 
 func enter_scene(scene:String, entry_point = null):
-	if not player:
-		player = load("res://Player.tscn").instance()
-		player.remove_from_group("PersistentActors")
-		emit_signal("player_created")
-	else:
-		if fade_anim:
-			fade_anim.play("Fade")
-			yield(fade_anim, "animation_finished")
+	if current_scene and fade_anim:
+		fade_anim.play("Fade")
+		yield(fade_anim, "animation_finished")
 	
 	if current_scene:
 		remove_player_from_scene()
-		scene_state[current_scene.filename] = save_scene_state()
+		scene_state[current_scene.filename] = get_current_scene_state()
 		current_scene.get_parent().remove_child(current_scene)
 		current_scene.queue_free()
 	

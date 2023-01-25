@@ -35,6 +35,7 @@ func load_persistent_data(p):
 	for c in get_inventory_containers():
 		var i = p.inventory[c.name]
 		if i: c.load_persistent_data(i)
+	on_inventory_changed()
 
 func _ready():
 	enter_current_scene()
