@@ -28,6 +28,9 @@ func _ready():
 	player_position = position
 	if not display_name or display_name == "": display_name = name
 
+func looked_at():
+	return display_name
+	
 func set_vision_range(radius:int):
 	$VisionArea.set_tracking_radius(radius)
 	vision_radius = radius
