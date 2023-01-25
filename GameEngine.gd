@@ -127,6 +127,7 @@ func instantiate_thing(filename, data, position = null):
 	return thing
 
 func enter_scene(scene:String, entry_point = null):
+	pause()
 	if current_scene and fade_anim:
 		fade_anim.play("Fade")
 		yield(fade_anim, "animation_finished")
@@ -152,6 +153,7 @@ func enter_scene(scene:String, entry_point = null):
 	get_tree().paused = false
 		
 	if fade_anim: fade_anim.play_backwards("Fade")
+	resume()
 
 func add_scene_at(path:String, position:Vector2):
 	var to_add = load(path).instance()
