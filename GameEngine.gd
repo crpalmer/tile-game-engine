@@ -34,6 +34,7 @@ func new_game(scene:String, entry_point:String):
 func clear_game():
 	emit_signal("new_game")
 	create_player()
+	Engine.time_scale = 1
 	paused = 0
 	scene_state = {}
 	if current_scene:
@@ -113,12 +114,12 @@ func load_save_data(p):
 	scene_state = p.scene_state
 	if current_scene: current_scene.queue_free()
 	current_scene = null
+	time = p.time
 	create_player()
 	enter_scene(p.current_scene)
 	current_scene.add_child(player)
 	player.load_persistent_data(p.player)
 	player.position = p.player_position
-	time = p.time
 
 func load_saved_game(filename):
 	var file = File.new()
@@ -135,11 +136,23 @@ func instantiate(filename, data, position = null):
 	if position: thing.position = position
 	return thing
 
-func enter_scene(scene:String, entry_point = null):
+func fade_out():
 	pause()
-	if current_scene and fade_anim:
+	if fade_anim:
 		fade_anim.play("Fade")
 		yield(fade_anim, "animation_finished")
+	resume()
+
+func fade_in():
+	pause()
+	if fade_anim:
+		fade_anim.play_backwards("Fade")
+		yield(fade_anim, "animation_finished")
+	resume()
+
+func enter_scene(scene:String, entry_point = null):
+	pause()
+	if current_scene: fade_out()
 	
 	if current_scene:
 		remove_player_from_scene()
@@ -160,8 +173,8 @@ func enter_scene(scene:String, entry_point = null):
 		player.enter_current_scene()
 
 	get_tree().paused = false
-		
-	if fade_anim: fade_anim.play_backwards("Fade")
+
+	fade_in()
 	resume()
 
 func add_scene_at(path:String, position:Vector2):
@@ -191,6 +204,7 @@ func roll(dice):
 	for i in dice.n:
 		var roll = randi()%dice.d + 1
 		total += roll
+	if total < 0: return 0
 	return total
 
 func roll_test(dice, success, always = null):

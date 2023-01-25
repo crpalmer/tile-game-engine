@@ -8,7 +8,15 @@ var strength
 var dexterity
 var constitution
 
+const NOT_RESTING = 0
+const SHORT_RESTING = 1
+const LONG_RESTING = 2
+
 var attacks = []
+var resting_until = 0
+var last_rest_finished = -30*60
+var resting_state = NOT_RESTING
+var short_rest_spent = 0
 
 func get_persistent_data():
 	var p = .get_persistent_data()
@@ -22,6 +30,10 @@ func get_persistent_data():
 		"strength": strength,
 		"dexterity": dexterity,
 		"constitution": constitution,
+		"resting_state": resting_state,
+		"resting_until": resting_until,
+		"last_rest_finished": last_rest_finished,
+		"short_rest_spent": short_rest_spent,
 		"inventory": i
 	})
 	return p
@@ -32,6 +44,11 @@ func load_persistent_data(p):
 	strength = p.strength
 	dexterity = p.dexterity
 	constitution = p.constitution
+	resting_state = p.resting_state
+	resting_until = p.resting_until
+	last_rest_finished = p.last_rest_finished
+	short_rest_spent = p.short_rest_spent
+	if resting_state != NOT_RESTING: Engine.time_scale = 600
 	for c in get_inventory_containers():
 		var i = p.inventory[c.name]
 		if i: c.load_persistent_data(i)
@@ -48,8 +65,15 @@ func _ready():
 func enter_current_scene():
 	emit_signal("player_stats_changed")
 	$Camera2D/AmbientLight.set_radius(vision_radius)
+
+func stop_resting():
+	resting_state = NOT_RESTING
+	last_rest_finished = GameEngine.time
+	GameEngine.fade_in()
+	Engine.time_scale = 1
 	
 func take_damage(damage:int, from = null):
+	if resting_state != NOT_RESTING: stop_resting()
 	.take_damage(damage, from)
 	emit_signal("player_stats_changed")
 
@@ -58,12 +82,24 @@ func killed(who):
 	emit_signal("player_stats_changed")
 	
 func process(_delta):
+	if resting_state != NOT_RESTING:
+		if resting_until > GameEngine.time: return
+		if resting_state == LONG_RESTING:
+			hp = max_hp
+			short_rest_spent = 0
+		else:
+			hp += GameEngine.roll(GameEngine.Dice(1, 10, GameEngine.ability_modifier(constitution)))
+		if hp > max_hp: hp = max_hp
+		stop_resting()
+		emit_signal("player_stats_changed")
+
 	if GameEngine.is_paused(): return
 
 	if Input.is_action_just_released("attack"): process_attack()
 	if Input.is_action_just_released("use"): process_use()
 	if Input.is_action_just_released("look"): process_look()
 	if Input.is_action_just_released("talk"): process_talk()
+	if Input.is_action_just_released("rest"): process_rest()
 	
 func physics_process(delta):
 	var dir = Vector2(0, 0)
@@ -166,3 +202,20 @@ func on_inventory_changed():
 func strength_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(strength)), needed)
 func dexterity_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(dexterity)), needed)
 func constitution_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(constitution)), needed)
+
+func process_rest():
+	if last_rest_finished + 8*60 > GameEngine.time:
+		if short_rest_spent < level:
+			short_rest_spent += 1
+			resting_state = SHORT_RESTING
+			resting_until = GameEngine.time + 60
+			GameEngine.message("You are taking a 1 hour rest")
+		else:
+			GameEngine.message("You aren't very tired, you can't rest right now")
+			return
+	else:
+		resting_state = LONG_RESTING
+		resting_until = GameEngine.time + 8*60
+		GameEngine.message("Sleeping (hopefully for 8 hours)...")
+	GameEngine.fade_out()
+	Engine.time_scale = 600
