@@ -1,5 +1,20 @@
 extends Node2D
 
+func get_persistent_data():
+	var p = {}
+	for c in get_children():
+		if c.is_in_group("InventoryHolders") or c.is_in_group("InventoryContainers"):
+			var p_c = c.get_persistent_data()
+			if p_c:
+				p.merge({
+					c.name: c.get_persistent_data()
+				})
+	return p
+	
+func load_persistent_data(p):
+	for c in get_children():
+		if p[c]: c.load_persistent_data(c)
+
 func _ready():
 	add_to_group("InventoryContainers")
 	

@@ -11,6 +11,19 @@ export var requires_neck = false
 export var requires_body = false
 export var requires_feet = false
 
+func get_persistent_data():
+	var thing = get_thing()
+	if thing:
+		return {
+			"filename": filename,
+			"data": thing.get_persistent_data()
+		}
+	else: return null
+
+func load_persistent_data(p):
+	var thing = GameEngine.instantiate_thing(p.filename, p.data)
+	add_child(thing)
+
 func _ready():
 	add_to_group("InventoryHolders")
 	var _err = connect("inventory_changed", GameEngine.player, "on_inventory_changed")

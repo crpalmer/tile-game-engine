@@ -4,8 +4,9 @@ signal player_created
 signal message
 signal conversation_started
 signal conversation_ended
+signal new_game
 
-var scenes:Dictionary
+var scene_state:Dictionary
 var player
 var paused:int = 0
 var current_scene
@@ -26,6 +27,7 @@ func remove_player_from_scene():
 	if player and player.get_parent(): current_scene.remove_child(player)
 
 func new_game(scene:String, entry_point:String):
+	emit_signal("new_game")
 	clear_game()
 	paused = 0
 	enter_scene(scene, entry_point)
@@ -34,29 +36,71 @@ func clear_game():
 	remove_player_from_scene()
 	if player: player.call_deferred("free")
 	player = null
-	for scene_key in scenes.keys():
-		scenes[scene_key].call_deferred("free")
-	scenes = {}
+	scene_state = {}
+
+func save_scene_state():
+	var actor_data = {}
+	var thing_data = {}
+	for a in get_tree().get_nodes_in_group("PersistentActors"):
+		actor_data.merge({
+			a.name: {
+			"data": a.get_persistent_data(),
+			"position": a.position
+		}})
+	for t in current_scene.get_children():
+		if t.is_in_group("PersistentThings"):
+			thing_data.merge({
+				t.name: {
+				"filename": t.filename,
+				"data": t.get_persistent_data(),
+				"position": t.position
+			}})
+	return {
+		"actors": actor_data,
+		"things": thing_data
+	}
+
+func load_scene_state(p):
+	for a in get_tree().get_nodes_in_group("PersistentActors"):
+		if p.actors.has(a.name):
+			var d = p.actors[a.name]
+			a.load_persistent_data(d.data)
+			a.position = d.position
+		else: a.queue_free()
+	for t in current_scene.get_children():
+		if t.is_in_group("PersistentThings"): t.queue_free()
+	for n in p.things.keys():
+		var t = p.things[n]
+		current_scene.add_child(instantiate_thing(t.filename, t.data, t.position))
+
+func instantiate_thing(filename, data, position = null):
+	var thing = load(filename).instance()
+	thing.load_persistent_data(data)
+	if position: thing.position = position
+	return thing
 
 func enter_scene(scene:String, entry_point = null):
 	if not player:
 		player = load("res://Player.tscn").instance()
+		player.remove_from_group("PersistentActors")
 		emit_signal("player_created")
 	else:
 		if fade_anim:
 			fade_anim.play("Fade")
 			yield(fade_anim, "animation_finished")
 	
-	if not scenes.has(scene): scenes[scene] = load(scene).instance()
-	
 	if current_scene:
 		remove_player_from_scene()
+		scene_state[current_scene.filename] = save_scene_state()
 		current_scene.get_parent().remove_child(current_scene)
+		current_scene.queue_free()
 	
 	get_tree().paused = true
 
-	current_scene = scenes[scene]
+	current_scene = load(scene).instance()
 	get_tree().current_scene.add_child(current_scene)
+	if scene_state.has(scene): load_scene_state(scene_state[scene])
+	
 	if entry_point:
 		var entry_node = current_scene.get_node(entry_point)
 		current_scene.add_child(player)

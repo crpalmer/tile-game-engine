@@ -10,6 +10,32 @@ var constitution
 
 var attacks = []
 
+func get_persistent_data():
+	var p = .get_persistent_data()
+	var i = {}
+	for c in get_inventory_containers():
+		i.merge({
+			c.name: c.get_persistent_data()
+		})
+	p.merge({
+		"level": level,
+		"strength": strength,
+		"dexterity": dexterity,
+		"constitution": constitution,
+		"inventory": i
+	})
+	return p
+
+func load_persistent_data(p):
+	.load_persistent_data(p)
+	level = p.level
+	strength = p.strength
+	dexterity = p.dexterity
+	constitution = p.constitution
+	for c in get_inventory_containers():
+		var i = p.inventory[c.name]
+		if i: c.load_persistent_data(i)
+
 func _ready():
 	enter_current_scene()
 	strength = GameEngine.roll(GameEngine.Dice(3, 6))
@@ -96,9 +122,15 @@ func process_talk():
 			conversation.start()
 			return
 
-func add_to_inventory(thing):
+func get_inventory_containers():
+	var containers = []
 	for c in get_children():
-		if c.is_in_group("InventoryContainers") and c.add_thing(thing):
+		if c.is_in_group("InventoryContainers"): containers.push_back(c)
+	return containers
+
+func add_to_inventory(thing):
+	for c in get_inventory_containers():
+		if c.add_thing(thing):
 			GameEngine.message("You picked up " + thing.to_string())
 			return true
 	GameEngine.message("You are carrying too much to pick up " + thing.to_string())
@@ -122,7 +154,6 @@ func set_light_source(radius, brightness):
 	$Camera2D/LightSource.set_brightness(brightness)
 
 func on_inventory_changed():
-	print("inventory_changed")
 	ac = $Inventory.get_ac() + GameEngine.ability_modifier(dexterity)
 	to_hit_modifier = $Inventory.get_to_hit_modifier() + GameEngine.ability_modifier(strength)
 	attacks = []

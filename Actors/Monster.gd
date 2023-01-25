@@ -7,7 +7,6 @@ export var gp_dice = { "n": 0, "d":0, "plus": 0}
 func _ready():
 	hp = GameEngine.roll(hp_dice)
 	max_hp = hp
-	print(name + ": HP = " + String(hp))
 
 func died():
 	var gp = GameEngine.roll(gp_dice)

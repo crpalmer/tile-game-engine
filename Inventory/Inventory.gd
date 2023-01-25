@@ -1,5 +1,14 @@
 extends CanvasLayer
 
+func get_persistent_data():
+	var p = {}
+	for c in get_children():
+		if c.is_in_group("InventoryContainers") or c.is_in_group("InventoryHolders"):
+			p.merge({
+				c.name: c.get_persistent_data()
+			})
+	return p
+	
 func _ready():
 	hide()
 	add_to_group("InventoryContainers")

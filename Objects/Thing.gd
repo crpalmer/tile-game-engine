@@ -8,7 +8,24 @@ export var time_between_uses = 0
 
 var next_use_at = 0
 
+func get_persistent_data():
+	return {
+		"display_name": display_name,
+		"max_uses": max_uses,
+		"use_time": use_time,
+		"time_between_uses": time_between_uses,
+		"next_use_at": next_use_at
+	}
+
+func load_persistent_data(p):
+	display_name = p.display_name
+	max_uses = p.max_uses
+	use_time = p.use_time
+	time_between_uses = p.time_between_uses
+	next_use_at = p.next_use_at
+
 func _ready():
+	add_to_group("PersistentThings")
 	if not display_name or display_name == "": display_name = name
 
 func used_by(_thing):

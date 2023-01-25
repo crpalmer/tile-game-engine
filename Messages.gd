@@ -19,6 +19,7 @@ func CreateMessage(t):
 
 func _ready():
 	var _err = GameEngine.connect("message", self, "message")
+	_err = GameEngine.connect("new_game", self, "new_game")
 	update_messages()
 
 func message(msg):
@@ -40,3 +41,6 @@ func update_messages():
 
 func _on_RedrawTimer_timeout():
 	update_messages()
+
+func new_game():
+	messages = []

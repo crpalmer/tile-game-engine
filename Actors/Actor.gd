@@ -19,7 +19,23 @@ export var next_action = 0
 var player_position
 var punch = load("res://GameEngine/Actors/Punch.tscn").instance()
 
+func get_persistent_data():
+	var p = {
+		"hp": hp,
+		"max_hp": max_hp,
+		"mood": mood
+	}
+	if get_node_or_null("Conversation"): p.merge({ "conversation": $Conversation.get_persistent_data()})
+	return p
+	
+func load_persistent_data(p):
+	hp = p.hp
+	max_hp = p.max_hp
+	mood = p.mood
+	if get_node_or_null("Conversation"): $Conversation.load_persistent_data(p.conversation)
+
 func _ready():
+	add_to_group("PersistentActors")
 	randomize()
 	$VisionArea.visible = true
 	$CloseArea.visible = true

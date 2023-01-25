@@ -13,6 +13,9 @@ var actor:Actor
 var tracking_area:TrackingArea
 var in_conversation = false
 
+func get_persistent_data(): return {}
+func load_persistent_data(_p): pass
+
 func _ready():
 	actor = get_parent()
 	tracking_area = actor.get_node("CloseArea")
