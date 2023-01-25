@@ -99,7 +99,7 @@ func process_attack():
 	if attack == null: return
 	var opponent = select_attack_target()
 	if opponent == null: return
-	attack(opponent, attack)
+	attack(opponent, attack, GameEngine.ability_modifier(strength))
 
 func process_use():
 	for use_on in $CloseArea.who_is_in_area():
