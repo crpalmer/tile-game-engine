@@ -6,7 +6,10 @@ func _ready():
 
 func _process(_delta):
 	if Input.is_action_just_released("show_inventory"):
-		make_visible(not visible)
+		if visible: make_visible(false)
+		elif not GameEngine.is_paused(): make_visible(true)
+	elif visible and Input.is_action_just_released("exit"):
+		make_visible(false)
 
 func make_visible(is_visible):
 	visible = is_visible
