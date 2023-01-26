@@ -28,7 +28,6 @@ func set_next_check():
 	next_check_at = GameEngine.time_in_minutes + check_every_hours*60
 
 func place(m):
-	GameEngine.fade_out()
 	for x in [ 0, 1, -1]:
 		for y in [ -1, 1, 0]:
 			m.position = GameEngine.player.position + Vector2(x, y)*GameEngine.feet_to_pixels(10)
