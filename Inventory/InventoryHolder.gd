@@ -22,7 +22,7 @@ func get_persistent_data():
 	else: return null
 
 func load_persistent_data(p):
-	var thing = GameEngine.instantiate_thing(p.filename, p.data, p.position)
+	var thing = GameEngine.instantiate(p.filename, p.data, p.position)
 	add_child(thing)
 
 func _ready():
