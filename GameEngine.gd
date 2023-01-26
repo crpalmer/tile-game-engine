@@ -49,6 +49,7 @@ func create_player():
 func get_current_scene_state():
 	var actor_data = {}
 	var thing_data = {}
+	var others_data = {}
 	for a in get_tree().get_nodes_in_group("PersistentActors"):
 		if a != player:
 			actor_data.merge({
@@ -64,9 +65,14 @@ func get_current_scene_state():
 				"data": t.get_persistent_data(),
 				"position": t.position
 			}})
+	for o in get_tree().get_nodes_in_group("PersistentOthers"):
+		others_data.merge({
+			o.name: o.get_persistent_data()
+		})
 	return {
 		"actors": actor_data,
-		"things": thing_data
+		"things": thing_data,
+		"others": others_data
 	}
 
 func get_save_data():
@@ -97,7 +103,10 @@ func load_scene_state(p):
 		if t.is_in_group("PersistentThings"): t.queue_free()
 	for n in p.things.keys():
 		var t = p.things[n]
-		current_scene.add_child(instantiate_thing(t.filename, t.data, t.position))
+		current_scene.add_child(instantiate(t.filename, t.data, t.position))
+	for o in get_tree().get_nodes_in_group("PersistentOthers"):
+		if p.others.has(o.name):
+			o.load_persistent_data(p.others[o.name])
 
 func load_save_data(p):
 	clear_game()
@@ -120,7 +129,7 @@ func load_saved_game(filename):
 	paused = 0
 	return true
 
-func instantiate_thing(filename, data, position = null):
+func instantiate(filename, data, position = null):
 	var thing = load(filename).instance()
 	thing.load_persistent_data(data)
 	if position: thing.position = position
@@ -173,6 +182,9 @@ func pixels_to_feet(pixels): return pixels / pixels_per_foot
 
 func Dice(n, d, plus = 0): return { "n": n, "d" : d, "plus": plus }
 func D(d): return Dice(1, d, 0)
+
+func roll_d20():
+	return roll(D(20))
 
 func roll(dice):
 	var total = dice.plus

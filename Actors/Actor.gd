@@ -86,12 +86,15 @@ func killed(_who:Actor):
 
 func has_a(_node): return false
 
+func player_is_in_sight():
+	var space_rid = get_world_2d().space
+	var space_state = Physics2DServer.space_get_direct_state(space_rid)
+	var in_sight = space_state.intersect_ray(position, GameEngine.player.position, [self])
+	return in_sight and in_sight.collider == GameEngine.player
+
 func player_is_visible():
 	if $VisionArea.player_is_in_area:
-		var space_rid = get_world_2d().space
-		var space_state = Physics2DServer.space_get_direct_state(space_rid)
-		var in_sight = space_state.intersect_ray(position, GameEngine.player.position, [self])
-		if in_sight.collider == GameEngine.player:
+		if player_is_in_sight():
 			player_position = GameEngine.player.position
 			return true
 	return false
@@ -125,9 +128,7 @@ func default_physics_process(delta):
 		var dir:Vector2 = player_position - position
 		if dir.length() > 5:
 			var move_vector = dir.normalized() * delta * GameEngine.feet_to_pixels(speed)
-			var collision = move_and_collide(move_vector)
-			if collision and collision.collider != GameEngine.player:
-				var _collision = move_and_collide(collision.remainder.length() * collision.normal)
+			var _collision = move_and_collide(move_vector)
 
 func process(delta):
 	default_process(delta)
