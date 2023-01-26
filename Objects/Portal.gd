@@ -8,4 +8,4 @@ func _ready():
 
 func body_entered(body):
 	if body is Player:
-		GameEngine.enter_scene(scene, entry_point)
+		GameEngine.call_deferred("enter_scene", scene, entry_point)
