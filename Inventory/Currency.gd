@@ -20,11 +20,11 @@ func _ready():
 		n_units = randi() % (random_max - random_min + 1) + random_min
 		if n_units < 0: n_units = 0
 	if n_units == 2:
-		var two = copy_sprite("Sprite2", Vector2(5, 5))
+		copy_sprite("Sprite2", Vector2(5, 5))
 		$Sprite.position = Vector2(-5, -5)
 	elif n_units > 2:
-		var two = copy_sprite("Sprite2", Vector2(5, 5))
-		var three = copy_sprite("Sprite3", Vector2(-5, 5))
+		copy_sprite("Sprite2", Vector2(5, 5))
+		copy_sprite("Sprite3", Vector2(-5, 5))
 		$Sprite.position = Vector2(0, -5)
 
 func value():
