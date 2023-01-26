@@ -166,7 +166,7 @@ func add_currency(currency):
 		money[currency.filename].n_units = currency.n_units
 		money[currency.filename].unit_value = currency.unit_value
 		currency.get_parent().remove_child(currency)
-	GameEngine.message("You picked up %s" % currency.looked_at())
+	GameEngine.message("You picked up %s" % currency.description())
 	currency.queue_free()
 
 func get_currency(currency):
@@ -176,10 +176,10 @@ func get_currency(currency):
 func process_look():
 	var what = ""
 	for thing in $CloseArea.who_is_in_area():
-		var this_what = thing.looked_at()
+		var this_what = thing.description()
 		if this_what:
 			if what.length() > 0: what = what + ", "
-			what = what + thing.looked_at()
+			what = what + thing.description()
 	if what.length() == 0: what = "nothing"
 	GameEngine.message("You see: " + what)
 
@@ -199,9 +199,9 @@ func get_inventory_containers():
 func add_to_inventory(thing):
 	for c in get_inventory_containers():
 		if c.add_thing(thing):
-			GameEngine.message("You picked up " + thing.to_string())
+			GameEngine.message("You picked up " + thing.description())
 			return true
-	GameEngine.message("You are carrying too much to pick up " + thing.to_string())
+	GameEngine.message("You are carrying too much to pick up " + thing.description())
 	return false
 	
 func has_a(thing):

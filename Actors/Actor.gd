@@ -45,7 +45,7 @@ func _ready():
 	player_position = position
 	if not display_name or display_name == "": display_name = name
 
-func looked_at():
+func description():
 	return display_name
 	
 func set_vision_range(radius:int):
@@ -155,6 +155,3 @@ func damage_popup(hit, damage = 0):
 
 func _on_DamagePopupTimer_timeout():
 	$DamagePopup.visible = false
-
-func to_string():
-	return display_name

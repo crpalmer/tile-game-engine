@@ -34,10 +34,7 @@ func used_by(_thing):
 	if max_uses > 0: max_uses -= 1
 	next_use_at = GameEngine.time_in_minutes + minutes_between_uses
 
-func looked_at():
-	return to_string()
-	
-func to_string():
+func description():
 	return display_name
 
 func may_use():

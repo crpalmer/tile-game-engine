@@ -3,7 +3,6 @@ class_name InventoryThing
 
 export var n = 1
 export var plural:String
-export var singular:String
 export var group:String
 
 export var weight = 0
@@ -27,7 +26,6 @@ func get_persistent_data():
 	p.merge({
 		"n": n,
 		"plural": plural,
-		"singular": singular,
 		"group": group,
 		"weight": weight,
 		"ac": ac,
@@ -64,11 +62,10 @@ func load_persistent_data(p):
 	if group != "": add_to_group(group)
 
 func _ready():
-	if not singular or singular == "": singular = name
-	if not plural or plural == "": plural = singular
+	if not plural or plural == "": plural = display_name
 	add_to_group("InventoryThings")
 	if group != "": add_to_group(group)
 	
-func looked_at():
+func description():
 	if n > 1: return String(n) + " " + plural
-	else: return singular
+	else: return display_name
