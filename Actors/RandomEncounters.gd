@@ -4,7 +4,7 @@ export(Array, String, FILE) var monsters
 export var check_every_hours = 24.0
 export var test_roll = 20
 
-var last_check_at = 0
+var next_check_at
 
 func get_persistent_data():
 	var active = []
@@ -22,6 +22,10 @@ func load_persistent_data(p):
 
 func _ready():
 	add_to_group("PersistentOthers")
+	set_next_check()
+
+func set_next_check():
+	next_check_at = GameEngine.time_in_minutes + check_every_hours*60
 
 func place(m):
 	GameEngine.fade_out()
@@ -33,9 +37,9 @@ func place(m):
 				return
 
 func _physics_process(_delta):
-	if GameEngine.time >= last_check_at + check_every_hours*60:
+	if GameEngine.time_in_minutes >= next_check_at:
+		set_next_check()
 		if GameEngine.roll_d20() >= test_roll:
 			var m = load(monsters[randi() % monsters.size()]).instance()
 			add_child(m)
 			place(m)
-		last_check_at = GameEngine.time

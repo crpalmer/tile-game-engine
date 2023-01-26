@@ -14,7 +14,7 @@ class Message:
 func CreateMessage(t):
 	var m = Message.new()
 	m.text = t
-	m.posted_at = GameEngine.time
+	m.posted_at = GameEngine.time_in_minutes
 	return m
 
 func _ready():
@@ -29,15 +29,15 @@ func message(msg):
 
 func update_messages():
 	clear()
-	var is_first = true
 	for m in messages:
-		if is_first: is_first = false
+		add_text("\n")
+		var is_new = GameEngine.time_in_minutes < m.posted_at + GameEngine.real_time_to_game_time(stale_time)
+		if is_new:
+			$RedrawTimer.start(1)
+			push_color(new_message_color)
 		else:
-			var is_new = GameEngine.time < m.posted_at + stale_time
-			if is_new: $RedrawTimer.start(1)
-			add_text("\n")
-			push_color(new_message_color if is_new else stale_message_color)
-			add_text(m.text)
+			push_color(stale_message_color)
+		add_text(m.text)
 
 func _on_RedrawTimer_timeout():
 	update_messages()

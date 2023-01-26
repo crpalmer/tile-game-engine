@@ -68,7 +68,7 @@ func enter_current_scene():
 
 func stop_resting():
 	resting_state = NOT_RESTING
-	last_rest_finished = GameEngine.time
+	last_rest_finished = GameEngine.time_in_minutes
 	GameEngine.fade_in()
 	Engine.time_scale = 1
 	
@@ -81,9 +81,9 @@ func killed(who):
 	xp += who.xp_value
 	emit_signal("player_stats_changed")
 	
-func process(_delta):
+func _process(_delta):
 	if resting_state != NOT_RESTING:
-		if resting_until > GameEngine.time: return
+		if resting_until > GameEngine.time_in_minutes: return
 		if resting_state == LONG_RESTING:
 			hp = max_hp
 			short_rest_spent = 0
@@ -101,7 +101,7 @@ func process(_delta):
 	if Input.is_action_just_released("talk"): process_talk()
 	if Input.is_action_just_released("rest"): process_rest()
 	
-func physics_process(delta):
+func _physics_process(delta):
 	var dir = Vector2(0, 0)
 	if Input.is_action_pressed("left"): dir.x -= 1
 	if Input.is_action_pressed("right"): dir.x += 1
@@ -204,18 +204,18 @@ func dexterity_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, 
 func constitution_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(constitution)), needed)
 
 func process_rest():
-	if last_rest_finished + 8*60 > GameEngine.time:
+	if last_rest_finished + 8*60 > GameEngine.time_in_minutes:
 		if short_rest_spent < level:
 			short_rest_spent += 1
 			resting_state = SHORT_RESTING
-			resting_until = GameEngine.time + 60
+			resting_until = GameEngine.time_in_minutes + 60
 			GameEngine.message("You are taking a 1 hour rest")
 		else:
 			GameEngine.message("You aren't very tired, you can't rest right now")
 			return
 	else:
 		resting_state = LONG_RESTING
-		resting_until = GameEngine.time + 8*60
+		resting_until = GameEngine.time_in_minutes + 8*60
 		GameEngine.message("Sleeping (hopefully for 8 hours)...")
 	GameEngine.fade_out()
 	Engine.time_scale = 600

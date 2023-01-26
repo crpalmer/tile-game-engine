@@ -66,7 +66,7 @@ func take_damage(damage:int, from:Actor = null):
 
 func attack(who:Actor, attack, damage_modifier = 0):
 	who.mood = Mood.HOSTILE
-	next_action = GameEngine.time + attack.use_time
+	next_action = GameEngine.time_in_minutes + attack.use_time
 	
 	print(display_name + " attacks " + who.display_name + " with " + attack.display_name)
 	if GameEngine.roll_test(GameEngine.D(20), who.ac - to_hit_modifier - attack.to_hit_modifier, 20):
@@ -99,7 +99,7 @@ func player_is_visible():
 			return true
 	return false
 
-func default_process(_delta):
+func default_process():
 	if GameEngine.is_paused(): return
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_area:
 		process_attack()
@@ -130,21 +130,15 @@ func default_physics_process(delta):
 			var move_vector = dir.normalized() * delta * GameEngine.feet_to_pixels(speed)
 			var _collision = move_and_collide(move_vector)
 
-func process(delta):
-	default_process(delta)
-
-func physics_process(delta):
-	default_physics_process(delta)
-
-func _process(delta):
-	if GameEngine.time < next_action: return
+func _process(_delta):
+	if GameEngine.time_in_minutes < next_action: return
 	if GameEngine.is_paused(): return
-	process(delta)
+	default_process()
 
 func _physics_process(delta):
-	if GameEngine.time < next_action: return
+	if GameEngine.time_in_minutes < next_action: return
 	if GameEngine.is_paused(): return
-	physics_process(delta)
+	default_physics_process(delta)
 	
 func damage_popup(hit, damage = 0):
 	$DamagePopup/Damage.text = String(damage)

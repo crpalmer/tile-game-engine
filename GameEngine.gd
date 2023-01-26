@@ -10,7 +10,7 @@ var scene_state:Dictionary
 var player
 var paused:int = 0
 var current_scene
-var time = 0.0
+var time_in_minutes = 0.0
 var pixels_per_foot = 4.0
 
 var fade_anim
@@ -26,10 +26,10 @@ func is_paused(): return paused > 0
 func remove_player_from_scene():
 	if player and player.get_parent() and current_scene: current_scene.remove_child(player)
 
-func new_game(scene:String, entry_point:String):
+func new_game(scene:String, entry_point:String, start_time = 0):
 	clear_game()
 	enter_scene(scene, entry_point)
-	time = 0
+	time_in_minutes = start_time
 	
 func clear_game():
 	emit_signal("new_game")
@@ -83,7 +83,7 @@ func get_save_data():
 		"scene_state": scene_state,
 		"player": player.get_persistent_data(),
 		"player_position": player.position,
-		"time": time
+		"time_in_minutes": time_in_minutes
 	}
 
 func save_game(filename):
@@ -114,7 +114,7 @@ func load_save_data(p):
 	scene_state = p.scene_state
 	if current_scene: current_scene.queue_free()
 	current_scene = null
-	time = p.time
+	time_in_minutes = p.time_in_minutes
 	create_player()
 	enter_scene(p.current_scene)
 	current_scene.add_child(player)
@@ -160,8 +160,6 @@ func enter_scene(scene:String, entry_point = null):
 		current_scene.get_parent().remove_child(current_scene)
 		current_scene.queue_free()
 	
-	get_tree().paused = true
-
 	current_scene = load(scene).instance()
 	get_tree().current_scene.add_child(current_scene)
 	if scene_state.has(scene): load_scene_state(scene_state[scene])
@@ -171,8 +169,6 @@ func enter_scene(scene:String, entry_point = null):
 		current_scene.add_child(player)
 		player.position = entry_node.position
 		player.enter_current_scene()
-
-	get_tree().paused = false
 
 	fade_in()
 	resume()
@@ -187,8 +183,10 @@ func add_node_at(to_add:Node, position:Vector2):
 	to_add.visible = true
 	if to_add.get_parent(): to_add.get_parent().remove_child(to_add)
 	current_scene.add_child(to_add)
-	
-func _process(delta): time += delta
+
+func real_time_to_game_time(t): return t / 6
+
+func _process(delta): time_in_minutes += real_time_to_game_time(delta)
 
 func feet_to_pixels(feet): return feet * pixels_per_foot
 func pixels_to_feet(pixels): return pixels / pixels_per_foot
@@ -240,3 +238,34 @@ func start_conversation(conversation, name):
 func end_conversation():
 	emit_signal("conversation_ended")
 	GameEngine.resume()
+
+func current_time_of(m):
+	return {
+		"minutes": int(m) % 60,
+		"hours": int(m/60) % 24,
+		"days": int(m/(24*60))%365,
+		"years": int(m/(365*24*60))
+	}
+
+func current_time(): return current_time_of(time_in_minutes)
+
+func minutes_to_string(m):
+	var t = current_time_of(m)
+	return "%d year%s, %d day%s @ %s" % [
+		t.years,
+		"" if t.years == 1 else "s",
+		t.days,
+		"" if t.days == 1 else "s",
+		time_of_day(m)
+	]
+
+func time_of_day(m):
+	var t = current_time_of(m)
+	return "%2d:%02d %s" % [
+		12 if t.hours == 0 or t.hours == 12 else t.hours % 12,
+		t.minutes,
+		"am" if t.hours < 12 else "pm"
+	]
+
+func current_time_string():
+	return minutes_to_string(GameEngine.time_in_minutes)

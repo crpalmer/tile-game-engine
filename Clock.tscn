@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://GameEngine/Clock.gd" type="Script" id=1]
+
+[node name="Clock" type="Label"]
+margin_right = 40.0
+margin_bottom = 14.0
+text = "Year xx, Day yy, hh:mm"
+script = ExtResource( 1 )
