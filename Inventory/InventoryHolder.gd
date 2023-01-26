@@ -3,7 +3,6 @@ class_name InventoryHolder
 
 signal inventory_changed
 
-export var drag_preview_path = "res://GameEngine/Inventory/InventoryDragPreview"
 export var is_equipped = false
 export var requires_hands = false
 export var requires_head = false
@@ -68,7 +67,9 @@ func get_equipped_things():
 func get_drag_data(_position):
 	var my_thing:InventoryThing = get_thing()
 	if my_thing:
-		set_drag_preview(self.duplicate())
+		var preview = load("res://GameEngine/Inventory/InventoryDragPreview.tscn").instance()
+		preview.add_thing(my_thing)
+		get_parent().add_child(preview)
 		return { "holder": self, "thing": my_thing }
 	return false
 	
