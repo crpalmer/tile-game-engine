@@ -89,8 +89,13 @@ func stop_resting(regained_hp = 0):
 	resting_state = NOT_RESTING
 	GameEngine.fade_in()
 	Engine.time_scale = 1
-	var rest_time:int = GameEngine.time_in_minutes - resting_started_at
-	GameEngine.message("You rested for %d hour%s and %d minute%s" % [rest_time / 60, "s" if rest_time >= 60 and rest_time < 120 else "", rest_time%60, "" if rest_time % 60 == 1 else "s"])
+	var rest_time = int(GameEngine.time_in_minutes - resting_started_at)
+	GameEngine.message("You rested for %d hour%s and %d minute%s" % [
+		rest_time / 60,
+		"s" if rest_time >= 60 and rest_time < 120 else "",
+		rest_time % 60,
+		"" if rest_time % 60 == 1 else "s"
+	])
 	if regained_hp > 0: GameEngine.message("You regained %d HPs" % regained_hp)
 
 func take_damage(damage:int, from = null):

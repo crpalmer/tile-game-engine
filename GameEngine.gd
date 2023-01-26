@@ -92,7 +92,7 @@ func save_game(filename):
 	var res = load("res://GameEngine/SaveGameTemplate.tres")
 	res.version = 1
 	res.data = get_save_data()
-	Directory.new().remove(filename)
+	var _err = Directory.new().remove(filename)
 	return ResourceSaver.save(filename, res) == 0
 
 func load_scene_state(p):
