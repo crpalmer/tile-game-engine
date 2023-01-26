@@ -19,6 +19,8 @@ var next_long_rest = 0
 var resting_state = NOT_RESTING
 var short_rest_spent = 0
 
+var money = {}
+
 func get_persistent_data():
 	var p = .get_persistent_data()
 	var i = {}
@@ -26,6 +28,14 @@ func get_persistent_data():
 		i.merge({
 			c.name: c.get_persistent_data()
 		})
+	var m = {}
+	for c in money.keys():
+		m.merge( {
+			c: {
+				"n_units": money[c].n_units,
+				"unit_value": money[c].unit_value
+			}
+		} )
 	p.merge({
 		"level": level,
 		"strength": strength,
@@ -36,7 +46,8 @@ func get_persistent_data():
 		"resting_started_at": resting_started_at,
 		"next_long_rest": next_long_rest,
 		"short_rest_spent": short_rest_spent,
-		"inventory": i
+		"inventory": i,
+		"money": m
 	})
 	return p
 
@@ -55,6 +66,11 @@ func load_persistent_data(p):
 	for c in get_inventory_containers():
 		var i = p.inventory[c.name]
 		if i: c.load_persistent_data(i)
+	for c in p.money.keys():
+		var m = p.money[c]
+		money[c] = {}
+		money[c].n_units = m.n_units
+		money[c].unit_value = m.unit_value
 	on_inventory_changed()
 
 func _ready():
@@ -141,6 +157,21 @@ func process_use():
 	for use_on in $CloseArea.who_is_in_area():
 		if use_on is InventoryThing: add_to_inventory(use_on)
 		elif use_on is Thing: use_on.used_by(self)
+
+func add_currency(currency):
+	if money.has(currency.filename):
+		money[currency.filename].n_units += currency.n_units
+	else:
+		money[currency.filename] = {}
+		money[currency.filename].n_units = currency.n_units
+		money[currency.filename].unit_value = currency.unit_value
+		currency.get_parent().remove_child(currency)
+	GameEngine.message("You picked up %s" % currency.looked_at())
+	currency.queue_free()
+
+func get_currency(currency):
+	if money.has(currency): return money[currency].n_units
+	else: return 0
 
 func process_look():
 	var what = ""

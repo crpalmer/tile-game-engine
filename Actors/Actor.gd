@@ -36,6 +36,7 @@ func load_persistent_data(p):
 
 func _ready():
 	add_to_group("PersistentActors")
+	add_to_group("Trackables")
 	randomize()
 	$VisionArea.visible = true
 	$CloseArea.visible = true
@@ -81,6 +82,7 @@ func died():
 	GameEngine.message(display_name + " died!")
 	for i in get_children():
 		if i is InventoryThing: GameEngine.add_node_at(i, position)
+		if i is Currency and i.n_units > 0: GameEngine.add_node_at(i, position)
 		queue_free()
 	
 func killed(_who:Actor):

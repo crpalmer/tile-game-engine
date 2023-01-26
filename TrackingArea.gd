@@ -36,10 +36,12 @@ func area_exited(who):
 	record_area(who, -1)
 
 func record_area(who, what):
-	if who != get_parent() and (who is Actor or who is Thing):
+	if who != get_parent() and who.is_in_group("Trackables"):
 		var count = in_area[who] if in_area.has(who) else 0
 		count += what
 		if count <= 0: var _ignore = in_area.erase(who)
 		else: in_area[who] = count
 		if who == GameEngine.player: player_is_in_area = (count > 0)
-		#print(name + " " + get_parent().name + " : " + String(in_area))
+	#	print(name + " " + get_parent().name + " : " + String(in_area))
+	#else:
+	#	print("Not tracking %s / %s" % [get_parent().name, name])

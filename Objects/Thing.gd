@@ -26,6 +26,7 @@ func load_persistent_data(p):
 
 func _ready():
 	add_to_group("PersistentThings")
+	add_to_group("Trackables")
 	if not display_name or display_name == "": display_name = name
 	if minutes_between_uses < use_time: minutes_between_uses = use_time
 
