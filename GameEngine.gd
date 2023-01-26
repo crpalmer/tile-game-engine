@@ -137,23 +137,25 @@ func instantiate(filename, data, position = null):
 	return thing
 
 func fade_out():
-	pause()
 	if fade_anim:
+		pause()
 		fade_anim.play("Fade")
 		yield(fade_anim, "animation_finished")
-	resume()
+		resume()
 
 func fade_in():
-	pause()
 	if fade_anim:
+		pause()
 		fade_anim.play_backwards("Fade")
 		yield(fade_anim, "animation_finished")
-	resume()
+		resume()
 
 func enter_scene(scene:String, entry_point = null):
 	pause()
 	if current_scene: fade_out()
-	
+
+	get_tree().paused = true
+
 	if current_scene:
 		remove_player_from_scene()
 		scene_state[current_scene.filename] = get_current_scene_state()
@@ -169,6 +171,8 @@ func enter_scene(scene:String, entry_point = null):
 		current_scene.add_child(player)
 		player.position = entry_node.position
 		player.enter_current_scene()
+
+	get_tree().paused = false
 
 	fade_in()
 	resume()
