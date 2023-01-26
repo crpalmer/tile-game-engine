@@ -14,7 +14,8 @@ const LONG_RESTING = 2
 
 var attacks = []
 var resting_until = 0
-var last_rest_finished = -30*60
+var resting_started_at = 0
+var next_long_rest = 0
 var resting_state = NOT_RESTING
 var short_rest_spent = 0
 
@@ -32,7 +33,8 @@ func get_persistent_data():
 		"constitution": constitution,
 		"resting_state": resting_state,
 		"resting_until": resting_until,
-		"last_rest_finished": last_rest_finished,
+		"resting_started_at": resting_started_at,
+		"next_long_rest": next_long_rest,
 		"short_rest_spent": short_rest_spent,
 		"inventory": i
 	})
@@ -46,7 +48,8 @@ func load_persistent_data(p):
 	constitution = p.constitution
 	resting_state = p.resting_state
 	resting_until = p.resting_until
-	last_rest_finished = p.last_rest_finished
+	resting_started_at = p.resting_started_at
+	next_long_rest = p.next_long_rest
 	short_rest_spent = p.short_rest_spent
 	if resting_state != NOT_RESTING: Engine.time_scale = 600
 	for c in get_inventory_containers():
@@ -66,12 +69,14 @@ func enter_current_scene():
 	emit_signal("player_stats_changed")
 	$Camera2D/AmbientLight.set_radius(vision_radius)
 
-func stop_resting():
+func stop_resting(regained_hp = 0):
 	resting_state = NOT_RESTING
-	last_rest_finished = GameEngine.time_in_minutes
 	GameEngine.fade_in()
 	Engine.time_scale = 1
-	
+	var rest_time:int = GameEngine.time_in_minutes - resting_started_at
+	GameEngine.message("You rested for %d hour%s and %d minute%s" % [rest_time / 60, "s" if rest_time >= 60 and rest_time < 120 else "", rest_time%60, "" if rest_time % 60 == 1 else "s"])
+	if regained_hp > 0: GameEngine.message("You regained %d HPs" % regained_hp)
+
 func take_damage(damage:int, from = null):
 	if resting_state != NOT_RESTING: stop_resting()
 	.take_damage(damage, from)
@@ -82,24 +87,19 @@ func killed(who):
 	emit_signal("player_stats_changed")
 	
 func _process(_delta):
-	if resting_state != NOT_RESTING:
-		if resting_until > GameEngine.time_in_minutes: return
-		if resting_state == LONG_RESTING:
-			hp = max_hp
-			short_rest_spent = 0
-		else:
-			hp += GameEngine.roll(GameEngine.Dice(1, 10, GameEngine.ability_modifier(constitution)))
-		if hp > max_hp: hp = max_hp
-		stop_resting()
-		emit_signal("player_stats_changed")
-
 	if GameEngine.is_paused(): return
+
+	if resting_state != NOT_RESTING:
+		process_resting()
+		return
 
 	if Input.is_action_just_released("attack"): process_attack()
 	if Input.is_action_just_released("use"): process_use()
 	if Input.is_action_just_released("look"): process_look()
 	if Input.is_action_just_released("talk"): process_talk()
-	if Input.is_action_just_released("rest"): process_rest()
+	if Input.is_action_just_released("rest"):
+		if Input.is_key_pressed(KEY_CONTROL): long_rest()
+		else: short_rest()
 	
 func _physics_process(delta):
 	var dir = Vector2(0, 0)
@@ -203,19 +203,39 @@ func strength_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, G
 func dexterity_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(dexterity)), needed)
 func constitution_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(constitution)), needed)
 
-func process_rest():
-	if last_rest_finished + 8*60 > GameEngine.time_in_minutes:
-		if short_rest_spent < level:
-			short_rest_spent += 1
-			resting_state = SHORT_RESTING
-			resting_until = GameEngine.time_in_minutes + 60
-			GameEngine.message("You are taking a 1 hour rest")
-		else:
-			GameEngine.message("You aren't very tired, you can't rest right now")
-			return
-	else:
-		resting_state = LONG_RESTING
-		resting_until = GameEngine.time_in_minutes + 8*60
-		GameEngine.message("Sleeping (hopefully for 8 hours)...")
+func start_resting(state, minutes):
+	resting_state = state
+	resting_started_at = GameEngine.time_in_minutes
+	resting_until = resting_started_at + minutes
 	GameEngine.fade_out()
-	Engine.time_scale = 600
+	Engine.time_scale = 1000
+
+func short_rest():
+	if resting_state == NOT_RESTING:
+		start_resting(SHORT_RESTING, 60)
+
+func long_rest():
+	if resting_state == NOT_RESTING and GameEngine.time_in_minutes >= next_long_rest:
+		start_resting(LONG_RESTING, 8*60)
+	else:
+		GameEngine.message("You can't sleep until at least " + GameEngine.time_of_day(next_long_rest))
+
+func process_resting():
+	if GameEngine.time_in_minutes < resting_until: return
+
+	var old_hp = hp
+
+	match resting_state:
+		LONG_RESTING:
+			hp = max_hp
+			short_rest_spent = 0
+			next_long_rest = GameEngine.time_in_minutes + 8*60
+			emit_signal("player_stats_changed")
+		SHORT_RESTING:
+			if short_rest_spent < level:
+				hp += GameEngine.roll(GameEngine.Dice(1, 10, GameEngine.ability_modifier(constitution)))
+				if hp > max_hp: hp = max_hp
+				short_rest_spent += 1
+				emit_signal("player_stats_changed")
+
+	stop_resting(hp - old_hp)	
