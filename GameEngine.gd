@@ -6,6 +6,8 @@ signal conversation_started
 signal conversation_ended
 signal new_game
 
+enum BodyParts { HANDS = 1, HEAD = 2, BODY = 4, FEET = 8, NECK = 16 }
+
 var scene_state:Dictionary
 var player
 var paused:int = 0

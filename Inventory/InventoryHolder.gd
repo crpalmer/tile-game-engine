@@ -3,12 +3,10 @@ class_name InventoryHolder
 
 signal inventory_changed
 
+export var combinable = false
 export var is_equipped = false
-export var requires_hands = false
-export var requires_head = false
-export var requires_neck = false
-export var requires_body = false
-export var requires_feet = false
+
+export(GameEngine.BodyParts, FLAGS) var requires
 
 func get_persistent_data():
 	var thing = get_thing()
@@ -35,12 +33,7 @@ func get_thing():
 	return null
 
 func can_accept_thing(thing):
-	if requires_hands and not thing.can_be_in_hands: return false
-	if requires_head and not thing.can_be_on_head: return false
-	if requires_neck and not thing.can_be_around_neck: return false
-	if requires_body and not thing.can_be_on_body: return false
-	if requires_feet and not thing.can_be_on_feet: return false
-	return true
+	return not requires or (requires & thing.acceptable) != 0
 
 func add_thing(thing):
 	if get_thing(): return false
@@ -48,22 +41,17 @@ func add_thing(thing):
 	if thing.get_parent(): thing.get_parent().remove_child(thing)
 	thing.position = Vector2(32, 32)
 	add_child(thing)
-	emit_signal("inventory_changed")
+	updated(thing)
 	return true
 
-func has_a(thing):
-	var my_thing = get_thing()
-	return my_thing and my_thing == thing
+func updated(thing):
+	hint_tooltip = thing.description()
+	emit_signal("inventory_changed")
 
 func has_a_thing_in_group(group_name):
 	var my_thing = get_thing()
 	return my_thing and my_thing.is_in_group(group_name)
 
-func get_equipped_things():
-	var thing = get_thing()
-	if thing and (is_equipped or thing.always_equipped): return [ thing ]
-	return null
-	
 func get_drag_data(_position):
 	var my_thing:InventoryThing = get_thing()
 	if my_thing:

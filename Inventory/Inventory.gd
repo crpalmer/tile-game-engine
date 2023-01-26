@@ -13,8 +13,8 @@ func load_persistent_data(p):
 		if p.has(c.name): c.load_persistent_data(p[c.name])
 
 func _ready():
-	hide()
 	add_to_group("InventoryContainers")
+	hide()
 
 func _process(_delta):
 	if Input.is_action_just_released("show_inventory"):
@@ -28,33 +28,66 @@ func make_visible(is_visible):
 	if is_visible: GameEngine.pause()
 	else: GameEngine.resume()
 
+# We need to recurse to ensure that we keep the order of the top level
+# containers and the holders within them, etc.
+
+func get_all_containers(from = self):
+	var containers = []
+	for c in from.get_children():
+		if c.is_in_group("InventoryContainers"): containers.push_back(c)
+	for c in from.get_children():
+		if not c.is_in_group("InventoryContainers"):
+			containers.append_array(get_all_containers(c))
+	return containers
+
+func get_all_holders(from = self):
+	var holders = []
+	for c in from.get_children():
+		if c.is_in_group("InventoryHolders"):
+			holders.push_back(c)
+	for c in from.get_children():
+		holders.append_array(get_all_holders(c))
+	return holders
+
+func get_all_things():
+	var things = []
+	for holder in get_all_holders():
+		var thing = holder.get_thing()
+		if thing: things.push_back(thing)
+	return things
+
 func add_thing(thing):
-	for c in get_children():
-		if c.is_in_group("InventoryContainers") and c.add_thing(thing):
+	if thing.combinable:
+		var holder = get_holder_of_thing(thing)
+		if holder:
+			var existing_thing = holder.get_thing()
+			existing_thing.n += thing.n
+			thing.queue_free()
+			holder.updated(existing_thing)
 			return true
-	for c in get_children():
-		if c.is_in_group("InventoryHolders") and c.add_thing(thing):
+	for holder in get_all_holders():
+		if holder.add_thing(thing):
 			return true
 	return false
 
-func has_a(thing):
-	for c in get_children():
-		if (c.is_in_group("InventoryHolders") or c.is_in_group("InventoryContainers")) and c.has_a(thing):
-			return true
-	return false
+func get_holder_of_thing(thing):
+	for holder in get_all_holders():
+		var existing_thing = holder.get_thing()
+		if existing_thing and existing_thing.filename == thing.filename:
+			return holder
+	return null
 
 func has_a_thing_in_group(group_name):
-	for c in get_children():
-		if (c.is_in_group("InventoryHolders") or c.is_in_group("InventoryContainers")) and c.has_a_thing_in_group(group_name):
+	for thing in get_all_things():
+		if thing and thing.has_a_thing_in_group(group_name):
 			return true
 	return false
 
 func get_equipped_things():
 	var things = []
-	for c in get_children():
-		if c.is_in_group("InventoryContainers")  or c.is_in_group("InventoryThings"):
-			var new_things = c.get_equipped_things()
-			if new_things: things.append_array(new_things)
+	for holder in get_all_holders():
+		var thing = holder.get_thing()
+		if thing and holder.is_equipped: things.push_back(thing)
 	return things
 
 func get_ac():

@@ -88,8 +88,6 @@ func died():
 func killed(_who:Actor):
 	pass
 
-func has_a(_node): return false
-
 func player_is_in_sight():
 	var space_rid = get_world_2d().space
 	var space_state = Physics2DServer.space_get_direct_state(space_rid)

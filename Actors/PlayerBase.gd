@@ -197,15 +197,11 @@ func get_inventory_containers():
 	return containers
 
 func add_to_inventory(thing):
-	for c in get_inventory_containers():
-		if c.add_thing(thing):
-			GameEngine.message("You picked up " + thing.description())
-			return true
+	if $Inventory.add_thing(thing):
+		GameEngine.message("You picked up " + thing.description())
+		return true
 	GameEngine.message("You are carrying too much to pick up " + thing.description())
 	return false
-	
-func has_a(thing):
-	return $Inventory.has_a(thing)
 
 func has_a_thing_in_group(group_name):
 	return $Inventory.has_a_thing_in_group(group_name)
