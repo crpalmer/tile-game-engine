@@ -202,7 +202,7 @@ func roll(dice):
 	for i in dice.n:
 		var roll = randi()%dice.d + 1
 		total += roll
-	if total < 0: return 0
+	if total < 1: return 1
 	return total
 
 func roll_test(dice, success, always = null):
