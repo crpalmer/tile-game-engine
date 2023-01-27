@@ -14,8 +14,21 @@ var paused:int = 0
 var current_scene
 var time_in_minutes = 0.0
 var pixels_per_foot = 4.0
-
 var fade_anim
+
+var config:GameConfiguration
+var currency = []
+
+class CurrencySorter:
+	static func currency_sort(a, b):
+		return a.unit_value > b.unit_value
+
+func _ready():
+	config = ResourceLoader.load("res://GameConfiguration.tres", "GameConfiguration")
+	fade_anim = get_tree().current_scene.get_node(config.fade_animation_path)
+	for c in config.currency:
+		currency.push_back(load(c).instance())
+	currency.sort_custom(CurrencySorter, "currency_sort")
 
 func pause():
 	paused += 1
@@ -28,10 +41,10 @@ func is_paused(): return paused > 0
 func remove_player_from_scene():
 	if player and player.get_parent() and current_scene: current_scene.remove_child(player)
 
-func new_game(scene:String, entry_point:String, start_time = 0):
+func new_game():
 	clear_game()
-	enter_scene(scene, entry_point)
-	time_in_minutes = start_time
+	enter_scene(config.entry_scene, config.entry_point)
+	time_in_minutes = config.game_start_time_in_hours * 60
 	
 func clear_game():
 	emit_signal("new_game")
