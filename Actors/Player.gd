@@ -1,5 +1,5 @@
 extends Actor
-class_name PlayerBase
+class_name Player
 
 signal player_stats_changed
 signal player_died
@@ -24,6 +24,7 @@ var money = {}
 
 var hit_dice = GameEngine.Dice(1, 10)
 var xp:int = 0
+var clss:Class
 
 const xp_table = {
 	1: 0,
@@ -110,12 +111,29 @@ func load_persistent_data(p):
 		money[c].unit_value = m.unit_value
 	on_inventory_changed()
 
+func roll_ability_score():
+	var dice = []
+	for i in range(4): dice.push_back(GameEngine.roll(GameEngine.D(6)))
+	dice.sort()
+	print(dice)
+	return dice[1] + dice[2] + dice[3] + 1   # +1 is the human bonus
+
+func create_character():
+	clss = load("res://GameEngine/Actors/Classes/Fighter.tscn").instance()
+	add_child(clss)
+	strength = roll_ability_score()
+	dexterity = roll_ability_score()
+	constitution = roll_ability_score()
+	print("Str: " + String(strength) + " Dex: " + String(dexterity) + " Con: " + String(constitution))
+	for c in clss.get_children():
+		if c.is_in_group("InventoryThings"): add_to_inventory(c)
+		elif c is Currency: add_currency(c)
+	hp = clss.initial_hit_points() + GameEngine.ability_modifier(constitution)
+	max_hp = hp
+
 func _ready():
 	enter_current_scene()
-	strength = GameEngine.roll(GameEngine.Dice(3, 6))
-	dexterity = GameEngine.roll(GameEngine.Dice(3, 6))
-	constitution = GameEngine.roll(GameEngine.Dice(3, 6))
-	print("Str: " + String(strength) + " Dex: " + String(dexterity) + " Con: " + String(constitution))
+	create_character()
 	on_inventory_changed()
 	
 func enter_current_scene():
@@ -193,7 +211,7 @@ func process_attack():
 	if attack == null: return
 	var opponent = select_attack_target()
 	if opponent == null: return
-	attack(opponent, attack, GameEngine.ability_modifier(strength))
+	attack(opponent, attack, clss.strength_modifier(strength))
 
 func process_use():
 	for use_on in $CloseArea.who_is_in_area():
@@ -261,17 +279,17 @@ func set_light_source(radius, brightness):
 	$Camera2D/LightSource.set_brightness(brightness)
 
 func on_inventory_changed():
-	ac = $Inventory.get_ac() + GameEngine.ability_modifier(dexterity)
-	to_hit_modifier = $Inventory.get_to_hit_modifier() + GameEngine.ability_modifier(strength)
+	ac = $Inventory.get_ac() + clss.dexterity_modifier(dexterity)
+	to_hit_modifier = $Inventory.get_to_hit_modifier() + clss.strength_modifier(strength)
 	attacks = []
 	for thing in $Inventory.get_equipped_things():
 		if thing.can_attack_with: attacks.push_back(thing)
 	if attacks.size() == 0: attacks.push_back(punch)
 	emit_signal("player_stats_changed")
 
-func strength_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(strength)), needed)
-func dexterity_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(dexterity)), needed)
-func constitution_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, GameEngine.ability_modifier(constitution)), needed)
+func strength_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, clss.strength_modifier(strength)), needed)
+func dexterity_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, clss.dexterity_modifier(dexterity)), needed)
+func constitution_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, clss.constitution_modifier(constitution)), needed)
 
 func start_resting(state, minutes):
 	resting_state = state
@@ -303,7 +321,7 @@ func process_resting():
 			emit_signal("player_stats_changed")
 		SHORT_RESTING:
 			if short_rest_spent < level:
-				hp += GameEngine.roll(GameEngine.Dice(1, 10, GameEngine.ability_modifier(constitution)))
+				hp += GameEngine.roll(GameEngine.Dice(1, 10, clss.constitution_modifier(constitution)))
 				if hp > max_hp: hp = max_hp
 				short_rest_spent += 1
 				emit_signal("player_stats_changed")
