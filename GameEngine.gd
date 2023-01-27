@@ -24,7 +24,7 @@ class CurrencySorter:
 		return a.unit_value > b.unit_value
 
 func _ready():
-	config = ResourceLoader.load("res://GameConfiguration.tres", "GameConfiguration")
+	config = ResourceLoader.load("res://GameConfiguration.tres") #  "GameConfiguration")
 	fade_anim = get_tree().current_scene.get_node(config.fade_animation_path)
 	for c in config.currency:
 		currency.push_back(load(c).instance())
