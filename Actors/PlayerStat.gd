@@ -1,6 +1,8 @@
 extends Label
 
-export var what:String
+enum Stat { HP, AC, MAX_HP, LEVEL,  XP, TO_HIT_MODIFIER, STRENGTH, DEXTERITY, CONSTITUTION }
+
+export(int, "Hit Points", "Armour Class", "Maximum Hit Points", "Level", "Experience Points", "To Hit Modifier", "Strength", "Dexterity", "Constitution") var stat
 
 func _ready():
 	var _err = GameEngine.connect("player_created", self, "player_created")
@@ -14,13 +16,13 @@ func update_my_stat():
 	text = String(stat)
 
 func get_stat(p):
-	match what:
-		"hp": return p.hp
-		"ac": return p.ac
-		"hp-max", "max-hp": return p.max_hp
-		"level": return p.level
-		"xp": return p.xp
-		"to-hit-modifier": return p.to_hit_modifier
-		"str", "strength": return p.strenght
-		"dex", "dexterity": return p.dexterity
-		"con", "constitution": return p.constitution
+	match stat:
+		Stat.HP: return p.hp
+		Stat.AC: return p.ac
+		Stat.MAX_HP: return p.max_hp
+		Stat.LEVEL: return p.level
+		Stat.XP: return p.xp
+		Stat.TO_HIT_MODIFIER: return p.to_hit_modifier
+		Stat.Strength: return p.strenght
+		Stat.Dexterity: return p.dexterity
+		Stat.Constitution: return p.constitution
