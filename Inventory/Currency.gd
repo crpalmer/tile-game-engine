@@ -2,7 +2,7 @@ extends Thing
 class_name Currency
 
 export(String) var plural
-export(int) var unit_value = 1
+export(float) var unit_value = 1
 export(int) var n_units
 export(int) var random_min
 export(int) var random_max
