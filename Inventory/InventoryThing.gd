@@ -5,6 +5,7 @@ export var plural:String
 export var group:String
 
 export var combinable = false
+export var value = 1
 export var n = 1
 export var weight = 0
 export var ac = 0
