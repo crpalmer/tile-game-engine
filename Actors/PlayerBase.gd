@@ -118,6 +118,7 @@ func _process(_delta):
 	if Input.is_action_just_released("use"): process_use()
 	if Input.is_action_just_released("look"): process_look()
 	if Input.is_action_just_released("talk"): process_talk()
+	if Input.is_action_just_released("show_inventory"): $Inventory.open()
 	if Input.is_action_just_released("rest"):
 		if Input.is_key_pressed(KEY_CONTROL): long_rest()
 		else: short_rest()

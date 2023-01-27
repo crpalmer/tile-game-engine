@@ -16,11 +16,11 @@ func _ready():
 	add_to_group("InventoryContainers")
 	hide()
 
+func open():
+	make_visible(true)
+	
 func _process(_delta):
-	if Input.is_action_just_released("show_inventory"):
-		if visible: make_visible(false)
-		elif not GameEngine.is_paused(): make_visible(true)
-	elif visible and Input.is_action_just_released("exit"):
+	if visible and Input.is_action_just_released("exit"):
 		make_visible(false)
 
 func make_visible(is_visible):
