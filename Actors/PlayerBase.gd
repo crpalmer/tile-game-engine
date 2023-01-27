@@ -2,6 +2,7 @@ extends Actor
 class_name PlayerBase
 
 signal player_stats_changed
+signal player_died
 
 var level = 1
 var strength
@@ -215,6 +216,7 @@ func has_a_thing_in_group(group_name):
 func died():
 	print_debug("Player died!")
 	$Sprite.visible = false
+	emit_signal("player_died")
 
 func set_ambient_light(percent):
 	$Camera2D/AmbientLight.set_brightness(percent)
