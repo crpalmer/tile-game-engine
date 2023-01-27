@@ -216,8 +216,8 @@ func D(d): return Dice(1, d, 0)
 func roll_d20():
 	return roll(D(20))
 
-func roll(dice):
-	var total = dice.plus
+func roll(dice, extra_modifier = 0):
+	var total = dice.plus + extra_modifier
 	for i in dice.n:
 		var roll = randi()%dice.d + 1
 		total += roll
