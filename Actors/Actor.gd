@@ -12,7 +12,6 @@ export var speed = 30
 export var xp_value = 1
 export var close_radius = 6
 export var vision_radius = 120
-export var xp = 0
 export var mood = Mood.FRIENDLY
 export var next_action = 0
 

@@ -22,6 +22,42 @@ var short_rest_spent = 0
 
 var money = {}
 
+var hit_dice = GameEngine.Dice(1, 10)
+var xp:int = 0
+
+const xp_table = {
+	1: 0,
+	2: 300,
+	3: 900,
+	4: 2700,
+	5: 6500,
+	6: 14000,
+	7: 23000,
+	8: 34000,
+	9: 48000,
+	10: 64000,
+	11: 85000,
+	12: 100000,
+	13: 120000,
+	14: 140000,
+	15: 165000,
+	16: 195000,
+	17: 225000,
+	18: 265000,
+	19: 305000,
+	20: 355000
+}
+
+func add_xp(new_xp:int):
+	xp += new_xp
+	while xp >= xp_table[level+1]:
+		level = level + 1
+		var new_hp = GameEngine.roll(hit_dice, GameEngine.ability_modifier(constitution))
+		hp += new_hp
+		max_hp += new_hp
+		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, new_hp])
+	emit_signal("player_stats_changed")
+
 func get_persistent_data():
 	var p = .get_persistent_data()
 	var i = {}
@@ -105,8 +141,7 @@ func take_damage(damage:int, from = null):
 	emit_signal("player_stats_changed")
 
 func killed(who):
-	xp += who.xp_value
-	emit_signal("player_stats_changed")
+	add_xp(who.xp_value)
 	
 func _process(_delta):
 	if GameEngine.is_paused(): return
