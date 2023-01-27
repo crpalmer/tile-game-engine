@@ -69,7 +69,7 @@ func attack(who:Actor, attack, damage_modifier = 0):
 	next_action = GameEngine.time_in_minutes + attack.use_time
 	
 	print(display_name + " attacks " + who.display_name + " with " + attack.display_name)
-	if GameEngine.roll_test(GameEngine.D(20), who.ac - to_hit_modifier - attack.to_hit_modifier, 20):
+	if GameEngine.roll_test(who.ac, to_hit_modifier + attack.to_hit_modifier, true):
 		var damage_dice = attack.damage_dice
 		damage_dice.plus += damage_modifier
 		var damage = GameEngine.roll(damage_dice)

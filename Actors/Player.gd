@@ -53,7 +53,7 @@ func add_xp(new_xp:int):
 	xp += new_xp
 	while xp >= xp_table[level+1]:
 		level = level + 1
-		var new_hp = GameEngine.roll(hit_dice, GameEngine.ability_modifier(constitution))
+		var new_hp = GameEngine.roll(clss.hit_dice, GameEngine.ability_modifier(constitution))
 		hp += new_hp
 		max_hp += new_hp
 		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, new_hp])
@@ -287,9 +287,9 @@ func on_inventory_changed():
 	if attacks.size() == 0: attacks.push_back(punch)
 	emit_signal("player_stats_changed")
 
-func strength_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, clss.strength_modifier(strength)), needed)
-func dexterity_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, clss.dexterity_modifier(dexterity)), needed)
-func constitution_test(needed): return GameEngine.roll_test(GameEngine.Dice(1, 20, clss.constitution_modifier(constitution)), needed)
+func strength_test(needed): return GameEngine.roll_test(needed, clss.strength_modifier(strength))
+func dexterity_test(needed): return GameEngine.roll_test(needed, clss.dexterity_modifier(dexterity))
+func constitution_test(needed): return GameEngine.roll_test(needed, clss.constitution_modifier(constitution))
 
 func start_resting(state, minutes):
 	resting_state = state
@@ -321,7 +321,7 @@ func process_resting():
 			emit_signal("player_stats_changed")
 		SHORT_RESTING:
 			if short_rest_spent < level:
-				hp += GameEngine.roll(GameEngine.Dice(1, 10, clss.constitution_modifier(constitution)))
+				hp += GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution))
 				if hp > max_hp: hp = max_hp
 				short_rest_spent += 1
 				emit_signal("player_stats_changed")

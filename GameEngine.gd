@@ -224,9 +224,9 @@ func roll(dice, extra_modifier = 0):
 	if total < 1: return 1
 	return total
 
-func roll_test(dice, success, always = null):
-	var got = roll(dice)
-	return got >= success or (always and got == always)
+func roll_test(success, modifier = 0, always = false):
+	var got = roll(D(20), modifier)
+	return got >= success or (always and got == 20)
 
 func ability_modifier(score):
 	match score:
