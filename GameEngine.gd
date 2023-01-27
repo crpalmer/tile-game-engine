@@ -102,7 +102,7 @@ func get_save_data():
 	}
 
 func save_game(filename):
-	var res = load("res://GameEngine/SaveGameTemplate.tres")
+	var res = load("%s/SaveGameTemplate.tres" % GameEngine.config.root)
 	res.version = 1
 	res.data = get_save_data()
 	var _err = Directory.new().remove(filename)

@@ -2,6 +2,7 @@ extends Resource
 class_name GameConfiguration
 
 export(String, FILE) var entry_scene
+export(String, DIR) var root
 export(String) var entry_point
 export(String) var fade_animation_path
 export(float) var game_start_time_in_hours = 0

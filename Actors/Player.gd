@@ -119,7 +119,7 @@ func roll_ability_score():
 	return dice[1] + dice[2] + dice[3] + 1   # +1 is the human bonus
 
 func create_character():
-	clss = load("res://GameEngine/Actors/Classes/Fighter.tscn").instance()
+	clss = load("%s/Actors/Classes/Fighter.tscn" % GameEngine.config.root).instance()
 	add_child(clss)
 	strength = roll_ability_score()
 	dexterity = roll_ability_score()

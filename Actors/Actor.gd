@@ -16,7 +16,7 @@ export var mood = Mood.FRIENDLY
 export var next_action = 0
 
 var player_position
-var punch = load("res://GameEngine/Actors/Punch.tscn").instance()
+var punch = load("%s/Actors/Punch.tscn" % GameEngine.config.root).instance()
 
 func get_persistent_data():
 	var p = {
