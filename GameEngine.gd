@@ -30,6 +30,9 @@ func _ready():
 		currency.push_back(load(c).instance())
 	currency.sort_custom(CurrencySorter, "currency_sort")
 
+func modulate(on):
+	get_tree().current_scene.get_node("CanvasModulate").visible = on
+
 func pause():
 	paused += 1
 
