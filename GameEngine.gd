@@ -102,7 +102,7 @@ func get_save_data():
 	}
 
 func save_game(filename):
-	var res = load("%s/SaveGameTemplate.tres" % GameEngine.config.root)
+	var res = load("%s/SaveGameTemplate.tres" % config.root)
 	res.version = 1
 	res.data = get_save_data()
 	var _err = Directory.new().remove(filename)
@@ -252,11 +252,11 @@ func message(msg):
 
 func start_conversation(conversation, name):
 	emit_signal("conversation_started", conversation, name)
-	GameEngine.pause()
+	pause()
 
 func end_conversation():
 	emit_signal("conversation_ended")
-	GameEngine.resume()
+	resume()
 
 func current_time_of(m):
 	return {
@@ -287,4 +287,4 @@ func time_of_day(m):
 	]
 
 func current_time_string():
-	return minutes_to_string(GameEngine.time_in_minutes)
+	return minutes_to_string(time_in_minutes)

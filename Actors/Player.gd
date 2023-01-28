@@ -113,7 +113,7 @@ func load_persistent_data(p):
 
 func roll_ability_score():
 	var dice = []
-	for i in range(4): dice.push_back(GameEngine.roll(GameEngine.D(6)))
+	for _i in range(4): dice.push_back(GameEngine.roll(GameEngine.D(6)))
 	dice.sort()
 	print(dice)
 	return dice[1] + dice[2] + dice[3] + 1   # +1 is the human bonus

@@ -12,8 +12,8 @@ func player_created():
 	update_my_stat()
 
 func update_my_stat():
-	var stat:int = get_stat(GameEngine.player)
-	text = String(stat)
+	var value:int = get_stat(GameEngine.player)
+	text = String(value)
 
 func get_stat(p):
 	match stat:
