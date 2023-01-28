@@ -128,7 +128,7 @@ func default_physics_process(delta):
 	if mood == Mood.HOSTILE and player_is_visible():
 		var dir:Vector2 = player_position - position
 		if dir.length() > 5:
-			var move_vector = dir.normalized() * delta * GameEngine.feet_to_pixels(speed)
+			var move_vector = dir.normalized() * GameEngine.real_time_to_game_time(delta) * GameEngine.feet_to_pixels(speed)
 			var _collision = move_and_collide(move_vector)
 
 func _process(_delta):
