@@ -35,8 +35,14 @@ func area_entered(who):
 func area_exited(who):
 	record_area(who, -1)
 
+func is_trackable(who):
+	if not who.is_in_group("Trackables"): return false
+	if who == get_parent(): return false   # don't track yourself
+	if GameEngine.player.is_a_parent_of(who): return false  # don't track the inventory!
+	return true
+
 func record_area(who, what):
-	if who != get_parent() and who.is_in_group("Trackables"):
+	if is_trackable(who):
 		var count = in_area[who] if in_area.has(who) else 0
 		count += what
 		if count <= 0: var _ignore = in_area.erase(who)
