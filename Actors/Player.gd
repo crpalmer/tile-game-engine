@@ -25,6 +25,7 @@ var money = {}
 var hit_dice = GameEngine.Dice(1, 10)
 var xp:int = 0
 var clss:Class
+var animation:AnimatedSprite
 
 const xp_table = {
 	1: 0,
@@ -132,6 +133,7 @@ func create_character():
 	max_hp = hp
 
 func _ready():
+	animation = get_node_or_null("AnimatedSprite")
 	enter_current_scene()
 	create_character()
 	on_inventory_changed()
@@ -185,8 +187,13 @@ func _physics_process(delta):
 	if Input.is_action_pressed("down"): dir.y += 1
 	
 	if dir.length() > 0:
-		var moved = dir.normalized()*GameEngine.real_time_to_game_time(delta)*GameEngine.feet_to_pixels(speed)
+		if animation:
+			animation.flip_h = dir.x < 0 or dir.y < 0
+			animation.play("walk")
+		var moved = dir.normalized()*travel_distance_in_pixels(delta)
 		var _collision:KinematicCollision2D = move_and_collide(moved)
+	elif animation:
+		animation.stop()
 
 func select_attack():
 	for attack in attacks:
