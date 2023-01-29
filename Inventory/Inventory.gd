@@ -79,7 +79,7 @@ func get_holder_of_thing(thing):
 
 func has_a_thing_in_group(group_name):
 	for thing in get_all_things():
-		if thing and thing.has_a_thing_in_group(group_name):
+		if thing and thing.is_in_group(group_name):
 			return true
 	return false
 
