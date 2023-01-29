@@ -245,10 +245,7 @@ func process_look():
 
 func process_talk():
 	for thing in $CloseArea.who_is_in_area():
-		var conversation = thing.get_node_or_null("Conversation")
-		if conversation:
-			conversation.start()
-			return
+		if thing.has_method("start"): thing.start()
 
 func get_inventory_containers():
 	var containers = []

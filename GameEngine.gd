@@ -2,8 +2,6 @@ extends Node
 
 signal player_created
 signal message
-signal conversation_started
-signal conversation_ended
 signal new_game
 
 enum BodyParts { HANDS = 1, HEAD = 2, BODY = 4, FEET = 8, NECK = 16 }
@@ -12,12 +10,14 @@ var scene_state:Dictionary
 var player
 var paused:int = 0
 var current_scene
+var game_seconds_per_elapsed_second = 6
 var time_in_minutes = 0.0
-var pixels_per_foot = 4.0
+var pixels_per_foot = 24.0
 var fade_anim
 
 var config:GameConfiguration
 var currency = []
+var conversation
 
 class CurrencySorter:
 	static func currency_sort(a, b):
@@ -206,7 +206,11 @@ func add_node_at(to_add:Node, position:Vector2):
 	if to_add.get_parent(): to_add.get_parent().remove_child(to_add)
 	current_scene.add_child(to_add)
 
-func real_time_to_game_time(t): return t / 6
+func real_time_to_game_time(t):
+	return t * game_seconds_per_elapsed_second / 60
+
+func add_to_game_time(minutes):
+	time_in_minutes += minutes
 
 func _process(delta): time_in_minutes += real_time_to_game_time(delta)
 
@@ -252,14 +256,6 @@ func ability_modifier(score):
 
 func message(msg):
 	emit_signal("message", msg)
-
-func start_conversation(conversation, name):
-	emit_signal("conversation_started", conversation, name)
-	pause()
-
-func end_conversation():
-	emit_signal("conversation_ended")
-	resume()
 
 func current_time_of(m):
 	return {
