@@ -274,7 +274,7 @@ func has_a_thing_in_group(group_name):
 
 func died():
 	print_debug("Player died!")
-	$Sprite.visible = false
+	GameEngine.pause()
 	emit_signal("player_died")
 
 func set_ambient_light(percent):
