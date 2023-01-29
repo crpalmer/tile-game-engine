@@ -27,34 +27,43 @@ func _ready():
 	player_text.connect("text_entered", self, "_on_PlayerText_text_entered")
 
 func start(name):
-	call_deferred("start_safe", name)
-	in_conversation = true
-	GameEngine.pause()
-
-func start_safe(name):
 	speaker_name.text = name
 	visible = true
 	player_text.visible = false
+	in_conversation = true
+	GameEngine.pause()
 
 func end(delay):
 	if delay > 0: yield(get_tree().create_timer(delay), "timeout")
 	in_conversation = false
-	GameEngine.resume()
 	visible = false
+	GameEngine.resume()
 
 func say(text):
+	call_deferred("said", text)
+
+func said(text):
+	actor_said(text)
+	show_player_text()
+
+func actor_said(text):
 	speaker_text.text = text
+
+func show_player_text():
 	player_text.text = ""
 	player_text.visible = true
 	player_text.grab_focus()
-	
+
 func say_in_parts(parts:Array):
-	for i in parts.size():
-		say(parts[i])
-		more.visible = true
-		if (i < parts.size()-1): yield(self, "more_pressed")
-		more.visible = false
-	player_text.visible = true
+	for i in parts.size()-1:
+		call_deferred("actor_said", parts[i])
+		call_deferred("more_visible", true)
+		yield(self, "more_pressed")
+		call_deferred("more_visible", false)
+	say(parts[parts.size()-1])
+
+func more_visible(v):
+	more.visible = v
 
 var delimiters = [' ', '	', '\n', ',', '.', '?', '!', '&']
 
@@ -71,10 +80,16 @@ func tokenize(text:String):
 		i += 1
 	return words
 
-func _on_PlayerText_text_entered(new_text):
+func _on_PlayerText_text_entered(text):
+	call_deferred("player_entered", text)
+
+func player_entered(text):
 	player_text.visible = false
-	emit_signal("player_said", new_text, tokenize(new_text))
+	emit_signal("player_said", text, tokenize(text))
 
 func _on_More_pressed():
+	call_deferred("more_pressed")
+
+func more_pressed():
 	emit_signal("more_pressed")
 	more.visible = false
