@@ -279,10 +279,7 @@ func died():
 
 func set_ambient_light(percent):
 	$Camera2D/AmbientLight.set_brightness(percent)
-
-func set_light_source(radius, brightness):
-	$Camera2D/LightSource.set_radius(radius)
-	$Camera2D/LightSource.set_brightness(brightness)
+	$Camera2D/LightSource.set_brightness(100-percent)
 
 func on_inventory_changed():
 	ac = $Inventory.get_ac() + clss.dexterity_modifier(dexterity)
