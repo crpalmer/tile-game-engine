@@ -13,7 +13,6 @@ var paused:int = 0
 var current_scene
 var game_seconds_per_elapsed_second = 6
 var time_in_minutes = 0.0
-var pixels_per_foot = 24.0
 var fade_anim
 
 var config:GameConfiguration
@@ -224,8 +223,8 @@ func add_to_game_time(minutes):
 
 func _process(delta): time_in_minutes += real_time_to_game_time(delta)
 
-func feet_to_pixels(feet): return feet * pixels_per_foot
-func pixels_to_feet(pixels): return pixels / pixels_per_foot
+func feet_to_pixels(feet): return feet * config.pixels_per_foot
+func pixels_to_feet(pixels): return pixels / config.pixels_per_foot
 
 func Dice(n, d, plus = 0): return { "n": n, "d" : d, "plus": plus }
 func D(d): return Dice(1, d, 0)
