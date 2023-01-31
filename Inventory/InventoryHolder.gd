@@ -39,7 +39,7 @@ func add_thing(thing):
 	if get_thing(): return false
 	if not can_accept_thing(thing): return false
 	if thing.get_parent(): thing.get_parent().remove_child(thing)
-	thing.position = Vector2(32, 32)
+	thing.position = rect_size/2
 	add_child(thing)
 	updated(thing)
 	return true
