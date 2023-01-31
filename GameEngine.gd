@@ -1,8 +1,9 @@
 extends Node
 
-signal player_created
+signal player_created # A new player scene was instanced
 signal message
-signal new_game
+signal new_game      # A new game is being created
+signal new_player    # The player data needs to be populated
 
 enum BodyParts { HANDS = 1, HEAD = 2, BODY = 4, FEET = 8, NECK = 16 }
 
@@ -47,6 +48,7 @@ func remove_player_from_scene():
 func new_game():
 	clear_game()
 	enter_scene(config.entry_scene, config.entry_point)
+	emit_signal("new_player")
 	time_in_minutes = config.game_start_time_in_hours * 60
 	
 func clear_game():

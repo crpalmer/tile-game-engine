@@ -119,24 +119,32 @@ func roll_ability_score():
 	print(dice)
 	return dice[1] + dice[2] + dice[3] + 1   # +1 is the human bonus
 
-func create_character():
-	clss = load("%s/Actors/Classes/Fighter.tscn" % GameEngine.config.root).instance()
+func create_character(clss_path, populate_inventory = true, give_currency = true):
+	var items = []
+	clss = load(clss_path).instance()
 	add_child(clss)
 	strength = roll_ability_score()
 	dexterity = roll_ability_score()
 	constitution = roll_ability_score()
 	print("Str: " + String(strength) + " Dex: " + String(dexterity) + " Con: " + String(constitution))
 	for c in clss.get_children():
-		if c.is_in_group("InventoryThings"): add_to_inventory(c)
-		elif c is Currency: add_currency(c)
+		if c.is_in_group("InventoryThings"):
+			clss.remove_child(c)
+			if populate_inventory: add_to_inventory(c)
+			else: items.push_back(c)
+		elif c is Currency:
+			if give_currency: add_currency(c)
+			else:
+				items.push_back(c)
+				clss.remove_child(c)
 	hp = clss.initial_hit_points() + GameEngine.ability_modifier(constitution)
 	max_hp = hp
+	on_inventory_changed()
+	return items
 
 func _ready():
 	animation = get_node_or_null("AnimatedSprite")
 	enter_current_scene()
-	create_character()
-	on_inventory_changed()
 	
 func enter_current_scene():
 	emit_signal("player_stats_changed")
@@ -237,6 +245,7 @@ func add_currency(currency):
 		currency.get_parent().remove_child(currency)
 	GameEngine.message("You picked up %s" % currency.description())
 	currency.queue_free()
+	emit_signal("player_stats_changed")
 
 func get_currency(currency):
 	if money.has(currency): return money[currency].n_units
