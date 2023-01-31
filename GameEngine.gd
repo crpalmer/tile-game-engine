@@ -25,7 +25,7 @@ class CurrencySorter:
 
 func _ready():
 	config = ResourceLoader.load("res://GameConfiguration.tres") #  "GameConfiguration")
-	fade_anim = get_tree().current_scene.get_node(config.fade_animation_path)
+	fade_anim = get_tree().current_scene.get_node(config.fade_animation)
 	for c in config.currency:
 		currency.push_back(load(c).instance())
 	currency.sort_custom(CurrencySorter, "currency_sort")
@@ -62,7 +62,7 @@ func clear_game():
 func create_player():
 	remove_player_from_scene()
 	if player: player.call_deferred("free")
-	player = load("res://Player.tscn").instance()
+	player = load(config.player).instance()
 	emit_signal("player_created")
 
 func get_current_scene_state():
