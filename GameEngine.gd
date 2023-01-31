@@ -19,6 +19,7 @@ var fade_anim
 var config:GameConfiguration
 var currency = []
 var conversation
+var current_scene_root
 
 class CurrencySorter:
 	static func currency_sort(a, b):
@@ -30,7 +31,8 @@ func _ready():
 	for c in config.currency:
 		currency.push_back(load(c).instance())
 	currency.sort_custom(CurrencySorter, "currency_sort")
-
+	current_scene_root = get_tree().current_scene
+	
 func modulate(on):
 	get_tree().current_scene.get_node("CanvasModulate").visible = on
 
@@ -183,7 +185,7 @@ func enter_scene(scene:String, entry_point = null):
 		current_scene.queue_free()
 	
 	current_scene = load(scene).instance()
-	get_tree().current_scene.add_child(current_scene)
+	current_scene_root.add_child(current_scene)
 	if scene_state.has(scene): load_scene_state(scene_state[scene])
 	
 	if entry_point:
