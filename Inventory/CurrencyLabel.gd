@@ -1,10 +1,10 @@
 extends Label
 
 export(String, FILE) var currency
-var last_amount = 0
 
-func _process(_delta):
+func _ready():
+	var _err = GameEngine.player.connect("player_stats_changed", self, "on_player_stats_changed")
+
+func on_player_stats_changed():
 	var amount = GameEngine.player.get_currency(currency)
-	if amount != last_amount:
-		text = String(amount)
-		last_amount = amount
+	text = String(amount)
