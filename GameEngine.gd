@@ -44,6 +44,12 @@ func resume():
 
 func is_paused(): return paused > 0
 
+func get_scene_node(path):
+	return current_scene.get_node(path)
+
+func get_scene_node_or_null(path):
+	return current_scene.get_node_or_null(path)
+
 func remove_player_from_scene():
 	if player and player.get_parent() and current_scene: current_scene.remove_child(player)
 
