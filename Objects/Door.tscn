@@ -1,6 +1,22 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://GameEngine/Objects/Door.gd" type="Script" id=1]
 
+[sub_resource type="RectangleShape2D" id=1]
+resource_local_to_scene = true
+extents = Vector2( 2, 16 )
+
 [node name="Door" type="StaticBody2D"]
 script = ExtResource( 1 )
+
+[node name="BlockerOpen" type="CollisionShape2D" parent="."]
+shape = SubResource( 1 )
+
+[node name="BlockerClosed" type="CollisionShape2D" parent="."]
+shape = SubResource( 1 )
+
+[node name="Closed" type="Sprite" parent="."]
+
+[node name="Lock" type="Sprite" parent="."]
+
+[node name="Open" type="Sprite" parent="."]

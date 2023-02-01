@@ -10,9 +10,10 @@ func _ready():
 
 func ensure_state():
 	if has_node("Open"): $Open.visible = not is_closed
-	if has_node("Locked"): $Locked.visible = is_locked
+	if has_node("Lock"): $Lock.visible = is_locked
 	if has_node("Closed"): $Closed.visible = is_closed
-	if has_node("Blocker"): $Blocker.disabled = not is_closed
+	if has_node("BlockerOpen"): $BlockerOpen.disabled = is_closed
+	if has_node("BlockerClosed"): $BlockerClosed.disabled = not is_closed
 	for o in get_children():
 		if o is LightOccluder2D: o.visible = is_closed
 	

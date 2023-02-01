@@ -1,7 +1,8 @@
-extends KinematicBody2D
+extends PhysicsBody2D
 class_name Thing
 
 export var display_name:String
+export var long_description:String
 export var max_uses = -1
 export var use_time = 0.2
 export var minutes_between_uses = 0
@@ -35,7 +36,7 @@ func used_by(_thing):
 	next_use_at = GameEngine.time_in_minutes + minutes_between_uses
 
 func description():
-	return display_name
+	return long_description
 
 func may_use():
 	return max_uses != 0 and GameEngine.time_in_minutes >= next_use_at
