@@ -5,7 +5,6 @@ signal more_pressed
 signal player_said
 
 var in_conversation = false
-var player_is_in_area = false
 
 func get_persistent_data(): return {}
 func load_persistent_data(_p): pass

@@ -88,24 +88,13 @@ func died():
 func killed(_who:Actor):
 	pass
 
-func player_is_in_sight():
-	var space_rid = get_world_2d().space
-	var space_state = Physics2DServer.space_get_direct_state(space_rid)
-	var in_sight = space_state.intersect_ray(position, GameEngine.player.position, [self])
-	return in_sight and in_sight.collider == GameEngine.player
-
-func player_is_visible():
-	if $VisionArea.player_is_in_area:
-		if player_is_in_sight():
-			player_position = GameEngine.player.position
-			return true
-	return false
-
 func default_process():
 	if GameEngine.is_paused(): return
-	if mood == Mood.HOSTILE and $CloseArea.player_is_in_area:
+	if mood == Mood.HOSTILE and $CloseArea.player_is_in_sight():
+		player_position = GameEngine.player.position
 		process_attack()
-	elif mood == Mood.NEUTRAL and player_is_visible():
+	elif mood == Mood.NEUTRAL and $VisionArea.player_is_in_sight():
+		player_position = GameEngine.player.position
 		mood = Mood.HOSTILE
 
 func select_attack():
@@ -126,7 +115,8 @@ func process_attack():
 	if attack: attack(GameEngine.player, attack)
 
 func default_physics_process(delta):
-	if mood == Mood.HOSTILE and player_is_visible():
+	if mood == Mood.HOSTILE:
+		if $VisionArea.player_is_in_sight(): player_position = GameEngine.player.position
 		var dir:Vector2 = player_position - position
 		if dir.length() > 5:
 			dir = dir.normalized()

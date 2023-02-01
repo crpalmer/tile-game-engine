@@ -3,7 +3,6 @@ class_name ConversationalActor
 
 export var seconds_per_interation = 15
 
-var player_is_in_area = false
 var in_conversation = false
 
 func get_persistent_data():
@@ -61,10 +60,7 @@ func wants_to_initiate_conversation():
 
 func _process(_delta):
 	if mood != Mood.FRIENDLY: return
-	var in_area = $CloseArea.player_is_in_area
-	if in_area == player_is_in_area: return
-	player_is_in_area = in_area
-	if not in_area and in_conversation:
+	if in_conversation and not $CloseArea.player_is_in_sight():
 		end(0)
-	elif in_area and wants_to_initiate_conversation():
+	elif not in_conversation and wants_to_initiate_conversation() and $CloseArea.player_is_in_sight():
 		start()

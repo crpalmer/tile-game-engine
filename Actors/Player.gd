@@ -170,7 +170,7 @@ func take_damage(damage:int, from = null):
 
 func killed(who):
 	add_xp(who.xp_value)
-	
+
 func _process(_delta):
 	if GameEngine.is_paused(): return
 
@@ -215,7 +215,7 @@ func select_attack():
 func select_attack_target():
 	var hostiles = []
 	var others = []
-	for who in $CloseArea.who_is_in_area():
+	for who in $CloseArea.in_sight():
 		if who is Actor:
 			if who.mood == Mood.HOSTILE: hostiles.push_back(who)
 			else: others.push_back(who)
@@ -231,7 +231,7 @@ func process_attack():
 	attack(opponent, attack, clss.strength_modifier(strength))
 
 func process_use():
-	for use_on in $CloseArea.who_is_in_area():
+	for use_on in $CloseArea.in_sight():
 		if use_on is InventoryThing: add_to_inventory(use_on)
 		elif use_on is Thing: use_on.used_by(self)
 
@@ -253,16 +253,16 @@ func get_currency(currency):
 
 func process_look():
 	var what = ""
-	for thing in $CloseArea.who_is_in_area():
-		var this_what = thing.description()
+	for thing in $CloseArea.in_sight():
+		var this_what = thing.description() if thing.has_method("description") else null
 		if this_what:
 			if what.length() > 0: what = what + ", "
-			what = what + thing.description()
+			what = what + this_what
 	if what.length() == 0: what = "nothing"
 	GameEngine.message("You see: " + what)
 
 func process_talk():
-	for thing in $CloseArea.who_is_in_area():
+	for thing in $CloseArea.in_sight():
 		if thing.has_method("start"): thing.start()
 
 func get_inventory_containers():

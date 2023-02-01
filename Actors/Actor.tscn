@@ -7,7 +7,6 @@
 [node name="Actor" type="KinematicBody2D"]
 collision_layer = 7
 script = ExtResource( 4 )
-speed = 120
 
 [node name="VisionArea" parent="." instance=ExtResource( 1 )]
 visible = false
