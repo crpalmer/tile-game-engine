@@ -136,7 +136,8 @@ func create_character(clss_path, populate_inventory = true, give_currency = true
 			if give_currency: add_currency(c)
 			else:
 				items.push_back(c)
-				clss.remove_child(c)
+			clss.remove_child(c)
+			c.queue_free()
 	hp = clss.initial_hit_points() + GameEngine.ability_modifier(constitution)
 	max_hp = hp
 	on_inventory_changed()
@@ -167,6 +168,10 @@ func take_damage(damage:int, from = null):
 	if resting_state != NOT_RESTING: stop_resting()
 	.take_damage(damage, from)
 	emit_signal("player_stats_changed")
+
+func give_hit_points(hp_given):
+	hp += hp_given
+	if hp > max_hp: hp = max_hp
 
 func killed(who):
 	add_xp(who.xp_value)
@@ -231,21 +236,33 @@ func process_use():
 		if use_on is InventoryThing: add_to_inventory(use_on)
 		elif use_on is Thing: use_on.used_by(self)
 
-func add_currency(currency):
+func add_currency(currency, amount = 0):
 	if money.has(currency.filename):
 		money[currency.filename].n_units += currency.n_units
 	else:
 		money[currency.filename] = {}
-		money[currency.filename].n_units = currency.n_units
+		money[currency.filename].n_units = currency.n_units if amount == 0 else amount
 		money[currency.filename].unit_value = currency.unit_value
-		currency.get_parent().remove_child(currency)
-	GameEngine.message("You picked up %s" % currency.description())
-	currency.queue_free()
 	emit_signal("player_stats_changed")
 
-func get_currency(currency):
-	if money.has(currency): return money[currency].n_units
+func get_currency_by_filename(filename):
+	if money.has(filename): return money[filename].n_units
 	else: return 0
+
+func get_currency(currency):
+	return get_currency_by_filename(currency.filename)
+
+func try_to_pay(units:float):
+	var total = 0.0
+	for c in GameEngine.currency_ascending: total += get_currency(c) * c.unit_value
+	if total < units: return false
+	total -= units
+	money = {}
+	for c in GameEngine.currency_descending:
+		var amount = floor(total / c.unit_value)
+		add_currency(c, amount)
+		total -= amount * c.unit_value
+	return true
 
 func process_look():
 	var what = ""
@@ -329,8 +346,7 @@ func process_resting():
 			emit_signal("player_stats_changed")
 		SHORT_RESTING:
 			if short_rest_spent < level:
-				hp += GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution))
-				if hp > max_hp: hp = max_hp
+				give_hit_points(GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution)))
 				short_rest_spent += 1
 				emit_signal("player_stats_changed")
 

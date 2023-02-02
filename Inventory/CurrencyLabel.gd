@@ -6,5 +6,5 @@ func _ready():
 	var _err = GameEngine.player.connect("player_stats_changed", self, "on_player_stats_changed")
 
 func on_player_stats_changed():
-	var amount = GameEngine.player.get_currency(currency)
+	var amount = GameEngine.player.get_currency_by_filename(currency)
 	text = String(amount)

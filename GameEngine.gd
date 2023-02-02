@@ -16,20 +16,26 @@ var time_in_minutes = 0.0
 var fade_anim
 
 var config:GameConfiguration
-var currency = []
+var currency_ascending = []
+var currency_descending = []
 var conversation
 var current_scene_root
 
 class CurrencySorter:
-	static func currency_sort(a, b):
-		return a.unit_value > b.unit_value
+	static func currency_sort_asc(a, b):
+		return a.unit_value < b.unit_value
+	static func currency_sort_des(a, b):
+		return not currency_sort_asc(a, b)
 
 func _ready():
 	config = ResourceLoader.load("res://GameConfiguration.tres") #  "GameConfiguration")
 	fade_anim = get_tree().current_scene.get_node(config.fade_animation)
 	for c in config.currency:
-		currency.push_back(load(c).instance())
-	currency.sort_custom(CurrencySorter, "currency_sort")
+		var currency = load(c).instance()
+		currency_ascending.push_back(currency)
+		currency_descending.push_back(currency)
+	currency_ascending.sort_custom(CurrencySorter, "currency_sort_asc")
+	currency_descending.sort_custom(CurrencySorter, "currency_sort_des")
 	current_scene_root = get_tree().current_scene
 	
 func modulate(on):
@@ -42,6 +48,16 @@ func resume():
 	if paused > 0: paused -= 1
 
 func is_paused(): return paused > 0
+
+func currency_value_to_string(value:float):
+	var text = ""
+	for c in currency_descending:
+		var amount = floor(value/c.unit_value + .0001)
+		if amount > 0:
+			value -= amount * c.unit_value
+			if text.length() > 0: text += " "
+			text += "%d%s" % [amount, c.abbreviation]
+	return text
 
 func get_scene_node(path):
 	return current_scene.get_node(path)

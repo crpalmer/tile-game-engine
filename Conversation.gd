@@ -32,7 +32,7 @@ func start(name):
 	in_conversation = true
 	GameEngine.pause()
 
-func end(delay):
+func end(delay = 0):
 	if delay > 0: yield(get_tree().create_timer(delay), "timeout")
 	in_conversation = false
 	visible = false
@@ -40,6 +40,10 @@ func end(delay):
 
 func say(text):
 	call_deferred("said", text)
+
+func say_bye(text, delay = 0):
+	call_deferred("actor_said", text)
+	end(delay)
 
 func said(text):
 	actor_said(text)

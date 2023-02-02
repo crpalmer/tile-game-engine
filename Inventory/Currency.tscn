@@ -3,7 +3,7 @@
 [ext_resource path="res://GameEngine/Inventory/Currency.gd" type="Script" id=1]
 
 [sub_resource type="CircleShape2D" id=1]
-radius = 32.0
+radius = 16.0
 
 [node name="Currency" type="KinematicBody2D"]
 collision_layer = 2

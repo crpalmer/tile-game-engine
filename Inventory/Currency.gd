@@ -6,6 +6,7 @@ export(float) var unit_value = 1.0
 export(int) var n_units
 export(int) var random_min
 export(int) var random_max
+export(String) var abbreviation
 
 func copy_sprite(name, position):
 	var new_sprite = $Sprite.duplicate()
@@ -31,7 +32,10 @@ func value():
 	return n_units * unit_value
 
 func used_by(who):
-	if who.has_method("add_currency"): who.add_currency(self)
+	if who.has_method("add_currency"):
+		who.add_currency(self)
+		get_parent().remove_child(self)
+		queue_free()
 
 func description():
 	if n_units > 1: return "%d %s" % [ n_units, plural if plural != "" else display_name ]
