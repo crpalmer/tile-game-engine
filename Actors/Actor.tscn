@@ -22,5 +22,12 @@ visible = false
 visible = false
 position = Vector2( -16, -24 )
 
+[node name="Navigation" type="NavigationAgent2D" parent="."]
+path_desired_distance = 10.0
+target_desired_distance = 10.0
+path_max_distance = 50.0
+avoidance_enabled = true
+radius = 32.0
+
 [connection signal="timeout" from="AttackAvailable" to="." method="_on_AttackAvailable_timeout"]
 [connection signal="timeout" from="DamagePopupTimer" to="." method="_on_DamagePopupTimer_timeout"]

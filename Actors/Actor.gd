@@ -15,8 +15,9 @@ export var vision_radius = 120
 export var mood = Mood.FRIENDLY
 export var next_action = 0
 
+onready var navigation = $Navigation
+
 var travel_distance_fudge_factor = 2
-var player_position
 var punch = load("%s/Actors/Punch.tscn" % GameEngine.config.root).instance()
 
 func get_persistent_data():
@@ -42,7 +43,8 @@ func _ready():
 	$CloseArea.visible = true
 	set_vision_range(vision_radius)
 	set_close_range(close_radius)
-	player_position = position
+	navigation.connect("velocity_computed", self, "_on_Navigation_velocity_computed")
+	navigation.max_speed = travel_distance_in_pixels(1)
 	if not display_name or display_name == "": display_name = name
 
 func description():
@@ -88,13 +90,15 @@ func died():
 func killed(_who:Actor):
 	pass
 
+func i_see_the_player():
+	navigation.set_target_location(GameEngine.player.global_position)
+
 func default_process():
-	if GameEngine.is_paused(): return
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_sight():
-		player_position = GameEngine.player.position
+		i_see_the_player()
 		process_attack()
-	elif mood == Mood.NEUTRAL and $VisionArea.player_is_in_sight():
-		player_position = GameEngine.player.position
+	elif mood != Mood.FRIENDLY and $VisionArea.player_is_in_sight():
+		i_see_the_player()
 		mood = Mood.HOSTILE
 
 func select_attack():
@@ -115,12 +119,14 @@ func process_attack():
 	if attack: attack(GameEngine.player, attack)
 
 func default_physics_process(delta):
-	if mood == Mood.HOSTILE:
-		if $VisionArea.player_is_in_sight(): player_position = GameEngine.player.position
-		var dir:Vector2 = player_position - position
-		if dir.length() > 5:
-			dir = dir.normalized()
-			var _collision = move_and_collide(dir * travel_distance_in_pixels(delta))
+	if mood == Mood.HOSTILE and not navigation.is_navigation_finished():
+		var next_location = navigation.get_next_location()
+		var velocity = (next_location - global_position).normalized()
+		velocity *= travel_distance_in_pixels(delta)
+		navigation.set_velocity(velocity)
+
+func _on_Navigation_velocity_computed(safe_velocity):
+	var _collision = move_and_collide(safe_velocity)
 
 func travel_distance_in_pixels(delta_elapsed_time):
 	var minutes = GameEngine.real_time_to_game_time(delta_elapsed_time)
