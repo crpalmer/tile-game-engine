@@ -11,8 +11,3 @@ hp_dice = {
 "n": 1,
 "plus": 1
 }
-gp_dice = {
-"d": 0,
-"n": 0,
-"plus": 0
-}
