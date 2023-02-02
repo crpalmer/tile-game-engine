@@ -216,7 +216,7 @@ func add_node_at(to_add:Node, position:Vector2):
 	current_scene.add_child(to_add)
 
 func real_time_to_game_time(t):
-	return t * game_seconds_per_elapsed_second / 60
+	return t * game_seconds_per_elapsed_second / 60.0
 
 func add_to_game_time(minutes):
 	time_in_minutes += minutes
