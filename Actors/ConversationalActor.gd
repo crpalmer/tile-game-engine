@@ -22,7 +22,9 @@ func start():
 
 func say_hello(): say("Hello.")
 func say_attacked(): say("Die!")
-func say_bye(): say("Bye.")
+
+func say_bye(text = "Bye", delay = 0):
+	GameEngine.conversation.say_bye(text, delay)
 
 func end(delay = 2.0):
 	GameEngine.conversation.disconnect("player_said", self, "player_said")
