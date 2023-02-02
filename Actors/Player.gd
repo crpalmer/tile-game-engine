@@ -171,9 +171,7 @@ func take_damage(damage:int, from = null):
 func killed(who):
 	add_xp(who.xp_value)
 
-func _process(_delta):
-	if GameEngine.is_paused(): return
-
+func default_process():
 	if resting_state != NOT_RESTING:
 		process_resting()
 		return
@@ -187,9 +185,7 @@ func _process(_delta):
 		if Input.is_key_pressed(KEY_CONTROL): long_rest()
 		else: short_rest()
 	
-func _physics_process(delta):
-	if GameEngine.is_paused(): return
-
+func default_physics_process(delta):
 	var dir = Vector2(0, 0)
 	if Input.is_action_pressed("left"): dir.x -= 1
 	if Input.is_action_pressed("right"): dir.x += 1
