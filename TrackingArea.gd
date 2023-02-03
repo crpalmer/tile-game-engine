@@ -70,13 +70,19 @@ func get_LOS_ignore(tracker, trackee):
 		if tracked != trackee and tracked is InventoryThing: ignore.push_back(tracked)
 	return ignore
 
+func is_self_or_child_of(node, target):
+	while node != null:
+		if node == target: return true
+		node = node.get_parent()
+	return false
+
 func LOS(tracker, trackee):
 	var ignore = get_LOS_ignore(tracker, trackee)
 	var space_rid = get_world_2d().space
 	var space_state = Physics2DServer.space_get_direct_state(space_rid)
 	# First check a ray straight at the object
 	var in_sight = space_state.intersect_ray(tracker.global_position, trackee.global_position, ignore)
-	if in_sight and in_sight.collider == trackee: return true
+	if in_sight and is_self_or_child_of(in_sight.collider, trackee): return true
 	# If that doesn't work, try shooting rays at all its active collision shapes
 	# For example a door has a position but open and closed have different collision shapes!
 	for c in trackee.get_children():
