@@ -64,6 +64,8 @@ func colliding(tracker, trackee):
 # Inventory things shouldn't block our view, look through all other inventory things
 func get_LOS_ignore(tracker, trackee):
 	var ignore = [ tracker ]
+	for c in tracker.get_children():
+		if c.is_in_group("Trackables"): ignore.push_back(c)
 	for tracked in in_area:
 		if tracked != trackee and tracked is InventoryThing: ignore.push_back(tracked)
 	return ignore
