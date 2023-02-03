@@ -3,7 +3,8 @@ class_name ConversationalActor
 
 export var seconds_per_interation = 15
 
-var for_sale = []
+var things_for_sale = []
+var services_for_sale = []
 
 var in_conversation = false
 var is_selling = false
@@ -46,12 +47,12 @@ func add_time():
 	GameEngine.add_to_game_time(seconds_per_interation/60)
 
 func player_said_wrapper(text, words):
-	if process_sale(text):
+	if text.begins_with("buy ") and process_sale(text.substr(4)):
 		# Someone already knows what we're selling, them have it
 		pass
 	elif is_selling:
 		handle_selling_other_than_sale(text, words)
-	elif for_sale.size() > 0 and is_sale_utterance(text, words):
+	elif services_for_sale.size() + things_for_sale.size() > 0 and is_sale_utterance(text, words):
 		start_selling()
 	else:
 		player_said(text, words)
@@ -68,6 +69,8 @@ func player_said(text:String, words:Array):
 	elif "bye" in words or text == "":
 		say_bye()
 		end(0.75)
+	elif is_a_thing_for_sale(text):
+		say("I sell %s, if you want to purchase it say \"buy %s\"." % [text, text])
 	else:
 		say("I don't understand")
 
@@ -84,16 +87,34 @@ func _process(_delta):
 func is_sale_utterance(_text, words):
 	return words.has("buy")
 
-func sell(sale):
+func is_a_thing_for_sale(text):
+	if services_for_sale.has(text): return true
+	for thing in things_for_sale: if thing.display_name == text: return true
+	return false
+
+func sell_service(_sale):
+	pass
+
+func sell_thing(_thing):
 	pass
 
 func process_sale(text):
-	for sale in for_sale:
+	for sale in services_for_sale:
 		if sale.name == text:
 			if GameEngine.player.try_to_pay(sale.cost):
-				say(sell(sale) + "\nYou paid %s.  What else can I help you with?" % GameEngine.currency_value_to_string(sale.cost))
+				say(sell_service(sale) + "\nYou paid %s.  What else can I help you with?" % GameEngine.currency_value_to_string(sale.cost))
 			else:
 				say("You can't afford %s" % GameEngine.currency_value_to_string(sale.cost))
+			is_selling = false
+			return true
+	for thing in things_for_sale:
+		if thing.display_name == text:
+			if GameEngine.player.try_to_pay(thing.value):
+				var new_thing = thing.duplicate()
+				new_thing.visible = true
+				say(sell_thing(new_thing) + "\nYou paid %s.  What else can I help you with?" % GameEngine.currency_value_to_string(thing.value))
+			else:
+				say("You can't afford %s" % GameEngine.currency_value_to_string(thing.value))
 			is_selling = false
 			return true
 	return false
@@ -102,8 +123,11 @@ func start_selling():
 	is_selling = true
 	var text = ""
 	var divider = ""
-	for sale in for_sale:
+	for sale in services_for_sale:
 		text = text + "%s%s for %s" % [divider, sale.name, GameEngine.currency_value_to_string(sale.cost)]
+		divider = " or "
+	for thing in things_for_sale:
+		text = text + "%s%s for %s" % [divider, thing.display_name, GameEngine.currency_value_to_string(thing.value)]
 		divider = " or "
 	say("I can offer: " + text)
 
