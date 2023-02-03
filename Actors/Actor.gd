@@ -63,8 +63,8 @@ func take_damage(damage:int, from:Actor = null):
 	hp -= damage
 	GameEngine.message(display_name + " takes " + String(damage) + " damage.")
 	if hp <= 0:
-		if from: from.killed(self)
 		died()
+		if from: from.killed(self)
 	else:
 		damage_popup(true, damage)
 
