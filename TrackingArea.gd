@@ -34,10 +34,17 @@ func body_entered(who_entered):
 func body_exited(who_exited):
 	record_area(get_parent(), who_exited, false)
 
+func is_a_child_of_an_actor(node):
+	node = node.get_parent()
+	while node != null:
+		if node is Actor: return true
+		node = node.get_parent()
+	return false
+
 func is_trackable(tracker, trackee):
 	if not trackee.is_in_group("Trackables"): return false
 	if trackee == tracker: return false
-	if GameEngine.player.is_a_parent_of(trackee): return false  # don't track the inventory!
+	if is_a_child_of_an_actor(trackee): return false  # don't track anyone's inventory!
 	return true
 
 func record_area(tracker, trackee, is_entered):
