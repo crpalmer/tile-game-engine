@@ -4,6 +4,7 @@ class_name Actor
 enum Mood { FRIENDLY = 0, NEUTRAL = 1, HOSTILE =2 }
 
 export var display_name:String
+export var long_description:String
 export var ac = 10
 export var hp = 1
 export var max_hp = 1
@@ -48,7 +49,7 @@ func _ready():
 	if not display_name or display_name == "": display_name = name
 
 func description():
-	return display_name
+	return long_description
 	
 func set_vision_range(radius:int):
 	$VisionArea.set_tracking_radius(radius)
