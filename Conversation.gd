@@ -82,9 +82,15 @@ func tokenize(text:String):
 func _on_PlayerText_text_entered(text):
 	call_deferred("player_entered", text)
 
+var filtered_words = [ "a", "of", "the", "is", "and", "or" ]
+
 func player_entered(text):
 	player_text.visible = false
-	emit_signal("player_said", text, tokenize(text))
+	var tokenized = tokenize(text)
+	var filtered = []
+	for word in tokenized: if not filtered_words.has(word): filtered.append(word)
+	var filtered_text = PoolStringArray(filtered).join(" ")
+	emit_signal("player_said", filtered_text, filtered)
 
 func _on_More_pressed():
 	call_deferred("more_pressed")
