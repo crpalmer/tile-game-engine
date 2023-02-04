@@ -346,7 +346,7 @@ func process_resting():
 			next_long_rest = GameEngine.time_in_minutes + 8*60
 			emit_signal("player_stats_changed")
 		SHORT_RESTING:
-			if short_rest_spent < level:
+			if short_rest_spent < level and hp < max_hp:
 				give_hit_points(GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution)))
 				short_rest_spent += 1
 				emit_signal("player_stats_changed")
