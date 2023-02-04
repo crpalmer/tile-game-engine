@@ -4,8 +4,8 @@ class_name Thing
 export var display_name:String
 export var long_description:String
 export var max_uses = -1
-export var use_time = 0.2
-export var minutes_between_uses = 0
+export var use_time = 0
+export var minutes_between_uses = 0.2
 
 var next_use_at = 0
 
