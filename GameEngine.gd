@@ -186,7 +186,6 @@ func fade(leave_faded, from, to, duration = 0.5):
 	pause()
 	var animation_player = fade_canvas.get_node("Fade/AnimationPlayer")
 	var animation = animation_player.get_animation("Fade")
-	print_debug("Fade from ", from, " to ", to)
 	animation.track_set_key_value(0, 0, from)
 	animation.track_set_key_value(0, 1, to)
 	animation.track_set_key_time(0, 1, duration)
@@ -194,11 +193,8 @@ func fade(leave_faded, from, to, duration = 0.5):
 	if fade_canvas.get_parent() == null:
 		get_tree().current_scene.add_child(fade_canvas)
 		yield(get_tree(), "idle_frame")
-	print_debug("playing", animation)
 	animation_player.play("Fade")
-	print_debug(animation_player.is_playing())
 	yield(animation_player, "animation_finished")
-	print_debug("finished")
 	if not leave_faded: get_tree().current_scene.remove_child(fade_canvas)
 	resume()
 
