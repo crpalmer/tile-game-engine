@@ -218,6 +218,7 @@ func fade_to_resting():
 	fade_out(config.resting_alpha)
 
 func enter_scene(scene:String, entry_point = null):
+	print_debug("Entering scene: ", scene, " @ ", entry_point)
 	pause()
 	if current_scene: fade_out()
 
@@ -254,10 +255,10 @@ func add_scene_at(path:String, global_position:Vector2):
 	return to_add
 
 func add_node_at(to_add:Node, global_position:Vector2):
-	to_add.global_position = global_position
 	to_add.visible = true
 	if to_add.get_parent(): to_add.get_parent().remove_child(to_add)
 	current_scene.add_child(to_add)
+	to_add.global_position = global_position
 
 func real_time_to_game_time(t):
 	return t * game_seconds_per_elapsed_second / 60.0
