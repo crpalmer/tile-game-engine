@@ -51,7 +51,7 @@ func player_said_wrapper(text, words):
 		# Someone already knows what we're selling, them have it
 		pass
 	elif is_selling:
-		handle_selling_other_than_sale(text, words)
+		handle_selling(text, words)
 	elif services_for_sale.size() + things_for_sale.size() > 0 and is_sale_utterance(text, words):
 		start_selling()
 	else:
@@ -88,7 +88,7 @@ func is_sale_utterance(_text, words):
 	return words.has("buy")
 
 func is_a_thing_for_sale(text):
-	if services_for_sale.has(text): return true
+	for service in services_for_sale: if service.name == text: return true
 	for thing in things_for_sale: if thing.display_name == text: return true
 	return false
 
@@ -131,9 +131,11 @@ func start_selling():
 		divider = " or "
 	say("I can offer: " + text)
 
-func handle_selling_other_than_sale(text, words):
+func handle_selling(text, words):
 	if text == "" or text == "" or words.has("nothing") or words.has("none"):
 		say("What else can I help you with then?")
 		is_selling = false
 	elif is_sale_utterance(text, words):
 		start_selling()
+	elif not process_sale(text):
+		say("What do you want to buy?")
