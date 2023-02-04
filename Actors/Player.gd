@@ -162,9 +162,9 @@ func stop_resting(regained_hp = 0):
 	])
 	if regained_hp > 0: GameEngine.message("You regained %d HPs" % regained_hp)
 
-func take_damage(damage:int, from = null):
+func take_damage(damage:int, from = null, cause = null):
 	if resting_state != NOT_RESTING: stop_resting()
-	.take_damage(damage, from)
+	.take_damage(damage, from, cause)
 	emit_signal("player_stats_changed")
 
 func give_hit_points(hp_given):

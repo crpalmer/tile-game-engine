@@ -59,9 +59,12 @@ func set_close_range(radius:int):
 	$CloseArea.set_tracking_radius(radius)
 	close_radius = radius
 
-func take_damage(damage:int, from:Actor = null):
+func take_damage(damage:int, from:Actor = null, cause = null):
 	hp -= damage
-	GameEngine.message(display_name + " takes " + String(damage) + " damage.")
+	var message = "%s takes %d damage" % [ display_name, damage ]
+	if from and from != GameEngine.player: message += " from %s" % [ from.display_name ]
+	if cause: message += " by a %s" % [ cause.display_name]
+	GameEngine.message(message)
 	if hp <= 0:
 		died()
 		if from: from.killed(self)
@@ -77,8 +80,9 @@ func attack(who:Actor, attack, damage_modifier = 0):
 		var damage_dice = attack.damage_dice
 		damage_dice.plus += damage_modifier
 		var damage = GameEngine.roll(damage_dice)
-		who.take_damage(damage, self)
+		who.take_damage(damage, self, attack)
 	else:
+		GameEngine.message("%s misses %s with a %s" % [ display_name, who.display_name, attack.display_name ])
 		who.damage_popup(false)
 
 func died():
