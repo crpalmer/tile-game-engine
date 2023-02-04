@@ -57,10 +57,6 @@ func record_area(tracker, trackee, is_entered):
 	#else:
 	#	print("Not tracking %s / %s" % [get_parent().name, name])
 
-func colliding(tracker, trackee):
-	var vector = tracker.position - trackee.position
-	return vector.length() < GameEngine.feet_to_pixels(1)
-
 # Inventory things shouldn't block our view, look through all other inventory things
 func get_LOS_ignore(tracker, trackee):
 	var ignore = [ tracker ]
