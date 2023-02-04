@@ -49,6 +49,7 @@ func said(text):
 
 func actor_said(text):
 	speaker_text.text = text
+	GameEngine.message(text)
 
 func show_player_text():
 	player_text.text = ""
