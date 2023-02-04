@@ -91,6 +91,12 @@ func died():
 func killed(_who:Actor):
 	pass
 
+func player_is_in_sight():
+	return $VisionArea.player_is_in_sight()
+
+func is_in_sight(who):
+	return $VisionArea.is_in_sight(who)
+
 func i_see_the_player():
 	navigation.set_target_location(GameEngine.player.global_position)
 

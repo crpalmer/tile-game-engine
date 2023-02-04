@@ -25,14 +25,16 @@ func _ready():
 	set_next_check()
 
 func set_next_check():
-	next_check_at = GameEngine.time_in_minutes + check_every_hours*60
+	if monsters.size() > 0:
+		next_check_at = GameEngine.time_in_minutes + check_every_hours*60
+	else:
+		next_check_at = INF
 
 func place(m):
 	for x in [ 0, 1, -1]:
 		for y in [ -1, 1, 0]:
-			m.global_position = GameEngine.player.global_position + Vector2(x, y)*GameEngine.feet_to_pixels(10)
+			m.global_position = GameEngine.player.global_position + Vector2(x, y)*GameEngine.feet_to_pixels(5)
 			if m.player_is_in_sight():
-				var _collide = m.move_and_collide(Vector2(x, y) * GameEngine.feet_to_pixels(30))
 				return
 
 func _physics_process(_delta):
