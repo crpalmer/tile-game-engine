@@ -16,7 +16,7 @@ current = true
 radius = 100
 
 [node name="LightSource" parent="Camera2D" index="1" instance=ExtResource( 1 )]
-radius = 45
+radius = 10
 
 [node name="CloseArea" parent="." index="2"]
 position = Vector2( 1, 0 )
