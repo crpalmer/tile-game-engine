@@ -13,7 +13,8 @@ var paused:int = 0
 var current_scene
 var game_seconds_per_elapsed_second = 6
 var time_in_minutes = 0.0
-var fade_anim
+var fade_canvas
+var fade_animation_player
 
 var config:GameConfiguration
 var scene_config:SceneConfiguration
@@ -30,7 +31,7 @@ class CurrencySorter:
 
 func _ready():
 	config = ResourceLoader.load("res://GameConfiguration.tres") #  "GameConfiguration")
-	fade_anim = get_tree().current_scene.get_node(config.fade_animation)
+	fade_canvas = load("%s/Fade.tscn" % config.root).instance()
 	for c in config.currency:
 		var currency = load(c).instance()
 		currency_ascending.push_back(currency)
@@ -180,19 +181,45 @@ func instantiate(filename, data, global_position = null):
 	if global_position: thing.global_position = global_position
 	return thing
 
-func fade_out():
-	if fade_anim:
-		pause()
-		fade_anim.play("Fade")
-		yield(fade_anim, "animation_finished")
-		resume()
 
-func fade_in():
-	if fade_anim:
-		pause()
-		fade_anim.play_backwards("Fade")
-		yield(fade_anim, "animation_finished")
-		resume()
+func fade(leave_faded, from, to, duration = 0.5):
+	pause()
+	var animation_player = fade_canvas.get_node("Fade/AnimationPlayer")
+	var animation = animation_player.get_animation("Fade")
+	print_debug("Fade from ", from, " to ", to)
+	animation.track_set_key_value(0, 0, from)
+	animation.track_set_key_value(0, 1, to)
+	animation.track_set_key_time(0, 1, duration)
+	animation.length = duration
+	if fade_canvas.get_parent() == null:
+		get_tree().current_scene.add_child(fade_canvas)
+		yield(get_tree(), "idle_frame")
+	print_debug("playing", animation)
+	animation_player.play("Fade")
+	print_debug(animation_player.is_playing())
+	yield(animation_player, "animation_finished")
+	print_debug("finished")
+	if not leave_faded: get_tree().current_scene.remove_child(fade_canvas)
+	resume()
+
+func fade_color(leave_faded, color, from, to, duration = 0.5):
+	var from_color = color
+	var to_color = color
+	from_color.a = from
+	to_color.a = to
+	fade(leave_faded, from_color, to_color, duration)
+
+func fade_in(alpha = 255):
+	fade_color(false, config.fade_color, alpha, 0)
+
+func fade_out(alpha = 255):
+	fade_color(true, config.fade_color, 0, alpha)
+
+func fade_from_resting():
+	fade_in(config.resting_alpha)
+
+func fade_to_resting():
+	fade_out(config.resting_alpha)
 
 func enter_scene(scene:String, entry_point = null):
 	pause()

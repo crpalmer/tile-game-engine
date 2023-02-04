@@ -154,7 +154,7 @@ func enter_current_scene():
 
 func stop_resting(regained_hp = 0):
 	resting_state = NOT_RESTING
-	GameEngine.fade_in()
+	GameEngine.fade_from_resting()
 	Engine.time_scale = 1
 	var rest_time = int(GameEngine.time_in_minutes - resting_started_at)
 	GameEngine.message("You rested for %d hour%s and %d minute%s" % [
@@ -321,7 +321,7 @@ func start_resting(state, minutes):
 	resting_state = state
 	resting_started_at = GameEngine.time_in_minutes
 	resting_until = resting_started_at + minutes
-	GameEngine.fade_out()
+	GameEngine.fade_to_resting()
 	Engine.time_scale = 1000
 
 func short_rest():
