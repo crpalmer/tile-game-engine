@@ -289,6 +289,7 @@ func message(msg):
 
 func current_time_of(m):
 	return {
+		"seconds": (m - int(m))*60,
 		"minutes": int(m) % 60,
 		"hours": int(m/60) % 24,
 		"days": int(m/(24*60))%365,
