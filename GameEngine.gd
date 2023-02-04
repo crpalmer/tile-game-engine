@@ -16,6 +16,7 @@ var time_in_minutes = 0.0
 var fade_anim
 
 var config:GameConfiguration
+var scene_config:SceneConfiguration
 var currency_ascending = []
 var currency_descending = []
 var conversation
@@ -214,6 +215,10 @@ func enter_scene(scene:String, entry_point = null):
 		current_scene.add_child(player)
 		player.global_position = entry_node.global_position
 		player.enter_current_scene()
+
+	scene_config = SceneConfiguration.new()
+	for c in current_scene.get_children():
+		if c is SceneConfiguration: scene_config = c
 
 	get_tree().paused = false
 
