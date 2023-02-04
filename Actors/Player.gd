@@ -120,9 +120,9 @@ func roll_ability_score():
 	print(dice)
 	return dice[1] + dice[2] + dice[3] + 1   # +1 is the human bonus
 
-func create_character(clss_path, populate_inventory = true, give_currency = true):
+func create_character(clss_in):
 	var items = []
-	clss = load(clss_path).instance()
+	clss = clss_in.duplicate()
 	add_child(clss)
 	strength = roll_ability_score()
 	dexterity = roll_ability_score()
@@ -131,12 +131,9 @@ func create_character(clss_path, populate_inventory = true, give_currency = true
 	for c in clss.get_children():
 		if c.is_in_group("InventoryThings"):
 			clss.remove_child(c)
-			if populate_inventory: add_to_inventory(c)
-			else: items.push_back(c)
+			items.push_back(c)
 		elif c is Currency:
-			if give_currency: add_currency(c)
-			else:
-				items.push_back(c)
+			add_currency(c)
 			clss.remove_child(c)
 			c.queue_free()
 	hp = clss.initial_hit_points() + GameEngine.ability_modifier(constitution)
