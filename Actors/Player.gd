@@ -55,7 +55,7 @@ func add_xp(new_xp:int):
 	GameEngine.message("You gained %d XP" % new_xp)
 	while xp >= xp_table[level+1]:
 		level = level + 1
-		var new_hp = GameEngine.roll(clss.hit_dice, GameEngine.ability_modifier(constitution))
+		var new_hp = GameEngine.roll(clss.hit_dice(), GameEngine.ability_modifier(constitution))
 		hp += new_hp
 		max_hp += new_hp
 		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, new_hp])
