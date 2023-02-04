@@ -1,15 +1,26 @@
 extends Label
 
-enum Stat { HP, AC, MAX_HP, LEVEL,  XP, TO_HIT_MODIFIER, STRENGTH, DEXTERITY, CONSTITUTION }
+enum Stat {
+	HP, AC, MAX_HP,
+	LEVEL,  XP,
+	STRENGTH, DEXTERITY, CONSTITUTION,
+	STRENGTH_MODIFIER, DEXTERITY_MODIFIER, CONSTITUTION_MODIFIER,
+	TO_HIT_MODIFIER
+}
 
-export(int, "Hit Points", "Armour Class", "Maximum Hit Points", "Level", "Experience Points", "To Hit Modifier", "Strength", "Dexterity", "Constitution") var stat
+export(int,
+	"Hit Points", "Armour Class", "Maximum Hit Points",
+	"Level", "Experience Points",
+	"Strength", "Dexterity", "Constitution",
+	"Strength Modifier", "Dexterity Modifier", "Constitution Modifier",
+	"To Hit Modifier"
+) var stat
 
 func _ready():
 	var _err = GameEngine.connect("player_created", self, "player_created")
 
 func player_created():
 	var _err = GameEngine.player.connect("player_stats_changed", self, "update_my_stat")
-	update_my_stat()
 
 func update_my_stat():
 	var value:int = get_stat(GameEngine.player)
@@ -23,6 +34,9 @@ func get_stat(p):
 		Stat.LEVEL: return p.level
 		Stat.XP: return p.xp
 		Stat.TO_HIT_MODIFIER: return p.to_hit_modifier
-		Stat.Strength: return p.strenght
-		Stat.Dexterity: return p.dexterity
-		Stat.Constitution: return p.constitution
+		Stat.STRENGTH: return p.strength
+		Stat.DEXTERITY: return p.dexterity
+		Stat.CONSTITUTION: return p.constitution
+		Stat.STRENGTH_MODIFIER: return p.clss.strength_modifier(p.strength, p.level)
+		Stat.DEXTERITY_MODIFIER: return p.clss.dexterity_modifier(p.dexterity, p.level)
+		Stat.CONSTITUTION_MODIFIER: return p.clss.constitution_modifier(p.constitution, p.level)
