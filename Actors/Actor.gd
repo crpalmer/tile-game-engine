@@ -77,7 +77,7 @@ func attack(who:Actor, attack, damage_modifier = 0):
 	
 	print(display_name + " attacks " + who.display_name + " with " + attack.display_name)
 	if GameEngine.roll_test(who.ac, to_hit_modifier + attack.to_hit_modifier, true):
-		var damage_dice = attack.damage_dice
+		var damage_dice = attack.damage_dice.duplicate()
 		damage_dice.plus += damage_modifier
 		var damage = GameEngine.roll(damage_dice)
 		who.take_damage(damage, self, attack)
