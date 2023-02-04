@@ -189,6 +189,8 @@ func default_process():
 		else: short_rest()
 	
 func default_physics_process(delta):
+	if resting_state != NOT_RESTING: return
+
 	var dir = Vector2(0, 0)
 	if Input.is_action_pressed("left"): dir.x -= 1
 	if Input.is_action_pressed("right"): dir.x += 1
