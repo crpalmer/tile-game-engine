@@ -14,12 +14,12 @@ func get_persistent_data():
 		return {
 			"filename": thing.filename,
 			"data": thing.get_persistent_data(),
-			"position": thing.position
+			"global_position": thing.global_position
 		}
 	else: return null
 
 func load_persistent_data(p):
-	var thing = GameEngine.instantiate(p.filename, p.data, p.position)
+	var thing = GameEngine.instantiate(p.filename, p.data, p.global_position)
 	add_child(thing)
 
 func _ready():

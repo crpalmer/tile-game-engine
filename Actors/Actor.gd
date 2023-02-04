@@ -84,8 +84,8 @@ func attack(who:Actor, attack, damage_modifier = 0):
 func died():
 	GameEngine.message(display_name + " died!")
 	for i in get_children():
-		if i is InventoryThing: GameEngine.add_node_at(i, position)
-		if i is Currency and i.n_units > 0: GameEngine.add_node_at(i, position)
+		if i is InventoryThing: GameEngine.add_node_at(i, global_position)
+		if i is Currency and i.n_units > 0: GameEngine.add_node_at(i, global_position)
 		queue_free()
 	
 func killed(_who:Actor):

@@ -12,13 +12,13 @@ func get_persistent_data():
 		active.append({
 			"filename": c.filename,
 			"data": c.get_persistent_data(),
-			"position": c.position
+			"global_position": c.global_position
 		})
 	return active
 
 func load_persistent_data(p):
 	for c in p:
-		add_child(GameEngine.instantiate(c.filename, c.data, c.position))
+		add_child(GameEngine.instantiate(c.filename, c.data, c.global_position))
 
 func _ready():
 	add_to_group("PersistentOthers")
@@ -30,7 +30,7 @@ func set_next_check():
 func place(m):
 	for x in [ 0, 1, -1]:
 		for y in [ -1, 1, 0]:
-			m.position = GameEngine.player.position + Vector2(x, y)*GameEngine.feet_to_pixels(10)
+			m.global_position = GameEngine.player.global_position + Vector2(x, y)*GameEngine.feet_to_pixels(10)
 			if m.player_is_in_sight():
 				var _collide = m.move_and_collide(Vector2(x, y) * GameEngine.feet_to_pixels(30))
 				return

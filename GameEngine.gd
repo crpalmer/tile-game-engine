@@ -99,7 +99,7 @@ func get_current_scene_state():
 			actor_data.merge({
 				a.name: {
 				"data": a.get_persistent_data(),
-				"position": a.position
+				"global_position": a.global_position
 			}})
 	for t in current_scene.get_children():
 		if t.is_in_group("PersistentThings"):
@@ -107,7 +107,7 @@ func get_current_scene_state():
 				t.name: {
 				"filename": t.filename,
 				"data": t.get_persistent_data(),
-				"position": t.position
+				"global_position": t.global_position
 			}})
 	for o in get_tree().get_nodes_in_group("PersistentOthers"):
 		others_data.merge({
@@ -125,7 +125,7 @@ func get_save_data():
 		"current_scene": current_scene.filename,
 		"scene_state": scene_state,
 		"player": player.get_persistent_data(),
-		"player_position": player.position,
+		"player_global_position": player.global_position,
 		"time_in_minutes": time_in_minutes
 	}
 
@@ -141,13 +141,13 @@ func load_scene_state(p):
 		if p.actors.has(a.name):
 			var d = p.actors[a.name]
 			a.load_persistent_data(d.data)
-			a.position = d.position
+			a.global_position = d.global_position
 		else: a.queue_free()
 	for t in current_scene.get_children():
 		if t.is_in_group("PersistentThings"): t.queue_free()
 	for n in p.things.keys():
 		var t = p.things[n]
-		current_scene.add_child(instantiate(t.filename, t.data, t.position))
+		current_scene.add_child(instantiate(t.filename, t.data, t.global_position))
 	for o in get_tree().get_nodes_in_group("PersistentOthers"):
 		if p.others.has(o.name):
 			o.load_persistent_data(p.others[o.name])
@@ -162,7 +162,7 @@ func load_save_data(p):
 	enter_scene(p.current_scene)
 	current_scene.add_child(player)
 	player.load_persistent_data(p.player)
-	player.position = p.player_position
+	player.global_position = p.player_global_position
 
 func load_saved_game(filename):
 	var file = File.new()
@@ -173,10 +173,10 @@ func load_saved_game(filename):
 	paused = 0
 	return true
 
-func instantiate(filename, data, position = null):
+func instantiate(filename, data, global_position = null):
 	var thing = load(filename).instance()
 	thing.load_persistent_data(data)
-	if position: thing.position = position
+	if global_position: thing.global_position = global_position
 	return thing
 
 func fade_out():
@@ -212,7 +212,7 @@ func enter_scene(scene:String, entry_point = null):
 	if entry_point:
 		var entry_node = current_scene.get_node(entry_point)
 		current_scene.add_child(player)
-		player.position = entry_node.position
+		player.global_position = entry_node.global_position
 		player.enter_current_scene()
 
 	get_tree().paused = false
@@ -220,13 +220,13 @@ func enter_scene(scene:String, entry_point = null):
 	fade_in()
 	resume()
 
-func add_scene_at(path:String, position:Vector2):
+func add_scene_at(path:String, global_position:Vector2):
 	var to_add = load(path).instance()
-	add_node_at(to_add, position)
+	add_node_at(to_add, global_position)
 	return to_add
 
-func add_node_at(to_add:Node, position:Vector2):
-	to_add.position = position
+func add_node_at(to_add:Node, global_position:Vector2):
+	to_add.global_position = global_position
 	to_add.visible = true
 	if to_add.get_parent(): to_add.get_parent().remove_child(to_add)
 	current_scene.add_child(to_add)
