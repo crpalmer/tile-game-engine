@@ -9,6 +9,6 @@ func initial_hit_points(): return 6
 func ability_improvement_at_level(_level): return 0
 func number_of_attacks(_level): return 1
 
-func strength_modifier(strength): return GameEngine.ability_modifier(strength)
-func dexterity_modifier(dex): return GameEngine.ability_modifier(dex)
-func constitution_modifier(con): return GameEngine.ability_modifier(con)
+func strength_modifier(strength, _level): return GameEngine.ability_modifier(strength)
+func dexterity_modifier(dex, _level): return GameEngine.ability_modifier(dex)
+func constitution_modifier(con, _level): return GameEngine.ability_modifier(con)

@@ -3,7 +3,6 @@ extends Node
 signal player_created # A new player scene was instanced
 signal message
 signal new_game      # A new game is being created
-signal new_player    # The player data needs to be populated
 
 enum BodyParts { HANDS = 1, HEAD = 2, BODY = 4, FEET = 8, NECK = 16 }
 
@@ -68,12 +67,10 @@ func get_scene_node_or_null(path):
 	return current_scene.get_node_or_null(path)
 
 func remove_player_from_scene():
-	if player and player.get_parent() and current_scene: current_scene.remove_child(player)
+	if player and player.get_parent(): player.get_parent().remove_child(player)
 
 func new_game():
 	clear_game()
-	enter_scene(config.entry_scene, config.entry_point)
-	emit_signal("new_player")
 	time_in_minutes = config.game_start_time_in_hours * 60
 	
 func clear_game():
@@ -90,6 +87,7 @@ func create_player():
 	remove_player_from_scene()
 	if player: player.call_deferred("free")
 	player = load(config.player).instance()
+	get_tree().current_scene.add_child(player)
 	emit_signal("player_created")
 
 func get_current_scene_state():
@@ -224,8 +222,8 @@ func enter_scene(scene:String, entry_point = null):
 
 	get_tree().paused = true
 
+	remove_player_from_scene()
 	if current_scene:
-		remove_player_from_scene()
 		scene_state[current_scene.filename] = get_current_scene_state()
 		current_scene.get_parent().remove_child(current_scene)
 		current_scene.queue_free()

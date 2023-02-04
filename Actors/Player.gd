@@ -230,7 +230,7 @@ func process_attack():
 	if attack == null: return
 	var opponent = select_attack_target()
 	if opponent == null: return
-	attack(opponent, attack, clss.strength_modifier(strength))
+	attack(opponent, attack, clss.strength_modifier(strength, level))
 
 func process_use():
 	for use_on in $CloseArea.in_sight():
@@ -305,17 +305,17 @@ func set_ambient_light(percent):
 	$Camera2D/LightSource.set_brightness(100-percent)
 
 func on_inventory_changed():
-	ac = $Inventory.get_ac() + clss.dexterity_modifier(dexterity)
-	to_hit_modifier = $Inventory.get_to_hit_modifier() + clss.strength_modifier(strength)
+	ac = $Inventory.get_ac() + clss.dexterity_modifier(dexterity, level)
+	to_hit_modifier = $Inventory.get_to_hit_modifier() + clss.strength_modifier(strength, level)
 	attacks = []
 	for thing in $Inventory.get_equipped_things():
 		if thing.can_attack_with: attacks.push_back(thing)
 	if attacks.size() == 0: attacks.push_back(punch)
 	emit_signal("player_stats_changed")
 
-func strength_test(needed): return GameEngine.roll_test(needed, clss.strength_modifier(strength))
-func dexterity_test(needed): return GameEngine.roll_test(needed, clss.dexterity_modifier(dexterity))
-func constitution_test(needed): return GameEngine.roll_test(needed, clss.constitution_modifier(constitution))
+func strength_test(needed): return GameEngine.roll_test(needed, clss.strength_modifier(strength, level))
+func dexterity_test(needed): return GameEngine.roll_test(needed, clss.dexterity_modifier(dexterity, level))
+func constitution_test(needed): return GameEngine.roll_test(needed, clss.constitution_modifier(constitution, level))
 
 func start_resting(state, minutes):
 	resting_state = state
@@ -347,7 +347,7 @@ func process_resting():
 			emit_signal("player_stats_changed")
 		SHORT_RESTING:
 			if short_rest_spent < level and hp < max_hp:
-				give_hit_points(GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution)))
+				give_hit_points(GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level)))
 				short_rest_spent += 1
 				emit_signal("player_stats_changed")
 

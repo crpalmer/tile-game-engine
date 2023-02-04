@@ -4,7 +4,7 @@ export(Array, String, FILE) var monsters
 export var check_every_hours = 24.0
 export var test_roll = 20
 
-var next_check_at
+var next_check_at = 0
 
 func get_persistent_data():
 	var active = []
@@ -14,21 +14,25 @@ func get_persistent_data():
 			"data": c.get_persistent_data(),
 			"global_position": c.global_position
 		})
-	return active
+	return {
+		"next_check_at": next_check_at,
+		"active": active
+	}
 
 func load_persistent_data(p):
-	for c in p:
+	next_check_at = p.next_check_at
+	for c in p.active:
 		add_child(GameEngine.instantiate(c.filename, c.data, c.global_position))
 
 func _ready():
 	add_to_group("PersistentOthers")
-	set_next_check()
 
 func set_next_check():
 	if monsters.size() > 0:
 		next_check_at = GameEngine.time_in_minutes + check_every_hours*60
 	else:
 		next_check_at = INF
+	print("Next random number check at %f in %f with %f + %f" % [next_check_at, next_check_at - GameEngine.time_in_minutes, GameEngine.time_in_minutes, check_every_hours*60])
 
 func place(m):
 	for x in [ 0, 1, -1]:
@@ -38,6 +42,7 @@ func place(m):
 				return
 
 func _physics_process(_delta):
+	if next_check_at == 0: set_next_check()
 	if GameEngine.time_in_minutes >= next_check_at:
 		set_next_check()
 		if GameEngine.roll_d20() >= test_roll:
