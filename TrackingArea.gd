@@ -94,7 +94,9 @@ func in_sight():
 		if LOS(tracker, trackee): things.push_back(trackee)
 	return things
 
-func player_is_in_sight():
+func is_in_sight(who):
 	var tracker = get_parent()
-	if in_area.has(GameEngine.player):
-		return in_area.has(GameEngine.player) and LOS(tracker, GameEngine.player)
+	return in_area.has(who) and LOS(tracker, who)
+
+func player_is_in_sight():
+	return is_in_sight(GameEngine.player)
