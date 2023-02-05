@@ -12,7 +12,7 @@ export var to_hit_modifier = 0
 export var speed_feet_per_round = 30
 export var xp_value = 1
 export var close_radius = 3
-export var vision_radius = 120
+export var vision_radius = 60
 export var mood = Mood.FRIENDLY
 export var next_action = 0
 
