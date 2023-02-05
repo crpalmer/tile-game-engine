@@ -201,6 +201,7 @@ func default_physics_process(delta):
 		if animation:
 			animation.flip_h = dir.x < 0 or dir.y < 0
 			animation.play("walk")
+		GameEngine.player_traveled_for(delta)
 		var moved = dir.normalized()*travel_distance_in_pixels(delta)
 		var _collision:KinematicCollision2D = move_and_collide(moved)
 	elif animation:

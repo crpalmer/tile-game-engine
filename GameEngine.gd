@@ -21,6 +21,7 @@ var currency_ascending = []
 var currency_descending = []
 var conversation
 var current_scene_root
+var n_hostile setget n_hostile_set
 
 class CurrencySorter:
 	static func currency_sort_asc(a, b):
@@ -82,6 +83,7 @@ func clear_game():
 	if current_scene:
 		current_scene.queue_free()
 		current_scene = null
+		n_hostile = 0
 
 func create_player():
 	remove_player_from_scene()
@@ -157,6 +159,7 @@ func load_save_data(p):
 	scene_state = p.scene_state
 	if current_scene: current_scene.queue_free()
 	current_scene = null
+	n_hostile = 0
 	time_in_minutes = p.time_in_minutes
 	create_player()
 	enter_scene(p.current_scene)
@@ -227,7 +230,8 @@ func enter_scene(scene:String, entry_point = null):
 		scene_state[current_scene.filename] = get_current_scene_state()
 		current_scene.get_parent().remove_child(current_scene)
 		current_scene.queue_free()
-	
+
+	n_hostile = 0
 	current_scene = load(scene).instance()
 	current_scene_root.add_child(current_scene)
 	if scene_state.has(scene): load_scene_state(scene_state[scene])
@@ -265,6 +269,13 @@ func add_to_game_time(minutes):
 	time_in_minutes += minutes
 
 func _process(delta): time_in_minutes += real_time_to_game_time(delta)
+
+func player_traveled_for(delta):
+	if n_hostile == 0:
+		time_in_minutes += real_time_to_game_time(delta) * scene_config.travel_time_accelerator
+
+func n_hostile_set(new_value):
+	n_hostile = new_value if new_value >= 0 else 0
 
 func feet_to_pixels(feet): return feet * config.pixels_per_foot
 func pixels_to_feet(pixels): return pixels / config.pixels_per_foot

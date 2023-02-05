@@ -9,6 +9,7 @@ func get_persistent_data():
 	return p
 
 func load_persistent_data(p):
+	yield(self, "ready")
 	for c in get_children():
 		if p.has(c.name): c.load_persistent_data(p[c.name])
 

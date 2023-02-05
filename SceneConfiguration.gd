@@ -7,6 +7,7 @@ export(float, 12) var dusk = 8.0
 export(float, 12) var night = 9.0
 export(float, 100) var day_light = 10.0
 export(float, 100) var night_light = 10.0
+export(float) var travel_time_accelerator = 0.0
 
 var ambient_light = 0
 var last_ambient_light = 0

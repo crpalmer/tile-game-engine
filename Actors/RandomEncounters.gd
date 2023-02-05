@@ -20,6 +20,7 @@ func get_persistent_data():
 	}
 
 func load_persistent_data(p):
+	yield(self, "ready")
 	next_check_at = p.next_check_at
 	for c in p.active:
 		add_child(GameEngine.instantiate(c.filename, c.data, c.global_position))

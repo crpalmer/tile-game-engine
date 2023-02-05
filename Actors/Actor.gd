@@ -31,9 +31,12 @@ func get_persistent_data():
 	return p
 	
 func load_persistent_data(p):
+	yield(self, "ready")
 	hp = p.hp
 	max_hp = p.max_hp
+	if mood == Mood.HOSTILE: GameEngine.n_hostile -= 1
 	mood = p.mood
+	if mood == Mood.HOSTILE: GameEngine.n_hostile += 1
 	if get_node_or_null("Conversation"): $Conversation.load_persistent_data(p.conversation)
 
 func _ready():
@@ -47,6 +50,7 @@ func _ready():
 	navigation.connect("velocity_computed", self, "_on_Navigation_velocity_computed")
 	navigation.max_speed = travel_distance_in_pixels(1)
 	if not display_name or display_name == "": display_name = name
+	if mood == Mood.HOSTILE: GameEngine.n_hostile += 1
 
 func description():
 	return long_description
@@ -72,7 +76,9 @@ func take_damage(damage:int, from:Actor = null, cause = null):
 		damage_popup(true, damage)
 
 func attack(who:Actor, attack, damage_modifier = 0):
-	who.mood = Mood.HOSTILE
+	if who.mood != Mood.HOSTILE and who != GameEngine.player:
+		GameEngine.n_hostile += 1
+		who.mood = Mood.HOSTILE
 	next_action = GameEngine.time_in_minutes + attack.use_time
 	
 	print(display_name + " attacks " + who.display_name + " with " + attack.display_name)
@@ -91,7 +97,8 @@ func died():
 		if i is InventoryThing: GameEngine.add_node_at(i, global_position)
 		if i is Currency and i.n_units > 0: GameEngine.add_node_at(i, global_position)
 		queue_free()
-	
+	if mood == Mood.HOSTILE: GameEngine.n_hostile -= 1
+
 func killed(_who:Actor):
 	pass
 
@@ -110,7 +117,9 @@ func default_process():
 		process_attack()
 	elif mood != Mood.FRIENDLY and $VisionArea.player_is_in_sight():
 		i_see_the_player()
-		mood = Mood.HOSTILE
+		if mood != Mood.HOSTILE:
+			mood = Mood.HOSTILE
+			GameEngine.n_hostile += 1
 
 func select_attack():
 	var has_attacks = false

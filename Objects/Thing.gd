@@ -19,6 +19,7 @@ func get_persistent_data():
 	}
 
 func load_persistent_data(p):
+	yield(self, "ready")
 	display_name = p.display_name
 	max_uses = p.max_uses
 	use_time = p.use_time
