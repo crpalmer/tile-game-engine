@@ -143,7 +143,10 @@ func default_physics_process(delta):
 		var next_location = navigation.get_next_location()
 		var velocity = (next_location - global_position).normalized()
 		velocity *= travel_distance_in_pixels(delta)
-		navigation.set_velocity(velocity)
+		if $Navigation.avoidance_enabled:
+			navigation.set_velocity(velocity)
+		else:
+			var _err = move_and_collide(velocity)
 
 func _on_Navigation_velocity_computed(safe_velocity):
 	var _collision = move_and_collide(safe_velocity)
