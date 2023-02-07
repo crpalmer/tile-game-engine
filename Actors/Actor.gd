@@ -13,7 +13,7 @@ export var speed_feet_per_round = 30
 export var xp_value = 1
 export var close_radius = 3
 export var vision_radius = 60
-export var mood = Mood.FRIENDLY
+export var mood = Mood.FRIENDLY setget set_mood
 export var next_action = 0
 
 onready var navigation = $Navigation
@@ -56,6 +56,12 @@ func _ready():
 		if c is ActorRandomMovement: random_movement = c
 	if random_movement: set_destination(random_movement.new_destination())
 
+func set_mood(new_mood):
+	if mood == new_mood: return
+	if mood == Mood.HOSTILE: GameEngine.n_hostile -= 1
+	mood = new_mood
+	if mood == Mood.HOSTILE: GameEngine.n_hostile += 1
+
 func set_destination(pos):
 	#GameEngine.message("%s to (%f, %f)" % [ display_name, pos.x, pos.y ])
 	navigation.set_target_location(pos)
@@ -88,8 +94,7 @@ func take_damage(damage:int, from:Actor = null, cause = null):
 
 func was_attacked_by(_attacker):
 	if mood != Mood.HOSTILE and self != GameEngine.player:
-		GameEngine.n_hostile += 1
-		mood = Mood.HOSTILE
+		set_mood(Mood.HOSTILE)
 
 func attack(who:Actor, attack, damage_modifier = 0):
 	who.was_attacked_by(self)
@@ -130,9 +135,7 @@ func default_process():
 		process_attack()
 	elif mood != Mood.FRIENDLY and $VisionArea.player_is_in_sight():
 		i_see_the_player()
-		if mood != Mood.HOSTILE:
-			mood = Mood.HOSTILE
-			GameEngine.n_hostile += 1
+		set_mood(Mood.HOSTILE)
 
 func select_attack():
 	var has_attacks = false

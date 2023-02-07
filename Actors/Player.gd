@@ -19,6 +19,7 @@ var resting_started_at = 0
 var next_long_rest = 0
 var resting_state = NOT_RESTING
 var short_rest_spent = 0
+var resting_hostile_ends_at = 0
 
 var money = {}
 
@@ -192,7 +193,13 @@ func default_process():
 	
 func default_physics_process(delta):
 	if resting_state != NOT_RESTING:
-		GameEngine.player_rested_for(delta)
+		if resting_hostile_ends_at > 0 and GameEngine.time_in_minutes >= resting_hostile_ends_at:
+			GameEngine.message("You wake up from a bad nightmare about being attacked.")
+			stop_resting()
+		else:
+			GameEngine.player_rested_for(delta)
+			if GameEngine.n_hostile > 0 and resting_hostile_ends_at == 0:
+				resting_hostile_ends_at = GameEngine.time_in_minutes + 1
 		return
 
 	var dir = Vector2(0, 0)
@@ -325,6 +332,7 @@ func start_resting(state, minutes):
 	resting_state = state
 	resting_started_at = GameEngine.time_in_minutes
 	resting_until = resting_started_at + minutes
+	resting_hostile_ends_at = 0
 	GameEngine.fade_to_resting()
 
 func short_rest():
@@ -347,7 +355,7 @@ func process_resting():
 	if GameEngine.time_in_minutes < resting_until: return
 
 	var old_hp = hp
-
+	resting_hostile_ends_at = 0
 	match resting_state:
 		LONG_RESTING:
 			hp = max_hp
