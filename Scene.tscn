@@ -8,7 +8,4 @@
 [node name="SceneConfiguration" type="Node2D" parent="."]
 script = ExtResource( 1 )
 
-[node name="ActorsAndNavigation" type="Navigation2D" parent="."]
-edge_connection_margin = 16.0
-
-[node name="RandomEncounters" parent="ActorsAndNavigation" instance=ExtResource( 2 )]
+[node name="RandomEncounters" parent="." instance=ExtResource( 2 )]
