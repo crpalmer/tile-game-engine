@@ -86,10 +86,13 @@ func take_damage(damage:int, from:Actor = null, cause = null):
 	else:
 		damage_popup(true, damage)
 
-func attack(who:Actor, attack, damage_modifier = 0):
-	if who.mood != Mood.HOSTILE and who != GameEngine.player:
+func was_attacked_by(_attacker):
+	if mood != Mood.HOSTILE and self != GameEngine.player:
 		GameEngine.n_hostile += 1
-		who.mood = Mood.HOSTILE
+		mood = Mood.HOSTILE
+
+func attack(who:Actor, attack, damage_modifier = 0):
+	who.was_attacked_by(self)
 	next_action = GameEngine.time_in_minutes + attack.use_time
 	
 	if GameEngine.roll_test(who.ac, to_hit_modifier + attack.to_hit_modifier, true):

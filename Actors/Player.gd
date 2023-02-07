@@ -102,7 +102,6 @@ func load_persistent_data(p):
 	resting_started_at = p.resting_started_at
 	next_long_rest = p.next_long_rest
 	short_rest_spent = p.short_rest_spent
-	if resting_state != NOT_RESTING: Engine.time_scale = 600
 	for c in get_inventory_containers():
 		var i = p.inventory[c.name]
 		if i: c.load_persistent_data(i)
@@ -152,7 +151,6 @@ func enter_current_scene():
 func stop_resting(regained_hp = 0):
 	resting_state = NOT_RESTING
 	GameEngine.fade_from_resting()
-	Engine.time_scale = 1
 	var rest_time = int(GameEngine.time_in_minutes - resting_started_at)
 	GameEngine.message("You rested for %d hour%s and %d minute%s" % [
 		rest_time / 60,
@@ -161,6 +159,9 @@ func stop_resting(regained_hp = 0):
 		"" if rest_time % 60 == 1 else "s"
 	])
 	if regained_hp > 0: GameEngine.message("You regained %d HPs" % regained_hp)
+
+func was_attacked_by(_attacker):
+	if resting_state != NOT_RESTING: stop_resting()
 
 func take_damage(damage:int, from = null, cause = null):
 	if resting_state != NOT_RESTING: stop_resting()
@@ -190,7 +191,9 @@ func default_process():
 		else: short_rest()
 	
 func default_physics_process(delta):
-	if resting_state != NOT_RESTING: return
+	if resting_state != NOT_RESTING:
+		GameEngine.player_rested_for(delta)
+		return
 
 	var dir = Vector2(0, 0)
 	if Input.is_action_pressed("left"): dir.x -= 1
@@ -323,17 +326,22 @@ func start_resting(state, minutes):
 	resting_started_at = GameEngine.time_in_minutes
 	resting_until = resting_started_at + minutes
 	GameEngine.fade_to_resting()
-	Engine.time_scale = 1000
 
 func short_rest():
 	if resting_state == NOT_RESTING:
-		start_resting(SHORT_RESTING, 60)
+		if GameEngine.n_hostile > 0:
+			GameEngine.message("You may not rest in a hostile area.")
+		else:
+			start_resting(SHORT_RESTING, 60)
 
 func long_rest():
-	if resting_state == NOT_RESTING and GameEngine.time_in_minutes >= next_long_rest:
-		start_resting(LONG_RESTING, 8*60)
-	else:
-		GameEngine.message("You can't sleep until at least " + GameEngine.time_of_day(next_long_rest))
+	if resting_state == NOT_RESTING:
+		if GameEngine.time_in_minutes < next_long_rest:
+			GameEngine.message("You can't sleep until at least " + GameEngine.time_of_day(next_long_rest))
+		elif GameEngine.n_hostile > 0:
+			GameEngine.message("You may not rest in a hostile area.")
+		else:
+			start_resting(LONG_RESTING, 8*60)
 
 func process_resting():
 	if GameEngine.time_in_minutes < resting_until: return

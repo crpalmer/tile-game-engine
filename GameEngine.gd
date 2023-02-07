@@ -274,6 +274,10 @@ func player_traveled_for(delta):
 	if n_hostile == 0:
 		time_in_minutes += real_time_to_game_time(delta) * scene_config.travel_time_accelerator
 
+func player_rested_for(delta):
+	if n_hostile == 0:
+		time_in_minutes += real_time_to_game_time(delta) * config.rest_time_accelerator
+
 func n_hostile_set(new_value):
 	n_hostile = new_value if new_value >= 0 else 0
 
