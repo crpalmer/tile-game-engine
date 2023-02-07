@@ -1,7 +1,7 @@
 extends Node
 class_name Class
 
-func profiency_modifier(level): return floor(level/4) + 1
+func profiency_modifier(level): return floor(level/4) + 2
 func hit_dice(): return GameEngine.D(6)
 func initial_hit_points(): return 6
 # func proficient_with(thing): return false
