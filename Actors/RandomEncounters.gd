@@ -51,11 +51,12 @@ func place(m):
 	for distance in [ 5, 3, 1]:
 		for x in x_dir:
 			for y in y_dir:
-				var place = Vector2(x, y)*GameEngine.feet_to_pixels(distance)
-				m.global_position = GameEngine.player.global_position + place
-				var collide = m.move_and_collide(-2*place, true, true, true)
-				if collide and collide.collider == GameEngine.player:
-					return true
+				if x != 0 or y != 0:
+					var place = Vector2(x, y)*GameEngine.feet_to_pixels(distance)
+					m.global_position = GameEngine.player.global_position + place
+					var collide = m.move_and_collide(-2*place, true, true, true)
+					if collide and collide.collider == GameEngine.player:
+						return true
 
 func allowed_to_generate():
 	if area_extents == Vector2.ZERO: return true
