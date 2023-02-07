@@ -17,6 +17,7 @@ export var mood = Mood.FRIENDLY
 export var next_action = 0
 
 onready var navigation = $Navigation
+var random_movement
 
 var travel_distance_fudge_factor = 2
 var punch = load("%s/Actors/Punch.tscn" % GameEngine.config.root).instance()
@@ -51,6 +52,16 @@ func _ready():
 	navigation.max_speed = travel_distance_in_pixels(1)
 	if not display_name or display_name == "": display_name = name
 	if mood == Mood.HOSTILE: GameEngine.n_hostile += 1
+	for c in get_children():
+		if c is ActorRandomMovement: random_movement = c
+	if random_movement: set_destination(random_movement.new_destination())
+
+func set_destination(pos):
+	#GameEngine.message("%s to (%f, %f)" % [ display_name, pos.x, pos.y ])
+	navigation.set_target_location(pos)
+
+func capitalized_display_name():
+	return display_name[0].to_upper() + display_name.substr(1)
 
 func description():
 	return long_description
@@ -58,16 +69,16 @@ func description():
 func set_vision_range(radius:int):
 	$VisionArea.set_tracking_radius(radius)
 	vision_radius = radius
-	
+
 func set_close_range(radius:int):
 	$CloseArea.set_tracking_radius(radius)
 	close_radius = radius
 
 func take_damage(damage:int, from:Actor = null, cause = null):
 	hp -= damage
-	var message = "%s takes %d damage" % [ display_name, damage ]
-	if from and from != GameEngine.player: message += " from %s" % [ from.display_name ]
-	if cause: message += " by a %s" % [ cause.display_name]
+	var message = "%s %d damage" % [ "You take" if self == GameEngine.player else capitalized_display_name() + " takes ", damage ]
+	if from and from != GameEngine.player: message += " from a %s" % from.display_name
+	if cause: message += " by a %s" % cause.display_name
 	GameEngine.message(message)
 	if hp <= 0:
 		died()
@@ -81,7 +92,6 @@ func attack(who:Actor, attack, damage_modifier = 0):
 		who.mood = Mood.HOSTILE
 	next_action = GameEngine.time_in_minutes + attack.use_time
 	
-	print(display_name + " attacks " + who.display_name + " with " + attack.display_name)
 	if GameEngine.roll_test(who.ac, to_hit_modifier + attack.to_hit_modifier, true):
 		var damage_dice = attack.damage_dice.duplicate()
 		damage_dice.plus += damage_modifier
@@ -92,7 +102,7 @@ func attack(who:Actor, attack, damage_modifier = 0):
 		who.damage_popup(false)
 
 func died():
-	GameEngine.message(display_name + " died!")
+	GameEngine.message("%s  died!" % capitalized_display_name())
 	for i in get_children():
 		if i is InventoryThing: GameEngine.add_node_at(i, global_position)
 		if i is Currency and i.n_units > 0: GameEngine.add_node_at(i, global_position)
@@ -109,7 +119,7 @@ func is_in_sight(who):
 	return $VisionArea.is_in_sight(who)
 
 func i_see_the_player():
-	navigation.set_target_location(GameEngine.player.global_position)
+	set_destination(GameEngine.player.global_position)
 
 func default_process():
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_sight():
@@ -139,17 +149,20 @@ func process_attack():
 	if attack: attack(GameEngine.player, attack)
 
 func default_physics_process(_delta):
-	if mood == Mood.HOSTILE and not navigation.is_navigation_finished():
+	if (mood == Mood.HOSTILE or random_movement) and not navigation.is_navigation_finished():
 		var next_location = navigation.get_next_location()
 		var velocity = (next_location - global_position).normalized()
-		velocity *= travel_distance_in_pixels(1)
 		if $Navigation.avoidance_enabled:
+			velocity *= travel_distance_in_pixels(_delta)
 			navigation.set_velocity(velocity)
 		else:
+			velocity *= travel_distance_in_pixels(1)
 			var _err = move_and_slide(velocity)
+	elif random_movement:
+		set_destination(random_movement.new_destination())
 
 func _on_Navigation_velocity_computed(safe_velocity):
-	var _collision = move_and_slide(safe_velocity)
+	var _collision = move_and_collide(safe_velocity)
 
 func travel_distance_in_pixels(delta_elapsed_time):
 	var minutes = GameEngine.real_time_to_game_time(delta_elapsed_time)

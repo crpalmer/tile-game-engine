@@ -36,6 +36,9 @@ func used_by(_thing):
 	if max_uses > 0: max_uses -= 1
 	next_use_at = GameEngine.time_in_minutes + minutes_between_uses
 
+func capitalized_display_name():
+	return display_name[0].to_upper() + display_name.substr(1)
+
 func description():
 	return long_description
 
