@@ -9,7 +9,7 @@ func _ready():
 	
 func set_radius(r):
 	radius = r
-	texture_scale = GameEngine.feet_to_pixels(radius) / 64
+	texture_scale = GameEngine.feet_to_pixels(radius) / 50
 
 func set_brightness(percent):
 	brightness_percent = percent

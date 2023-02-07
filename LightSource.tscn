@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://GameEngine/LightSource.gd" type="Script" id=1]
-[ext_resource path="res://GameEngine/circle-128.png" type="Texture" id=2]
+[ext_resource path="res://GameEngine/light.png" type="Texture" id=2]
 
 [node name="LightSource" type="Light2D"]
 texture = ExtResource( 2 )
