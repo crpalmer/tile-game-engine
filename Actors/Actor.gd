@@ -61,7 +61,7 @@ func set_destination(pos):
 	navigation.set_target_location(pos)
 
 func capitalized_display_name():
-	return display_name[0].to_upper() + display_name.substr(1)
+	return display_name[0].to_upper() + display_name.substr(1) if display_name else "<unknown>"
 
 func description():
 	return long_description
@@ -76,7 +76,7 @@ func set_close_range(radius:int):
 
 func take_damage(damage:int, from:Actor = null, cause = null):
 	hp -= damage
-	var message = "%s %d damage" % [ "You take" if self == GameEngine.player else capitalized_display_name() + " takes ", damage ]
+	var message = "%s takes %d damage" % [ capitalized_display_name(), damage ]
 	if from and from != GameEngine.player: message += " from a %s" % from.display_name
 	if cause: message += " by a %s" % cause.display_name
 	GameEngine.message(message)
@@ -101,7 +101,7 @@ func attack(who:Actor, attack, damage_modifier = 0):
 		var damage = GameEngine.roll(damage_dice)
 		who.take_damage(damage, self, attack)
 	else:
-		GameEngine.message("%s misses %s with a %s" % [ display_name, who.display_name, attack.display_name ])
+		GameEngine.message("%s misses %s with a %s" % [ capitalized_display_name(), who.display_name, attack.display_name ])
 		who.damage_popup(false)
 
 func died():
