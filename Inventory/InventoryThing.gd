@@ -34,6 +34,6 @@ func _ready():
 	add_to_group("InventoryThings")
 	if group != "": add_to_group(group)
 	
-func description():
+func get_display_name():
 	if n > 1: return String(n) + " " + plural
 	else: return display_name

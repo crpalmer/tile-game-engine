@@ -46,7 +46,7 @@ func add_thing(thing):
 	return true
 
 func updated(thing):
-	hint_tooltip = thing.description()
+	hint_tooltip = thing.display_name
 	emit_signal("inventory_changed")
 
 func has_a_thing_in_group(group_name):

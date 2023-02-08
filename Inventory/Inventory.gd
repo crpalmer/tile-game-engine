@@ -78,6 +78,12 @@ func get_holder_of_thing(thing):
 			return holder
 	return null
 
+func has_a(thing_display_name):
+	for thing in get_all_things():
+		if thing.display_name == thing_display_name:
+			return true
+	return false
+
 func has_a_thing_in_group(group_name):
 	for thing in get_all_things():
 		if thing and thing.is_in_group(group_name):

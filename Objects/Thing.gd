@@ -1,7 +1,7 @@
 extends PhysicsBody2D
 class_name Thing
 
-export var display_name:String
+export var display_name:String setget , get_display_name
 export var long_description:String
 export var max_uses = -1
 export var use_time = 0
@@ -31,6 +31,9 @@ func _ready():
 	add_to_group("Trackables")
 	if not display_name or display_name == "": display_name = name
 	if minutes_between_uses < use_time: minutes_between_uses = use_time
+
+func get_display_name():
+	return display_name
 
 func used_by(_thing):
 	if max_uses > 0: max_uses -= 1

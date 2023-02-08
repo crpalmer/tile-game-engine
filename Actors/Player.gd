@@ -277,14 +277,18 @@ func try_to_pay(units:float):
 	return true
 
 func process_look():
+	var any_descriptions = false
 	var what = ""
 	for thing in $CloseArea.in_sight():
-		var this_what = thing.description() if thing.has_method("description") else null
-		if this_what:
+		var long = thing.description() if thing.has_method("description") else ""
+		if long != "":
+			GameEngine.message("%s: %s" % [ thing.capitalized_display_name(), long ])
+			any_descriptions = true
+		else:
 			if what.length() > 0: what = what + ", "
-			what = what + this_what
-	if what.length() == 0: what = "nothing"
-	GameEngine.message("You see: " + what)
+			what = what + thing.display_name
+	if what == "" and not any_descriptions: what = "nothing"
+	if what != "": GameEngine.message("You %ssee: %s" % [ "also " if any_descriptions else "", what])
 
 func process_talk():
 	for thing in $CloseArea.in_sight():
@@ -298,10 +302,13 @@ func get_inventory_containers():
 
 func add_to_inventory(thing):
 	if $Inventory.add_thing(thing):
-		GameEngine.message("You picked up " + thing.description())
+		GameEngine.message("You picked up " + thing.display_name)
 		return true
-	GameEngine.message("You are carrying too much to pick up " + thing.description())
+	GameEngine.message("You are carrying too much to pick up " + thing.display_name)
 	return false
+
+func has_a(thing_display_name):
+	return $Inventory.has_a(thing_display_name)
 
 func has_a_thing_in_group(group_name):
 	return $Inventory.has_a_thing_in_group(group_name)

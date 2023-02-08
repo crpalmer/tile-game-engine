@@ -37,6 +37,6 @@ func used_by(who):
 		get_parent().remove_child(self)
 		queue_free()
 
-func description():
+func get_display_name():
 	if n_units > 1: return "%d %s" % [ n_units, plural if plural != "" else display_name ]
 	elif n_units == 1: return "a " + display_name
