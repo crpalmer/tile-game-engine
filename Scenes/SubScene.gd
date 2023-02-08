@@ -36,4 +36,7 @@ func unpause():
 	GameEngine.resume()
 
 func call_return_to_scene():
-	GameEngine.call_deferred("return_to_scene", return_to_scene, return_to_position, keep_items_on_exit)
+	call_deferred("scene_completed")
+
+func scene_completed():
+	GameEngine.return_to_scene(return_to_scene, return_to_position, keep_items_on_exit)
