@@ -62,6 +62,10 @@ func set_mood(new_mood):
 	mood = new_mood
 	if mood == Mood.HOSTILE: GameEngine.n_hostile += 1
 
+func is_hostile(): return mood == Mood.HOSTILE
+func is_neutral(): return mood == Mood.NEUTRAL
+func is_friendly(): return mood == Mood.FRIENDLY
+
 func set_destination(pos):
 	#GameEngine.message("%s to (%f, %f)" % [ display_name, pos.x, pos.y ])
 	navigation.set_target_location(pos)

@@ -39,7 +39,7 @@ func _ready():
 	currency_ascending.sort_custom(CurrencySorter, "currency_sort_asc")
 	currency_descending.sort_custom(CurrencySorter, "currency_sort_des")
 	current_scene_root = get_tree().current_scene
-	
+
 func modulate(on):
 	get_tree().current_scene.get_node("CanvasModulate").visible = on
 
@@ -144,7 +144,9 @@ func load_scene_state(p):
 			var d = p.actors[a.name]
 			a.load_persistent_data(d.data)
 			a.global_position = d.global_position
-		else: a.queue_free()
+		else:
+			if a.is_hostile(): n_hostile -= 1
+			a.queue_free()
 	for t in current_scene.get_children():
 		if t.is_in_group("PersistentThings"): t.queue_free()
 	for n in p.things.keys():
@@ -218,8 +220,28 @@ func fade_from_resting():
 func fade_to_resting():
 	fade_out(config.resting_alpha)
 
-func enter_scene(scene:String, entry_point = null):
-	print_debug("Entering scene: ", scene, " @ ", entry_point)
+func enter_sub_scene(sub_scene, entry_point = null):
+	var return_scene = current_scene.filename
+	var position = GameEngine.player.global_position
+
+	enter_scene(sub_scene, entry_point)
+
+	current_scene.return_to_scene = return_scene
+	current_scene.return_to_position = position
+
+func return_to_scene(scene, entry_position, keep_items_on_return):
+	var items = []
+	if keep_items_on_return:
+		for c in current_scene.get_children():
+			if c.is_in_group("PersistentThings"):
+				items.append(c)
+				c.get_parent().remove_child(c)
+	enter_scene(scene, null, entry_position)
+	for item in items:
+		current_scene.add_child(item)
+		item.global_position = entry_position
+
+func enter_scene(scene, entry_point = null, entry_position = null):
 	pause()
 	if current_scene: fade_out()
 
@@ -235,11 +257,13 @@ func enter_scene(scene:String, entry_point = null):
 	current_scene = load(scene).instance()
 	current_scene_root.add_child(current_scene)
 	if scene_state.has(scene): load_scene_state(scene_state[scene])
-	
-	if entry_point:
-		var entry_node = current_scene.get_node(entry_point)
+
+	if entry_point or entry_position:
 		current_scene.add_child(player)
-		player.global_position = entry_node.global_position
+		if entry_point:
+			var entry_node = current_scene.get_node(entry_point)
+			entry_position = entry_node.global_position
+		player.global_position = entry_position
 		player.enter_current_scene()
 
 	scene_config = SceneConfiguration.new()
