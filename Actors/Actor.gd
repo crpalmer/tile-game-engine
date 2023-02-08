@@ -1,6 +1,8 @@
 extends KinematicBody2D
 class_name Actor
 
+signal actor_removed
+
 enum Mood { FRIENDLY = 0, NEUTRAL = 1, HOSTILE =2 }
 
 export var display_name:String
@@ -118,8 +120,12 @@ func died():
 	for i in get_children():
 		if i is InventoryThing: GameEngine.add_node_at(i, global_position)
 		if i is Currency and i.n_units > 0: GameEngine.add_node_at(i, global_position)
-		queue_free()
+	remove()
+
+func remove():
+	queue_free()
 	if mood == Mood.HOSTILE: GameEngine.n_hostile -= 1
+	emit_signal("actor_removed", name, display_name)
 
 func killed(_who:Actor):
 	pass

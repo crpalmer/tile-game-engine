@@ -145,8 +145,7 @@ func load_scene_state(p):
 			a.load_persistent_data(d.data)
 			a.global_position = d.global_position
 		else:
-			if a.is_hostile(): n_hostile -= 1
-			a.queue_free()
+			a.remove()
 	for t in current_scene.get_children():
 		if t.is_in_group("PersistentThings"): t.queue_free()
 	for n in p.things.keys():
