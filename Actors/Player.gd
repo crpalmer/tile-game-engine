@@ -136,7 +136,7 @@ func create_character(clss_in):
 			add_currency(c)
 			clss.remove_child(c)
 			c.queue_free()
-	hp = clss.initial_hit_points() + GameEngine.ability_modifier(constitution)
+	hp = clss.initial_hit_points() + clss.constitution_modifier(constitution, level)
 	max_hp = hp
 	on_inventory_changed()
 	return items
