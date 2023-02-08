@@ -31,7 +31,7 @@ func say_bye(text = "Bye", delay = 0):
 	GameEngine.conversation.say_bye(text, delay)
 
 func end(delay = 2.0):
-	GameEngine.conversation.disconnect("player_said", self, "player_said")
+	GameEngine.conversation.disconnect("player_said", self, "player_said_wrapper")
 	GameEngine.conversation.end(delay)
 	in_conversation = false
 

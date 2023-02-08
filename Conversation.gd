@@ -61,7 +61,6 @@ func say_in_parts(parts:Array):
 		call_deferred("actor_said", parts[i])
 		more_timer.start(0.5)
 		yield(self, "more_pressed")
-		call_deferred("more_visible", false)
 	say(parts[parts.size()-1])
 
 var delimiters = [' ', '	', '\n', ',', '.', '?', '!', '&']
