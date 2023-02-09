@@ -23,6 +23,8 @@ var conversation
 var current_scene_root
 var n_hostile setget n_hostile_set
 
+var completed_milestones = {}
+
 class CurrencySorter:
 	static func currency_sort_asc(a, b):
 		return a.unit_value < b.unit_value
@@ -50,6 +52,18 @@ func resume():
 	if paused > 0: paused -= 1
 
 func is_paused(): return paused > 0
+
+func complete_milestone(name, data = {}):
+	completed_milestones[name] = data
+
+func has_completed_milestone(name):
+	return completed_milestones.has(name)
+
+func get_completed_milestone(name):
+	if has_completed_milestone(name):
+		return completed_milestones[name]
+	else:
+		return null
 
 func currency_value_to_string(value:float):
 	var text = ""
@@ -128,7 +142,8 @@ func get_save_data():
 		"scene_state": scene_state,
 		"player": player.get_persistent_data(),
 		"player_global_position": player.global_position,
-		"time_in_minutes": time_in_minutes
+		"time_in_minutes": time_in_minutes,
+		"completed_milestones": completed_milestones
 	}
 
 func save_game(filename):
@@ -162,6 +177,7 @@ func load_save_data(p):
 	current_scene = null
 	n_hostile = 0
 	time_in_minutes = p.time_in_minutes
+	completed_milestones = p.completed_milestones
 	create_player()
 	enter_scene(p.current_scene)
 	current_scene.add_child(player)
