@@ -120,14 +120,18 @@ func roll_ability_score():
 	print(dice)
 	return dice[1] + dice[2] + dice[3] + 1   # +1 is the human bonus
 
-func create_character(clss_in):
+func roll_ability_scores():
+	strength = 0
+	dexterity = 0
+	constitution = 0
+	while strength + dexterity + constitution < 36:
+		strength = roll_ability_score()
+		dexterity = roll_ability_score()
+		constitution = roll_ability_score()
+		print("Str: " + String(strength) + " Dex: " + String(dexterity) + " Con: " + String(constitution))
+
+func create_initial_items():
 	var items = []
-	clss = clss_in.duplicate()
-	add_child(clss)
-	strength = roll_ability_score()
-	dexterity = roll_ability_score()
-	constitution = roll_ability_score()
-	print("Str: " + String(strength) + " Dex: " + String(dexterity) + " Con: " + String(constitution))
 	for c in clss.get_children():
 		if c.is_in_group("InventoryThings"):
 			clss.remove_child(c)
@@ -136,10 +140,16 @@ func create_character(clss_in):
 			add_currency(c)
 			clss.remove_child(c)
 			c.queue_free()
-	hp = clss.initial_hit_points() + clss.constitution_modifier(constitution, level)
-	max_hp = hp
 	on_inventory_changed()
 	return items
+
+func create_character(clss_in):
+	clss = clss_in.duplicate()
+	add_child(clss)
+	roll_ability_scores()
+	hp = clss.initial_hit_points() + clss.constitution_modifier(constitution, level)
+	max_hp = hp
+	return create_initial_items()
 
 func _ready():
 	animation = get_node_or_null("AnimatedSprite")
