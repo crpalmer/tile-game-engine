@@ -70,6 +70,7 @@ func is_friendly(): return mood == Mood.FRIENDLY
 
 func set_destination(pos):
 	#GameEngine.message("%s to (%f, %f)" % [ display_name, pos.x, pos.y ])
+	if random_movement: pos = random_movement.clamp_to_area(pos)
 	navigation.set_target_location(pos)
 
 func capitalized_display_name():
