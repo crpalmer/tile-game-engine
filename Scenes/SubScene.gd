@@ -23,7 +23,7 @@ func should_return_from_scene():
 	return true
 
 func _ready():
-	add_to_group("PersistentOthers")
+	add_to_group("PersistentNodes")
 	GameEngine.pause()
 	var _ignore = $StartSceneTimer.connect("timeout", self, "unpause")
 	_ignore = $EndSceneTimer.connect("timeout", self, "call_return_to_scene")

@@ -64,11 +64,6 @@ func add_xp(new_xp:int):
 
 func get_persistent_data():
 	var p = .get_persistent_data()
-	var i = {}
-	for c in get_inventory_containers():
-		i.merge({
-			c.name: c.get_persistent_data()
-		})
 	var m = {}
 	for c in money.keys():
 		m.merge( {
@@ -78,7 +73,11 @@ func get_persistent_data():
 			}
 		} )
 	p.merge({
+		"clss": clss.filename,
 		"level": level,
+		"hp": hp,
+		"max_hp": max_hp,
+		"xp": xp,
 		"strength": strength,
 		"dexterity": dexterity,
 		"constitution": constitution,
@@ -87,14 +86,18 @@ func get_persistent_data():
 		"resting_started_at": resting_started_at,
 		"next_long_rest": next_long_rest,
 		"short_rest_spent": short_rest_spent,
-		"inventory": i,
+		"inventory": $Inventory.get_persistent_data(),
 		"money": m
 	})
 	return p
 
 func load_persistent_data(p):
 	.load_persistent_data(p)
+	clss = load(p.clss).instance()
 	level = p.level
+	hp = p.hp
+	xp = p.xp
+	max_hp = p.max_hp
 	strength = p.strength
 	dexterity = p.dexterity
 	constitution = p.constitution
@@ -103,9 +106,7 @@ func load_persistent_data(p):
 	resting_started_at = p.resting_started_at
 	next_long_rest = p.next_long_rest
 	short_rest_spent = p.short_rest_spent
-	for c in get_inventory_containers():
-		var i = p.inventory[c.name]
-		if i: c.load_persistent_data(i)
+	$Inventory.load_persistent_data(p.inventory)
 	for c in p.money.keys():
 		var m = p.money[c]
 		money[c] = {}
@@ -208,7 +209,7 @@ func default_physics_process(delta):
 			stop_resting()
 		else:
 			GameEngine.player_rested_for(delta)
-			if GameEngine.n_hostile > 0 and resting_hostile_ends_at == 0:
+			if $VisionArea.n_hostiles() > 0 and resting_hostile_ends_at == 0:
 				resting_hostile_ends_at = GameEngine.time_in_minutes + 1
 		return
 
@@ -222,7 +223,8 @@ func default_physics_process(delta):
 		if animation:
 			animation.flip_h = dir.x < 0 or dir.y < 0
 			animation.play("walk")
-		GameEngine.player_traveled_for(delta)
+		if $VisionArea.n_hostiles() == 0:
+			GameEngine.player_traveled_for(delta)
 		var moved = dir.normalized()*travel_distance_in_pixels(delta)
 		var _collision:KinematicCollision2D = move_and_collide(moved)
 	elif animation:
@@ -304,13 +306,7 @@ func process_look():
 
 func process_talk():
 	for thing in $CloseArea.in_sight():
-		if thing.has_method("start"): thing.start()
-
-func get_inventory_containers():
-	var containers = []
-	for c in get_children():
-		if c.is_in_group("InventoryContainers"): containers.push_back(c)
-	return containers
+		if thing.has_method("start_conversation"): thing.start_conversation()
 
 func add_to_inventory(thing, auto_equip = false):
 	if $Inventory.add_thing(thing, auto_equip):
@@ -356,7 +352,7 @@ func start_resting(state, minutes):
 
 func short_rest():
 	if resting_state == NOT_RESTING:
-		if GameEngine.n_hostile > 0:
+		if $VisionArea.n_hostiles() > 0:
 			GameEngine.message("You may not rest in a hostile area.")
 		else:
 			start_resting(SHORT_RESTING, 60)
@@ -365,7 +361,7 @@ func long_rest():
 	if resting_state == NOT_RESTING:
 		if GameEngine.time_in_minutes < next_long_rest:
 			GameEngine.message("You can't sleep until at least " + GameEngine.time_of_day(next_long_rest))
-		elif GameEngine.n_hostile > 0:
+		elif $VisionArea.n_hostiles() > 0:
 			GameEngine.message("You may not rest in a hostile area.")
 		else:
 			start_resting(LONG_RESTING, 8*60)

@@ -112,3 +112,9 @@ func is_in_sight(who):
 
 func player_is_in_sight():
 	return is_in_sight(GameEngine.player)
+
+func n_hostiles():
+	var n = 0
+	for thing in in_area:
+		if thing.has_method("is_hostile") and thing.is_hostile(): n += 1
+	return n

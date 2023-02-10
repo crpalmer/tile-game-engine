@@ -15,4 +15,4 @@ func load_persistent_data(p):
 	not_yet_triggered = p.not_yet_triggered
 
 func _ready():
-	add_to_group("PersistentOthers")
+	add_to_group("PersistentNodes")

@@ -17,8 +17,8 @@ func should_return_from_scene():
 func _ready():
 	for c in get_children():
 		if c is Actor:
-			c.connect("actor_removed", self, "on_monster_removed")
+			c.connect("actor_died", self, "on_monster_died")
 			n_monsters += 1
 
-func on_monster_removed(_name, _display_name):
+func on_monster_died(_name, _display_name):
 	n_monsters -= 1

@@ -1,7 +1,7 @@
 extends KinematicBody2D
 class_name Actor
 
-signal actor_removed
+signal actor_died
 
 enum Mood { FRIENDLY = 0, NEUTRAL = 1, HOSTILE =2 }
 
@@ -31,20 +31,16 @@ func get_persistent_data():
 		"max_hp": max_hp,
 		"mood": mood
 	}
-	if get_node_or_null("Conversation"): p.merge({ "conversation": $Conversation.get_persistent_data()})
 	return p
 	
 func load_persistent_data(p):
 	yield(self, "ready")
 	hp = p.hp
 	max_hp = p.max_hp
-	if mood == Mood.HOSTILE: GameEngine.n_hostile -= 1
 	mood = p.mood
-	if mood == Mood.HOSTILE: GameEngine.n_hostile += 1
-	if get_node_or_null("Conversation"): $Conversation.load_persistent_data(p.conversation)
 
 func _ready():
-	add_to_group("PersistentActors")
+	add_to_group("PersistentNodes")
 	add_to_group("Trackables")
 	randomize()
 	$VisionArea.visible = true
@@ -54,7 +50,6 @@ func _ready():
 	navigation.connect("velocity_computed", self, "_on_Navigation_velocity_computed")
 	navigation.max_speed = travel_distance_in_pixels(1)
 	if not display_name or display_name == "": display_name = name
-	if mood == Mood.HOSTILE: GameEngine.n_hostile += 1
 	for c in get_children():
 		if c is ActorRandomMovement: random_movement = c
 		if c is ActorConversation: conversation = c
@@ -62,9 +57,7 @@ func _ready():
 
 func set_mood(new_mood):
 	if mood == new_mood: return
-	if mood == Mood.HOSTILE: GameEngine.n_hostile -= 1
 	mood = new_mood
-	if mood == Mood.HOSTILE: GameEngine.n_hostile += 1
 
 func is_hostile(): return mood == Mood.HOSTILE
 func is_neutral(): return mood == Mood.NEUTRAL
@@ -123,15 +116,14 @@ func died():
 	for i in get_children():
 		if i is InventoryThing: GameEngine.add_node_at(i, global_position)
 		if i is Currency and i.n_units > 0: GameEngine.add_node_at(i, global_position)
-	remove()
-
-func remove():
 	queue_free()
-	if mood == Mood.HOSTILE: GameEngine.n_hostile -= 1
-	emit_signal("actor_removed", name, display_name)
+	emit_signal("actor_died", name, display_name)
 
 func killed(_who:Actor):
 	pass
+
+func player_is_close():
+	return $CloseArea.player_is_in_sight()
 
 func player_is_in_sight():
 	return $VisionArea.player_is_in_sight()

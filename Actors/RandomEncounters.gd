@@ -31,7 +31,7 @@ func load_persistent_data(p):
 		add_child(GameEngine.instantiate(c.filename, c.data, c.global_position))
 
 func _ready():
-	add_to_group("PersistentOthers")
+	add_to_group("PersistentNodes")
 	if area_extents != Vector2.ZERO:
 		shape.shape.extents = area_extents
 		area.connect("body_entered", self, "_on_body_entered")

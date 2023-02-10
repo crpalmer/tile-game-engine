@@ -13,7 +13,7 @@ func load_persistent_data(p):
 
 func _ready():
 	var _err = connect("body_entered", self, "on_body_entered")
-	add_to_group("PersistentOthers")
+	add_to_group("PersistentNodes")
 
 func on_body_entered(body):
 	if available and body == GameEngine.player:

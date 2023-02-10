@@ -21,7 +21,6 @@ var currency_ascending = []
 var currency_descending = []
 var conversation
 var current_scene_root
-var n_hostile setget n_hostile_set
 
 var completed_milestones = {}
 
@@ -94,10 +93,10 @@ func clear_game():
 	Engine.time_scale = 1
 	paused = 0
 	scene_state = {}
+	completed_milestones = {}
 	if current_scene:
 		current_scene.queue_free()
 		current_scene = null
-		n_hostile = 0
 
 func create_player():
 	remove_player_from_scene()
@@ -106,16 +105,19 @@ func create_player():
 	get_tree().current_scene.add_child(player)
 	emit_signal("player_created")
 
+func get_all_saveable_nodes():
+	return get_tree().get_nodes.in_group("PersistentActors").append(
+		get_tree().get_nodes_in_group("Persistent")
+	)
 func get_current_scene_state():
-	var actor_data = {}
+	var nodes_data = {}
 	var thing_data = {}
-	var others_data = {}
-	for a in get_tree().get_nodes_in_group("PersistentActors"):
-		if a != player:
-			actor_data.merge({
-				a.name: {
-				"data": a.get_persistent_data(),
-				"global_position": a.global_position
+	for node in get_tree().get_nodes_in_group("PersistentNodes"):
+		if node != player:
+			nodes_data.merge({
+				current_scene.get_path_to(node): {
+				"data": node.get_persistent_data(),
+				"global_position": node.global_position
 			}})
 	for t in current_scene.get_children():
 		if t.is_in_group("PersistentThings"):
@@ -125,25 +127,20 @@ func get_current_scene_state():
 				"data": t.get_persistent_data(),
 				"global_position": t.global_position
 			}})
-	for o in get_tree().get_nodes_in_group("PersistentOthers"):
-		others_data.merge({
-			o.name: o.get_persistent_data()
-		})
 	return {
-		"actors": actor_data,
-		"things": thing_data,
-		"others": others_data
+		"nodes": nodes_data,
+		"things": thing_data
 	}
 
 func get_save_data():
 	scene_state[current_scene.filename] = get_current_scene_state()
 	return {
 		"current_scene": current_scene.filename,
-		"scene_state": scene_state,
 		"player": player.get_persistent_data(),
 		"player_global_position": player.global_position,
 		"time_in_minutes": time_in_minutes,
-		"completed_milestones": completed_milestones
+		"completed_milestones": completed_milestones,
+		"scene_state": scene_state
 	}
 
 func save_game(filename):
@@ -154,28 +151,29 @@ func save_game(filename):
 	return ResourceSaver.save(filename, res) == 0
 
 func load_scene_state(p):
-	for a in get_tree().get_nodes_in_group("PersistentActors"):
-		if p.actors.has(a.name):
-			var d = p.actors[a.name]
-			a.load_persistent_data(d.data)
-			a.global_position = d.global_position
+	for node in get_tree().get_nodes_in_group("PersistentNodes"):
+		var path = current_scene.get_path_to(node)
+		print("node: %s at %s data %s" % [ node.name, path, "yes" if p.nodes.has(path) else "no"])
+		if node == player:
+			pass
+		elif not p.nodes.has(path):
+			node.queue_free()
 		else:
-			a.remove()
+			var data = p.nodes[path]
+			node.load_persistent_data(data.data)
+			node.global_position = data.global_position
 	for t in current_scene.get_children():
 		if t.is_in_group("PersistentThings"): t.queue_free()
 	for n in p.things.keys():
 		var t = p.things[n]
 		current_scene.add_child(instantiate(t.filename, t.data, t.global_position))
-	for o in get_tree().get_nodes_in_group("PersistentOthers"):
-		if p.others.has(o.name):
-			o.load_persistent_data(p.others[o.name])
 
 func load_save_data(p):
 	clear_game()
 	scene_state = p.scene_state
 	if current_scene: current_scene.queue_free()
+	yield(get_tree(), "idle_frame")
 	current_scene = null
-	n_hostile = 0
 	time_in_minutes = p.time_in_minutes
 	completed_milestones = p.completed_milestones
 	create_player()
@@ -268,9 +266,9 @@ func enter_scene(scene, entry_point = null, entry_position = null):
 		current_scene.get_parent().remove_child(current_scene)
 		current_scene.queue_free()
 
-	n_hostile = 0
 	current_scene = load(scene).instance()
 	current_scene_root.add_child(current_scene)
+	yield(get_tree(), "idle_frame")
 	if scene_state.has(scene): load_scene_state(scene_state[scene])
 
 	if entry_point or entry_position:
@@ -310,15 +308,10 @@ func add_to_game_time(minutes):
 func _process(delta): time_in_minutes += real_time_to_game_time(delta)
 
 func player_traveled_for(delta):
-	if n_hostile == 0:
-		time_in_minutes += real_time_to_game_time(delta) * scene_config.travel_time_accelerator
+	time_in_minutes += real_time_to_game_time(delta) * scene_config.travel_time_accelerator
 
 func player_rested_for(delta):
-	if n_hostile == 0:
-		time_in_minutes += real_time_to_game_time(delta) * config.rest_time_accelerator
-
-func n_hostile_set(new_value):
-	n_hostile = new_value if new_value >= 0 else 0
+	time_in_minutes += real_time_to_game_time(delta) * config.rest_time_accelerator
 
 func feet_to_pixels(feet): return feet * config.pixels_per_foot
 func pixels_to_feet(pixels): return pixels / config.pixels_per_foot

@@ -2,16 +2,15 @@ extends CanvasLayer
 
 func get_persistent_data():
 	var p = {}
-	for c in get_children():
-		if c.is_in_group("InventoryContainers") or c.is_in_group("InventoryHolders"):
-			var d = c.get_persistent_data()
-			if d: p.merge({ c.name: d })
+	for holder in get_all_holders():
+		var data = holder.get_persistent_data()
+		if data: p.merge({ get_path_to(holder): data})
 	return p
 
 func load_persistent_data(p):
-	yield(self, "ready")
-	for c in get_children():
-		if p.has(c.name): c.load_persistent_data(p[c.name])
+	for path in p.keys():
+		var holder = get_node(path)
+		holder.load_persistent_data(p[path])
 
 func _ready():
 	add_to_group("InventoryContainers")

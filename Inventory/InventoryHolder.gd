@@ -19,9 +19,8 @@ func get_persistent_data():
 	else: return null
 
 func load_persistent_data(p):
-	yield(self, "ready")
 	var thing = GameEngine.instantiate(p.filename, p.data, p.global_position)
-	add_child(thing)
+	add_thing(thing)
 
 func _ready():
 	add_to_group("InventoryHolders")
