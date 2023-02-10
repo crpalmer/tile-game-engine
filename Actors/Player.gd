@@ -255,7 +255,8 @@ func process_attack():
 
 func process_use():
 	for use_on in $CloseArea.in_sight():
-		if use_on is InventoryThing: add_to_inventory(use_on)
+		if not use_on.visible: pass
+		elif use_on is InventoryThing: add_to_inventory(use_on)
 		elif use_on is Thing: use_on.used_by(self)
 
 func add_currency(currency, amount = 0):
@@ -297,6 +298,7 @@ func process_look():
 		else:
 			if what.length() > 0: what = what + ", "
 			what = what + thing.display_name
+		if thing.has_method("looked_at"): thing.looked_at()
 	if what == "" and not any_descriptions: what = "nothing"
 	if what != "": GameEngine.message("You %ssee: %s" % [ "also " if any_descriptions else "", what])
 
@@ -310,8 +312,8 @@ func get_inventory_containers():
 		if c.is_in_group("InventoryContainers"): containers.push_back(c)
 	return containers
 
-func add_to_inventory(thing):
-	if $Inventory.add_thing(thing):
+func add_to_inventory(thing, auto_equip = false):
+	if $Inventory.add_thing(thing, auto_equip):
 		GameEngine.message("You picked up " + thing.display_name)
 		return true
 	GameEngine.message("You are carrying too much to pick up " + thing.display_name)

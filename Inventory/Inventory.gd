@@ -57,7 +57,7 @@ func get_all_things():
 		if thing: things.push_back(thing)
 	return things
 
-func add_thing(thing):
+func add_thing(thing, auto_equip = false):
 	if thing.combinable:
 		var holder = get_holder_of_thing(thing)
 		if holder:
@@ -66,6 +66,10 @@ func add_thing(thing):
 			thing.queue_free()
 			holder.updated(existing_thing)
 			return true
+	if auto_equip:
+		for holder in get_all_holders():
+			if holder.is_equipped and holder.add_thing(thing):
+				return true
 	for holder in get_all_holders():
 		if holder.add_thing(thing):
 			return true
