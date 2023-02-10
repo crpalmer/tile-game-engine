@@ -1,5 +1,5 @@
-extends Actor
-class_name ConversationalActor
+extends Node2D
+class_name ActorConversation
 
 export var seconds_per_interation = 15
 
@@ -9,44 +9,38 @@ var services_for_sale = []
 var in_conversation = false
 var is_selling = false
 
-func get_persistent_data():
-	return .get_persistent_data()
-
-func load_persistent_data(p):
-	.load_persistent_data(p)
+onready var actor = get_parent()
+onready var conversation = GameEngine.conversation
 
 func name():
-	return display_name
+	return actor.display_name
 
 func start():
-	GameEngine.conversation.connect("player_said", self, "player_said_wrapper")
-	GameEngine.conversation.start(name())
-	in_conversation = true
-	say_hello()
+	if not conversation.is_active():
+		conversation.start(name(), self)
+		say_hello()
 
 func say_hello(): say("Hello.")
 func say_attacked(): say("Die!")
 
 func say_bye(text = "Bye", delay = 0):
-	GameEngine.conversation.say_bye(text, delay)
+	conversation.say_bye(text, delay)
 
 func end(delay = 2.0):
-	GameEngine.conversation.disconnect("player_said", self, "player_said_wrapper")
-	GameEngine.conversation.end(delay)
-	in_conversation = false
+	conversation.end(delay)
 
 func say(text):
-	GameEngine.conversation.say(text)
+	conversation.say(text)
 	add_time()
 
 func say_in_parts(parts:Array):
-	GameEngine.conversation.say_in_parts(parts)
+	conversation.say_in_parts(parts)
 	add_time()
 
 func add_time():
 	GameEngine.add_to_game_time(seconds_per_interation/60)
 
-func player_said_wrapper(text, words):
+func player_said_internal(text, words):
 	if text.begins_with("buy ") and process_sale(text.substr(4)):
 		# Someone already knows what we're selling, them have it
 		pass
@@ -78,10 +72,10 @@ func wants_to_initiate_conversation():
 	return false
 
 func _process(_delta):
-	if mood != Mood.FRIENDLY: return
-	if in_conversation and not $CloseArea.player_is_in_sight():
+	if not actor.is_friendly(): return
+	if in_conversation and not actor.player_is_close():
 		end(0)
-	elif not in_conversation and wants_to_initiate_conversation() and $CloseArea.player_is_in_sight():
+	elif not in_conversation and wants_to_initiate_conversation() and actor.player_is_close():
 		start()
 
 func is_sale_utterance(_text, words):

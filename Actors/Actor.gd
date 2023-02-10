@@ -20,6 +20,7 @@ export var next_action = 0
 
 onready var navigation = $Navigation
 var random_movement
+var conversation
 
 var travel_distance_fudge_factor = 2
 var punch = load("%s/Actors/Punch.tscn" % GameEngine.config.root).instance()
@@ -56,6 +57,7 @@ func _ready():
 	if mood == Mood.HOSTILE: GameEngine.n_hostile += 1
 	for c in get_children():
 		if c is ActorRandomMovement: random_movement = c
+		if c is ActorConversation: conversation = c
 	if random_movement: set_destination(random_movement.new_destination())
 
 func set_mood(new_mood):
@@ -139,6 +141,9 @@ func is_in_sight(who):
 
 func i_see_the_player():
 	set_destination(GameEngine.player.global_position)
+
+func start_conversation():
+	if conversation: conversation.start()
 
 func default_process():
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_sight():

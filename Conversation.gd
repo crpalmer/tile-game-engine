@@ -1,10 +1,8 @@
 extends CanvasLayer
-class_name Conversation
 
 signal more_pressed
-signal player_said
 
-var in_conversation = false
+var actor_conversation 
 
 func get_persistent_data(): return {}
 func load_persistent_data(_p): pass
@@ -23,16 +21,19 @@ func _ready():
 	player_text.connect("text_entered", self, "_on_PlayerText_text_entered")
 	more_timer.connect("timeout", self, "_on_more_timer_timeout")
 
-func start(name):
+func is_active():
+	return actor_conversation != null
+
+func start(name, a_c):
 	speaker_name.text = name
+	actor_conversation = a_c
 	visible = true
 	player_text.visible = false
-	in_conversation = true
 	GameEngine.pause()
 
 func end(delay = 0):
 	if delay > 0: yield(get_tree().create_timer(delay), "timeout")
-	in_conversation = false
+	actor_conversation = null
 	visible = false
 	GameEngine.resume()
 
@@ -89,14 +90,11 @@ func player_entered(text):
 	var filtered = []
 	for word in tokenized: if not filtered_words.has(word): filtered.append(word)
 	var filtered_text = PoolStringArray(filtered).join(" ")
-	emit_signal("player_said", filtered_text, filtered)
+	actor_conversation.player_said_internal(filtered_text, filtered)
 
 func _on_More_pressed():
-	call_deferred("more_pressed")
-
-func more_pressed():
+	more.set_deferred("visible", false)
 	emit_signal("more_pressed")
-	more.visible = false
 
 func _on_more_timer_timeout():
-	more.visible = true
+	more.set_deferred("visible", true)
