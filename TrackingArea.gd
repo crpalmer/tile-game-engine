@@ -57,13 +57,17 @@ func record_area(tracker, trackee, is_entered):
 	#else:
 	#	print("Not tracking %s / %s" % [get_parent().name, name])
 
-# Inventory things shouldn't block our view, look through all other inventory things
+# Inventory things shouldn't block our view, look through everything that
+# doesn't exist on layer 1 (our physical world)
+func ignorable(thing):
+	return thing is CollisionObject2D and (thing.collision_layer & 1) == 0
+
 func get_LOS_ignore(tracker, trackee):
 	var ignore = [ tracker ]
 	for c in tracker.get_children():
 		if c.is_in_group("Trackables"): ignore.push_back(c)
 	for tracked in in_area:
-		if tracked != trackee and tracked is InventoryThing: ignore.push_back(tracked)
+		if tracked != trackee and ignorable(tracked): ignore.push_back(tracked)
 	return ignore
 
 func is_self_or_child_of(node, target):
@@ -76,9 +80,17 @@ func LOS(tracker, trackee):
 	var ignore = get_LOS_ignore(tracker, trackee)
 	var space_rid = get_world_2d().space
 	var space_state = Physics2DServer.space_get_direct_state(space_rid)
-	# First check a ray straight at the object
+
+	# See if we are on top of each other
+	var colliding = space_state.intersect_point(tracker.position, 32, ignore)
+	if colliding:
+		for collision in colliding:
+			if collision.collider == trackee: return true
+
+	# Check a ray straight at the object
 	var in_sight = space_state.intersect_ray(tracker.global_position, trackee.global_position, ignore)
 	if in_sight and is_self_or_child_of(in_sight.collider, trackee): return true
+
 	# If that doesn't work, try shooting rays at all its active collision shapes
 	# For example a door has a position but open and closed have different collision shapes!
 	for c in trackee.get_children():
