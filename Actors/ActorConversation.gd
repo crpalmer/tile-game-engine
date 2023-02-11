@@ -72,7 +72,7 @@ func wants_to_initiate_conversation():
 	return false
 
 func _process(_delta):
-	if not actor.is_friendly(): return
+	if actor.is_hostile(): return
 	if in_conversation and not actor.player_is_close():
 		end(0)
 	elif not in_conversation and wants_to_initiate_conversation() and actor.player_is_close():
