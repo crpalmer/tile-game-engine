@@ -145,7 +145,7 @@ func default_process():
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_sight():
 		i_see_the_player()
 		process_attack()
-	elif mood != Mood.FRIENDLY and $VisionArea.player_is_in_sight():
+	elif mood != Mood.FRIENDLY and $VisionArea.player_is_in_sight() and not conversation:
 		i_see_the_player()
 		set_mood(Mood.HOSTILE)
 
