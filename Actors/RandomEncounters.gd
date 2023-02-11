@@ -43,21 +43,6 @@ func set_next_check():
 	else:
 		next_check_at = INF
 
-func place(m):
-	var x_dir = [0, 1, -1]
-	var y_dir = [0, 1, -1]
-	x_dir.shuffle()
-	y_dir.shuffle()
-	for distance in [ 5, 3, 1]:
-		for x in x_dir:
-			for y in y_dir:
-				if x != 0 or y != 0:
-					var place = Vector2(x, y)*GameEngine.feet_to_pixels(distance)
-					m.global_position = GameEngine.player.global_position + place
-					var collide = m.move_and_collide(-2*place, true, true, true)
-					if collide and collide.collider == GameEngine.player:
-						return true
-
 func allowed_to_generate():
 	if area_extents == Vector2.ZERO: return true
 	return player_in_area > 0
@@ -69,7 +54,7 @@ func _physics_process(_delta):
 		if allowed_to_generate() and GameEngine.roll_d20() >= test_roll:
 			var m = load(monsters[randi() % monsters.size()]).instance()
 			add_child(m)
-			place(m)
+			m.place_near(GameEngine.player)
 
 func _on_body_entered(body):
 	if body == GameEngine.player: player_in_area += 1

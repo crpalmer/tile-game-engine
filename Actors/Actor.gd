@@ -141,6 +141,24 @@ func i_see_the_player():
 func start_conversation():
 	if conversation: conversation.start()
 
+func place_near(who):
+	var x_dir = [0, 1, -1]
+	var y_dir = [0, 1, -1]
+	x_dir.shuffle()
+	y_dir.shuffle()
+	for distance in [ 5, 3, 1]:
+		for x in x_dir:
+			for y in y_dir:
+				if x != 0 or y != 0:
+					var place = Vector2(x, y)*GameEngine.feet_to_pixels(distance)
+					global_position = who.global_position + place
+					var collide = move_and_collide(-2*place, true, true, true)
+					if collide and collide.collider == who:
+						return true
+
+func place_near_player():
+	place_near(GameEngine.player)
+
 func default_process():
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_sight():
 		i_see_the_player()
