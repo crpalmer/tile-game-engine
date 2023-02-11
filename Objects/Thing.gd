@@ -55,5 +55,5 @@ func may_use():
 
 func looked_at():
 	if not visible and findable:
-		if reveal_text != "": GameEngine.message(reveal_text)
+		if reveal_text != "": GameEngine.message(reveal_text, true)
 		visible = true

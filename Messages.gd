@@ -7,6 +7,8 @@ export var new_message_color = Color(255, 255, 255)
 export var stale_message_color = Color(255, 255, 255)
 var messages = []
 
+onready var audio = $AudioStreamPlayer2D
+
 class Message:
 	var posted_at
 	var text
@@ -22,7 +24,8 @@ func _ready():
 	_err = GameEngine.connect("new_game", self, "new_game")
 	update_messages()
 
-func message(msg):
+func message(msg, beep = false):
+	if beep: audio.play()
 	messages.push_back(CreateMessage(msg))
 	while messages.size() > max_messages: messages.pop_front()
 	update_messages()

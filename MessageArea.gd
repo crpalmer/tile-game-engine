@@ -17,5 +17,5 @@ func _ready():
 
 func on_body_entered(body):
 	if available and body == GameEngine.player:
-		GameEngine.message(message)
+		GameEngine.message(message, true)
 		if one_shot: available = false

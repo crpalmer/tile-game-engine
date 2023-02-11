@@ -354,8 +354,8 @@ func ability_modifier(score):
 		28, 29: return 9
 		_: return 10
 
-func message(msg):
-	emit_signal("message", msg)
+func message(msg, beep = false):
+	emit_signal("message", msg, beep)
 
 func current_time_of(m):
 	return {
