@@ -2,7 +2,7 @@ extends CanvasLayer
 
 signal more_pressed
 
-var actor_conversation 
+var actor_conversation
 
 func get_persistent_data(): return {}
 func load_persistent_data(_p): pass
