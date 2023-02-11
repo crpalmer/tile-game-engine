@@ -250,6 +250,7 @@ func return_to_scene(scene, entry_position, keep_items_on_return):
 				items.append(c)
 				c.get_parent().remove_child(c)
 	enter_scene(scene, null, entry_position)
+	yield(get_tree(), "idle_frame")
 	for item in items:
 		current_scene.add_child(item)
 		item.global_position = entry_position
