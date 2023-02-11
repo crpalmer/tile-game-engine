@@ -59,6 +59,10 @@ func set_mood(new_mood):
 	if mood == new_mood: return
 	mood = new_mood
 
+func make_hostile(): set_mood(Mood.HOSTILE)
+func make_neutral(): set_mood(Mood.NEUTRAL)
+func make_friendly(): set_mood(Mood.FRIENDLY)
+
 func is_hostile(): return mood == Mood.HOSTILE
 func is_neutral(): return mood == Mood.NEUTRAL
 func is_friendly(): return mood == Mood.FRIENDLY
