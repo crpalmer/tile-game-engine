@@ -83,12 +83,10 @@ func stop_navigating():
 	navigation.set_target_location(global_position)
 
 func set_destination(pos):
-	#GameEngine.message("%s to (%f, %f)" % [ display_name, pos.x, pos.y ])
 	if random_movement: pos = random_movement.clamp_to_area(pos)
 	var old = navigation.get_target_location()
 	if (old - pos).length() > GameEngine.feet_to_pixels(1):
 		navigation.set_target_location(pos)
-		print_debug(display_name, ": ", pos, " path ", navigation.get_nav_path())
 
 func capitalized_display_name():
 	return display_name[0].to_upper() + display_name.substr(1) if display_name else "<unknown>"
@@ -190,11 +188,8 @@ func physics_place_near():
 				if x != 0 or y != 0:
 					var place = who.global_position + Vector2(x, y)*GameEngine.feet_to_pixels(distance)
 					if can_see_player_from(place):
-						GameEngine.message("Placed %s at (%f, %f)" % [ display_name, place.x, place.y ])
 						set_position(place)
-						return true
-					else:
-						GameEngine.message("Failed %s at (%f, %f)" % [ display_name, place.x, place.y ])
+						return
 
 func place_near_player():
 	place_near(GameEngine.player)
@@ -220,7 +215,7 @@ func process_attack():
 	var attack = select_attack()
 	if attack: attack(GameEngine.player, attack)
 
-func default_physics_process(delta):
+func default_physics_process(_delta):
 	if place_near_actor != null:
 		physics_place_near()
 
