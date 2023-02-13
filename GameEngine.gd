@@ -105,36 +105,32 @@ func create_player():
 	get_tree().current_scene.add_child(player)
 	emit_signal("player_created")
 
+func is_child_of_persistent_node(node):
+	var parent = node.get_parent()
+	if parent:
+		if parent.is_in_group("PersistentNodes"): return true
+		return is_child_of_persistent_node(parent)
+	return false
+
+func get_persistent_nodes():
+	var persistent_nodes = []
+	for node in get_tree().get_nodes_in_group("PersistentNodes"):
+		if not is_child_of_persistent_node(node):
+			persistent_nodes.append(node)
+	return persistent_nodes
+
 func get_current_scene_state():
 	var nodes_data = {}
-	var thing_data = {}
-	var spawned_data = {}
-	for node in get_tree().get_nodes_in_group("PersistentNodes"):
+	for node in get_persistent_nodes():
 		if node != player:
 			nodes_data.merge({
 				current_scene.get_path_to(node): {
+				"filename": node.filename,
 				"data": node.get_persistent_data(),
 				"global_position": node.global_position
 			}})
-	for t in current_scene.get_children():
-		if t.is_in_group("PersistentThings"):
-			thing_data.merge({
-				t.name: {
-				"filename": t.filename,
-				"data": t.get_persistent_data(),
-				"global_position": t.global_position
-			}})
-		elif t.is_in_group("PersistentSpawned"):
-			spawned_data.merge({
-				t.name: {
-				"filename": t.filename,
-				"data": t.get_persistent_data(),
-				"global_position": t.global_position
-			}})
 	return {
-		"nodes": nodes_data,
-		"things": thing_data,
-		"spawned": spawned_data
+		"nodes": nodes_data
 	}
 
 func get_save_data():
@@ -156,9 +152,8 @@ func save_game(filename):
 	return ResourceSaver.save(filename, res) == 0
 
 func load_scene_state(p):
-	for node in get_tree().get_nodes_in_group("PersistentNodes"):
+	for node in get_persistent_nodes():
 		var path = current_scene.get_path_to(node)
-		print("node: %s at %s data %s" % [ node.name, path, "yes" if p.nodes.has(path) else "no"])
 		if node == player:
 			pass
 		elif not p.nodes.has(path):
@@ -168,15 +163,10 @@ func load_scene_state(p):
 			node.load_persistent_data(data.data)
 			node.global_position = data.global_position
 			if node.has_method("stop_navigating"): node.stop_navigating()
-	for t in current_scene.get_children():
-		if t.is_in_group("PersistentThings") or t.is_in_group("PersistentSpawned"): t.queue_free()
-	for n in p.things.keys():
-		var t = p.things[n]
-		instantiate(current_scene, t.filename, t.data, t.global_position)
-	for n in p.spawned.keys():
-		var s = p.spawned[n]
-		var actor = instantiate(current_scene, s.filename, s.data, s.global_position)
-		actor.was_spawned()
+			p.nodes.erase(path)
+	for path in p.nodes.keys():
+		var data = p.nodes[path]
+		instantiate(current_scene, data.filename, data.data, data.global_position)
 
 func load_save_data(p):
 	clear_game()
@@ -208,7 +198,6 @@ func instantiate(parent, filename, data = null, global_position = null):
 	if global_position: thing.global_position = global_position
 	if thing.has_method("stop_navigating"): thing.stop_navigating()
 	return thing
-
 
 func fade(leave_faded, from, to, duration = 0.5):
 	pause()
@@ -258,7 +247,7 @@ func return_to_scene(scene, entry_position, keep_items_on_return):
 	var items = []
 	if keep_items_on_return:
 		for c in current_scene.get_children():
-			if c.is_in_group("PersistentThings"):
+			if c.is_in_group("Things"):
 				items.append(c)
 				c.get_parent().remove_child(c)
 	enter_scene(scene, null, entry_position)

@@ -42,7 +42,6 @@ func _physics_process(_delta):
 		if allowed_to_generate() and GameEngine.roll_d20() >= test_roll:
 			var m = GameEngine.instantiate(GameEngine.current_scene, monsters[randi() % monsters.size()])
 			m.place_near_player()
-			m.was_spawned()
 
 func _on_body_entered(body):
 	if body == GameEngine.player: player_in_area += 1

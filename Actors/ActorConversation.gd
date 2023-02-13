@@ -12,6 +12,12 @@ var is_selling = false
 onready var actor = get_parent()
 onready var conversation = GameEngine.conversation
 
+func get_persistent_data():
+	return {}
+
+func load_persistent_data(_p):
+	pass
+
 func name():
 	return actor.display_name
 

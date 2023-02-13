@@ -8,6 +8,12 @@ export(bool) var stay_in_area = false
 onready var shape = get_node(shape_node)
 onready var start_position = global_position
 
+func get_persistent_data():
+	return {}
+
+func load_persistent_data(_p):
+	pass
+
 func random_point(center, extent:int):
 	var delta = 0
 	while abs(delta) < extent*minimum_distance_percent/100:

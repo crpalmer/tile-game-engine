@@ -28,18 +28,23 @@ var punch = load("%s/Actors/Punch.tscn" % GameEngine.config.root).instance()
 var place_near_actor = null
 
 func get_persistent_data():
+	var c = conversation.get_persistent_data() if conversation else null
+	var rm = random_movement.get_persistent_data() if random_movement else null
 	var p = {
 		"hp": hp,
 		"max_hp": max_hp,
-		"mood": mood
+		"mood": mood,
+		"conversation": c,
+		"random_movement": rm
 	}
 	return p
 	
 func load_persistent_data(p):
-	yield(self, "ready")
 	hp = p.hp
 	max_hp = p.max_hp
 	mood = p.mood
+	if conversation: conversation.load_persistent_data(p.conversation)
+	if random_movement: random_movement.load_persistent_data(p.random_movement)
 
 func _ready():
 	add_to_group("PersistentNodes")
@@ -59,10 +64,6 @@ func _ready():
 		if c is ActorConversation: conversation = c
 	if random_movement: set_destination(random_movement.new_destination())
 	else: stop_navigating()
-
-func was_spawned():
-	remove_from_group("PersistentNodes")
-	add_to_group("PersistentSpawned")
 
 func set_mood(new_mood):
 	mood = new_mood
