@@ -211,7 +211,7 @@ func select_attack():
 			if attack.may_use():
 				attack.used_by(self)
 				return attack
-	if not has_attacks:
+	if not has_attacks and punch.may_use():
 		punch.used_by(self)
 		return punch
 	return null
