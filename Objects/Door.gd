@@ -11,6 +11,20 @@ onready var lock = get_node_or_null("Lock")
 onready var blocker_open = get_node_or_null("BlockerOpen")
 onready var blocker_closed = get_node_or_null("BlockerClosed")
 
+func get_persistent_data():
+	var p = .get_persistent_data()
+	p.merge({
+		"is_locked": is_locked,
+		"is_closed": is_closed
+	})
+	return p
+
+func load_persistent_data(p):
+	.load_persistent_data(p)
+	is_locked = p.is_locked
+	is_closed = p.is_closed
+	ensure_state()
+
 func _ready():
 	ensure_state()
 
