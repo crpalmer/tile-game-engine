@@ -133,3 +133,8 @@ func handle_selling(text, words):
 		start_selling()
 	elif not process_sale(text):
 		say("What do you want to buy?")
+
+func one_word_in(words, array):
+	for word in array:
+		if words.has(word): return true
+	return false
