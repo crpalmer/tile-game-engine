@@ -11,24 +11,12 @@ var next_check_at = 0
 var player_in_area = 0
 
 func get_persistent_data():
-	var active = []
-	for c in get_children():
-		if c is Actor:
-			active.append({
-				"filename": c.filename,
-				"data": c.get_persistent_data(),
-				"global_position": c.global_position
-			})
 	return {
-		"next_check_at": next_check_at,
-		"active": active
+		"next_check_at": next_check_at
 	}
 
 func load_persistent_data(p):
-	yield(self, "ready")
 	next_check_at = p.next_check_at
-	for c in p.active:
-		add_child(GameEngine.instantiate(c.filename, c.data, c.global_position))
 
 func _ready():
 	add_to_group("PersistentNodes")
@@ -52,9 +40,9 @@ func _physics_process(_delta):
 	if GameEngine.time_in_minutes >= next_check_at:
 		set_next_check()
 		if allowed_to_generate() and GameEngine.roll_d20() >= test_roll:
-			var m = load(monsters[randi() % monsters.size()]).instance()
-			add_child(m)
-			m.place_near(GameEngine.player)
+			var m = GameEngine.instantiate(GameEngine.current_scene, monsters[randi() % monsters.size()])
+			m.place_near_player()
+			m.was_spawned()
 
 func _on_body_entered(body):
 	if body == GameEngine.player: player_in_area += 1

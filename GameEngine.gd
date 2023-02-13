@@ -105,13 +105,10 @@ func create_player():
 	get_tree().current_scene.add_child(player)
 	emit_signal("player_created")
 
-func get_all_saveable_nodes():
-	return get_tree().get_nodes.in_group("PersistentActors").append(
-		get_tree().get_nodes_in_group("Persistent")
-	)
 func get_current_scene_state():
 	var nodes_data = {}
 	var thing_data = {}
+	var spawned_data = {}
 	for node in get_tree().get_nodes_in_group("PersistentNodes"):
 		if node != player:
 			nodes_data.merge({
@@ -127,9 +124,17 @@ func get_current_scene_state():
 				"data": t.get_persistent_data(),
 				"global_position": t.global_position
 			}})
+		elif t.is_in_group("PersistentSpawned"):
+			spawned_data.merge({
+				t.name: {
+				"filename": t.filename,
+				"data": t.get_persistent_data(),
+				"global_position": t.global_position
+			}})
 	return {
 		"nodes": nodes_data,
-		"things": thing_data
+		"things": thing_data,
+		"spawned": spawned_data
 	}
 
 func get_save_data():
@@ -162,11 +167,16 @@ func load_scene_state(p):
 			var data = p.nodes[path]
 			node.load_persistent_data(data.data)
 			node.global_position = data.global_position
+			if node.has_method("stop_navigating"): node.stop_navigating()
 	for t in current_scene.get_children():
-		if t.is_in_group("PersistentThings"): t.queue_free()
+		if t.is_in_group("PersistentThings") or t.is_in_group("PersistentSpawned"): t.queue_free()
 	for n in p.things.keys():
 		var t = p.things[n]
-		current_scene.add_child(instantiate(t.filename, t.data, t.global_position))
+		instantiate(current_scene, t.filename, t.data, t.global_position)
+	for n in p.spawned.keys():
+		var s = p.spawned[n]
+		var actor = instantiate(current_scene, s.filename, s.data, s.global_position)
+		actor.was_spawned()
 
 func load_save_data(p):
 	clear_game()
@@ -191,10 +201,12 @@ func load_saved_game(filename):
 	paused = 0
 	return true
 
-func instantiate(filename, data, global_position = null):
+func instantiate(parent, filename, data = null, global_position = null):
 	var thing = load(filename).instance()
-	thing.load_persistent_data(data)
+	if data: thing.load_persistent_data(data)
+	parent.add_child(thing)
 	if global_position: thing.global_position = global_position
+	if thing.has_method("stop_navigating"): thing.stop_navigating()
 	return thing
 
 
