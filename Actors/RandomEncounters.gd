@@ -3,9 +3,6 @@ extends Node2D
 export(Array, String, FILE) var monsters
 export var check_every_hours = 24.0
 export var test_roll = 20
-export var area_extents = Vector2.ZERO
-onready var area = $Area2D
-onready var shape = $Area2D/CollisionShape2D
 
 var next_check_at = 0
 var player_in_area = 0
@@ -20,10 +17,8 @@ func load_persistent_data(p):
 
 func _ready():
 	add_to_group("PersistentNodes")
-	if area_extents != Vector2.ZERO:
-		shape.shape.extents = area_extents
-		area.connect("body_entered", self, "_on_body_entered")
-		area.connect("body_exited", self, "_on_body_exited")
+	var _err = connect("body_entered", self, "_on_body_entered")
+	_err = connect("body_exited", self, "_on_body_exited")
 
 func set_next_check():
 	if monsters.size() > 0:
@@ -32,7 +27,6 @@ func set_next_check():
 		next_check_at = INF
 
 func allowed_to_generate():
-	if area_extents == Vector2.ZERO: return true
 	return player_in_area > 0
 
 func _physics_process(_delta):
