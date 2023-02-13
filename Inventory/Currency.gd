@@ -8,6 +8,17 @@ export(int) var random_min
 export(int) var random_max
 export(String) var abbreviation
 
+func get_persistent_data():
+	var p = .get_persistent_data()
+	p.merge({
+		"n_units": n_units
+	})
+	return p
+
+func load_persistent_data(p):
+	.load_persistent_data(p)
+	n_units = p.n_units
+
 func copy_sprite(name, position):
 	var new_sprite = $Sprite.duplicate()
 	new_sprite.name = name
