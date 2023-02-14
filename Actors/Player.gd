@@ -262,12 +262,14 @@ func process_use():
 		elif use_on is Thing: use_on.used_by(self)
 
 func add_currency(currency, amount = 0):
+	var n_units = currency.n_units if amount == 0 else amount
 	if money.has(currency.filename):
-		money[currency.filename].n_units += currency.n_units
+		money[currency.filename].n_units += n_units
 	else:
 		money[currency.filename] = {}
-		money[currency.filename].n_units = currency.n_units if amount == 0 else amount
+		money[currency.filename].n_units = n_units
 		money[currency.filename].unit_value = currency.unit_value
+	GameEngine.message("You picked up %d %s" % [ n_units, currency.abbreviation ])
 	emit_signal("player_stats_changed")
 
 func get_currency_by_filename(filename):
