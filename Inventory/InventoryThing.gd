@@ -32,6 +32,7 @@ func load_persistent_data(p):
 func _ready():
 	if not plural or plural == "": plural = display_name
 	add_to_group("InventoryThings")
+	add_to_group("Ephemeral")
 	if group != "": add_to_group(group)
 	
 func get_display_name():

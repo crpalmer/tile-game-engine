@@ -157,7 +157,7 @@ func load_scene_state(p):
 		if node == player:
 			pass
 		elif not p.nodes.has(path):
-			node.queue_free()
+			if node.is_in_group("Ephemeral"): node.queue_free()
 		else:
 			var data = p.nodes[path]
 			node.load_persistent_data(data.data)

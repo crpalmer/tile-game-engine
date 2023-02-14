@@ -47,6 +47,7 @@ func load_persistent_data(p):
 func _ready():
 	add_to_group("PersistentNodes")
 	add_to_group("Trackables")
+	add_to_group("Ephemeral")
 	# We don't have the logic for avoidance_enabled in here
 	navigation.avoidance_enabled = false
 	randomize()
