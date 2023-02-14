@@ -1,8 +1,9 @@
 extends Node2D
 
-var vector
+var vector = Vector2.ZERO
 
-func start(hit, damage = 0):
+func start(hit, damage, delta):
+	vector = delta
 	$Damage.text = String(damage)
 	$Damage.visible = hit
 	$Hit.visible = hit
@@ -10,7 +11,6 @@ func start(hit, damage = 0):
 	$Timer.start(1)
 
 func _ready():
-	vector = Vector2(0, -16)
 	var _err = $Timer.connect("timeout", self, "_on_timeout")
 
 func _physics_process(delta):

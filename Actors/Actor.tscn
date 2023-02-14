@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://GameEngine/TrackingArea.tscn" type="PackedScene" id=1]
-[ext_resource path="res://GameEngine/Actors/DamagePopup.tscn" type="PackedScene" id=2]
 [ext_resource path="res://GameEngine/Actors/Actor.gd" type="Script" id=4]
 
 [node name="Actor" type="KinematicBody2D"]
@@ -16,12 +15,6 @@ visible = false
 
 [node name="AttackAvailable" type="Timer" parent="."]
 
-[node name="DamagePopupTimer" type="Timer" parent="."]
-
-[node name="DamagePopup" parent="." instance=ExtResource( 2 )]
-visible = false
-position = Vector2( -16, -24 )
-
 [node name="Navigation" type="NavigationAgent2D" parent="."]
 path_desired_distance = 10.0
 target_desired_distance = 10.0
@@ -30,4 +23,3 @@ avoidance_enabled = true
 radius = 16.0
 
 [connection signal="timeout" from="AttackAvailable" to="." method="_on_AttackAvailable_timeout"]
-[connection signal="timeout" from="DamagePopupTimer" to="." method="_on_DamagePopupTimer_timeout"]

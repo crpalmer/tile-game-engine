@@ -107,11 +107,10 @@ func take_damage(damage:int, from:Actor = null, cause = null):
 	if from and from != GameEngine.player: message += " from a %s" % from.display_name
 	if cause: message += " by a %s" % cause.display_name
 	GameEngine.message(message)
+	damage_popup(true, damage, from)
 	if hp <= 0:
 		died()
 		if from: from.killed(self)
-	else:
-		damage_popup(true, damage)
 
 func was_attacked_by(_attacker):
 	if mood != Mood.HOSTILE and self != GameEngine.player:
@@ -128,7 +127,7 @@ func attack(who:Actor, attack, damage_modifier = 0):
 		who.take_damage(damage, self, attack)
 	else:
 		GameEngine.message("%s misses %s with a %s" % [ capitalized_display_name(), who.display_name, attack.display_name ])
-		who.damage_popup(false)
+		who.damage_popup(false, 0, who)
 
 func died():
 	GameEngine.message("%s  died!" % capitalized_display_name())
@@ -249,14 +248,10 @@ func _physics_process(delta):
 	if GameEngine.is_paused(): return
 	default_physics_process(delta)
 	
-func damage_popup(hit, damage = 0):
-	$DamagePopup/Damage.text = String(damage)
-	$DamagePopup/Damage.visible = hit
-	$DamagePopup/Hit.visible = hit
-	$DamagePopup/Miss.visible = not hit
-	$DamagePopup.visible = true
-	$DamagePopupTimer.start(0.5)
-	pass
-
-func _on_DamagePopupTimer_timeout():
-	$DamagePopup.visible = false
+func damage_popup(hit, damage, who):
+	var delta = Vector2(0, -24)
+	if who and who.global_position.x >= who.global_position.x - 24 and who.global_position.x <= who.global_position.x + 24:
+		if global_position.y > who.global_position.y:
+			delta = -delta
+	var popup = GameEngine.instantiate(GameEngine.current_scene, "%s/Actors/DamagePopup.tscn" % GameEngine.config.root, null, global_position + delta)
+	popup.start(hit, damage, delta)
