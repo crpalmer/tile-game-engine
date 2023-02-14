@@ -169,6 +169,7 @@ func load_scene_state(p):
 		instantiate(current_scene, data.filename, data.data, data.global_position)
 
 func load_save_data(p):
+	fade_out()
 	clear_game()
 	scene_state = p.scene_state
 	if current_scene: current_scene.queue_free()
@@ -181,6 +182,7 @@ func load_save_data(p):
 	current_scene.add_child(player)
 	player.load_persistent_data(p.player)
 	player.global_position = p.player_global_position
+	fade_in()
 
 func load_saved_game(filename):
 	var file = File.new()
@@ -258,7 +260,8 @@ func return_to_scene(scene, entry_position, keep_items_on_return):
 
 func enter_scene(scene, entry_point = null, entry_position = null):
 	pause()
-	if current_scene: fade_out()
+	var do_fade = current_scene != null
+	if do_fade: fade_out()
 
 	get_tree().paused = true
 
@@ -287,7 +290,7 @@ func enter_scene(scene, entry_point = null, entry_position = null):
 
 	get_tree().paused = false
 
-	fade_in()
+	if do_fade: fade_in()
 	resume()
 
 func add_scene_at(path:String, global_position:Vector2):
