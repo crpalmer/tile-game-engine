@@ -155,21 +155,18 @@ func is_in_sight(who):
 func start_conversation():
 	if conversation: conversation.start()
 
-func place_near(who):
-	place_near_actor = who
-
 func can_see_actor_from(actor, position):
 	var space_rid = get_world_2d().space
 	var space_state = Physics2DServer.space_get_direct_state(space_rid)
 
 	# See if we are on top of each other
-	var colliding = space_state.intersect_point(position, 32)
+	var colliding = space_state.intersect_point(position, 32, [], 1)
 	if colliding:
 		for collision in colliding:
 			if collision.collider == actor: return true
 
-	# Check a ray straight at the object
-	var in_sight = space_state.intersect_ray(position, actor.global_position)
+	# Check a ray straight at the object colliding only on layer 1
+	var in_sight = space_state.intersect_ray(position, actor.global_position, [], 1)
 	return in_sight and in_sight.collider == actor
 
 func can_see_player_from(position):
