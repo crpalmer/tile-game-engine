@@ -175,7 +175,7 @@ func is_a_good_place_to_place(position):
 		return false
 	return can_see_player_from(position)
 
-func place_near(who):
+func place_near_internal(who, exclude):
 	assert(not is_physics_processing())
 	for distance in range(2, 5):
 		var x_dir = range(-distance, distance*2+1, 2)
@@ -187,12 +187,22 @@ func place_near(who):
 			for y in y_dir:
 				if x != 0 or y != 0:
 					var place = who.global_position + Vector2(x, y) * GameEngine.feet_to_pixels(1)
-					if is_a_good_place_to_place(place):
+					if not exclude.has(place) and is_a_good_place_to_place(place):
 						set_position(place)
 						return
 
-func place_near_player():
-	place_near(GameEngine.player)
+func place_near(who, exclude = []):
+	var physics_process = is_physics_processing()
+	if physics_process:
+		set_physics_process(false)
+		yield(get_tree(), "idle_frame")
+	place_near_internal(who, exclude)
+	if physics_process:
+		yield(get_tree(), "idle_frame")
+		set_physics_process(true)
+
+func place_near_player(exclude = []):
+	place_near(GameEngine.player, exclude)
 
 func default_process():
 	if mood == Mood.HOSTILE and $CloseArea.player_is_in_sight():

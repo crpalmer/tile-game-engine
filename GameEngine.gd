@@ -201,6 +201,21 @@ func instantiate(parent, filename, data = null, global_position = null):
 	if thing.has_method("stop_navigating"): thing.stop_navigating()
 	return thing
 
+func spawn_near_player(filename, n = 1):
+	var placed = []
+	var spawned = []
+	for _i in range(n):
+		var spawn = instantiate(current_scene, filename)
+		spawn.set_physics_process(false)
+		spawned.append(spawn)
+	yield(get_tree(), "idle_frame")
+	for spawn in spawned:
+		spawn.place_near_player(placed)
+		placed.append(spawn.global_position)
+	yield(get_tree(), "idle_frame")
+	for spawn in spawned:
+		spawn.set_physics_process(true)
+
 func fade(leave_faded, from, to, duration = 0.5):
 	pause()
 	var animation_player = fade_canvas.get_node("Fade/AnimationPlayer")
