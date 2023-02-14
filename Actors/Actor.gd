@@ -83,9 +83,7 @@ func stop_navigating():
 
 func set_destination(pos):
 	if random_movement: pos = random_movement.clamp_to_area(pos)
-	var old = navigation.get_target_location()
-	if (old - pos).length() > GameEngine.feet_to_pixels(1):
-		navigation.set_target_location(pos)
+	navigation.set_target_location(pos)
 
 func capitalized_display_name():
 	return display_name[0].to_upper() + display_name.substr(1) if display_name else "<unknown>"
