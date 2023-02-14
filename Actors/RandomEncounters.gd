@@ -1,4 +1,4 @@
-extends Node2D
+extends Area2D
 
 export(Array, String, FILE) var monsters
 export var check_every_hours = 24.0
@@ -19,6 +19,9 @@ func _ready():
 	add_to_group("PersistentNodes")
 	var _err = connect("body_entered", self, "_on_body_entered")
 	_err = connect("body_exited", self, "_on_body_exited")
+	var shape_owners = get_shape_owners()
+	if shape_owners == null or shape_owners.size() == 0:
+		player_in_area = 1
 
 func set_next_check():
 	if monsters.size() > 0:
