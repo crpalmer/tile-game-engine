@@ -51,15 +51,15 @@ const xp_table = {
 	20: 355000
 }
 
-func add_xp(new_xp:int, beep = true):
+func add_xp(new_xp:int, important = true):
 	xp += new_xp
-	GameEngine.message("You gained %d XP" % new_xp, beep)
+	GameEngine.message("You gained %d XP" % new_xp, important)
 	while xp >= xp_table[level+1]:
 		level += 1
 		var new_hp = GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level))
 		hp += new_hp
 		max_hp += new_hp
-		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, new_hp], beep)
+		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, new_hp], true)
 	emit_signal("player_stats_changed")
 
 func get_persistent_data():
