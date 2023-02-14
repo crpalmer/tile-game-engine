@@ -1,7 +1,9 @@
 extends Area2D
 
 export(String, MULTILINE) var message
+export(bool) var is_important = true
 export(bool) var one_shot = true
+export(String) var milestone_granted
 
 var available = true
 
@@ -17,5 +19,6 @@ func _ready():
 
 func on_body_entered(body):
 	if available and body == GameEngine.player:
-		GameEngine.message(message, true)
+		GameEngine.message(message, is_important)
+		if milestone_granted != "": GameEngine.complete_milestone(milestone_granted)
 		if one_shot: available = false
