@@ -35,7 +35,10 @@ func _physics_process(_delta):
 		set_next_check()
 		if allowed_to_generate() and GameEngine.roll_d20() >= test_roll:
 			var m = GameEngine.instantiate(GameEngine.current_scene, monsters[randi() % monsters.size()])
+			m.set_physics_process(false)
+			yield(get_tree(), "idle_frame")
 			m.place_near_player()
+			m.set_physics_process(true)
 
 func _on_body_entered(body):
 	if body == GameEngine.player: player_in_area += 1

@@ -25,8 +25,6 @@ var conversation
 var travel_distance_fudge_factor = 2
 var punch = load("%s/Actors/Punch.tscn" % GameEngine.config.root).instance()
 
-var place_near_actor = null
-
 func get_persistent_data():
 	var c = conversation.get_persistent_data() if conversation else null
 	var rm = random_movement.get_persistent_data() if random_movement else null
@@ -172,20 +170,27 @@ func can_see_actor_from(actor, position):
 func can_see_player_from(position):
 	return can_see_actor_from(GameEngine.player, position)
 
-func physics_place_near():
-	var who = place_near_actor
-	place_near_actor = null
+func is_a_good_place_to_place(position):
+	var space_rid = get_world_2d().space
+	var space_state = Physics2DServer.space_get_direct_state(space_rid)
+	var colliding = space_state.intersect_point(position, 32, [], 1)
+	if  colliding != null and colliding.size() > 0:
+		return false
+	return can_see_player_from(position)
 
-	var x_dir = [0, 1, -1]
-	var y_dir = [0, 1, -1]
-	x_dir.shuffle()
-	y_dir.shuffle()
-	for distance in [ 5, 3, 1]:
+func place_near(who):
+	assert(not is_physics_processing())
+	for distance in range(2, 5):
+		var x_dir = range(-distance, distance*2+1, 2)
+		x_dir.append(0)
+		var y_dir = x_dir.duplicate()
+		x_dir.shuffle()
+		y_dir.shuffle()
 		for x in x_dir:
 			for y in y_dir:
 				if x != 0 or y != 0:
-					var place = who.global_position + Vector2(x, y)*GameEngine.feet_to_pixels(distance)
-					if can_see_player_from(place):
+					var place = who.global_position + Vector2(x, y) * GameEngine.feet_to_pixels(1)
+					if is_a_good_place_to_place(place):
 						set_position(place)
 						return
 
@@ -214,9 +219,6 @@ func process_attack():
 	if attack: attack(GameEngine.player, attack)
 
 func default_physics_process(_delta):
-	if place_near_actor != null:
-		physics_place_near()
-
 	if not is_friendly() and $VisionArea.player_is_in_sight():
 		set_destination(GameEngine.player.global_position)
 		if is_neutral() and not conversation: make_hostile()
