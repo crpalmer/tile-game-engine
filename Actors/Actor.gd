@@ -225,7 +225,7 @@ func process_attack():
 	var attack = select_attack()
 	if attack: attack(GameEngine.player, attack)
 
-func default_physics_process(_delta):
+func default_physics_process(delta):
 	if not is_friendly() and $VisionArea.player_is_in_sight():
 		set_destination(GameEngine.player.global_position)
 		if is_neutral() and not conversation: make_hostile()
@@ -235,11 +235,10 @@ func default_physics_process(_delta):
 
 	var next_location = navigation.get_next_location()
 	if not navigation.is_navigation_finished():
-		var velocity = (next_location - global_position).normalized() * travel_distance_in_pixels(1)
-		var _err = move_and_slide(velocity)
-
-func _on_Navigation_velocity_computed(safe_velocity):
-	var _collision = move_and_slide(safe_velocity)
+		var velocity = (next_location - global_position).normalized() * travel_distance_in_pixels(delta)
+		var collision:KinematicCollision2D = move_and_collide(velocity)
+		if collision and collision.collider != GameEngine.player:
+			var _err = move_and_collide(collision.remainder.bounce(collision.normal.rotated(randi()%30 - 15)))
 
 func travel_distance_in_pixels(delta_elapsed_time):
 	var minutes = GameEngine.real_time_to_game_time(delta_elapsed_time)
