@@ -85,7 +85,18 @@ func on_mouse_exited():
 	mouse_in_control -= 1
 
 func _input(event:InputEvent):
-	if mouse_in_control > 0 and event.is_action_pressed("look"):
-		var thing = get_thing()
-		if thing and thing.description() != "":
-			GameEngine.message(thing.description())
+	if mouse_in_control > 0:
+		if event.is_action_pressed("look"):
+			var thing = get_thing()
+			if thing:
+				var text = thing.description()
+				if text == "": text = thing.display_name
+				GameEngine.message(text)
+		elif event.is_action_pressed("use"):
+			var thing = get_thing()
+			if thing and thing.may_use():
+				thing.used_by(GameEngine.player)
+				if thing.max_uses == 0:
+					thing.queue_free()
+				else:
+					updated(thing)
