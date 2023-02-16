@@ -52,7 +52,9 @@ func add_thing(thing):
 	return true
 
 func updated(thing):
-	hint_tooltip = thing.display_name
+	var uses = "%d uses of " % thing.max_uses if thing.max_uses > 0 else ""
+	var n = " (x %d)" % thing.n if thing.n > 1 else ""
+	hint_tooltip = "%s %s %s" % [ uses, thing.display_name, n ]
 	emit_signal("inventory_changed")
 
 func has_a_thing_in_group(group_name):
