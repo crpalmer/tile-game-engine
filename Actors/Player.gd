@@ -62,6 +62,19 @@ func add_xp(new_xp:int, important = true):
 		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, new_hp], true)
 	emit_signal("player_stats_changed")
 
+func lose_xp(new_xp:int, important = true):
+	xp -= new_xp
+	GameEngine.message("You lost %d XP" % new_xp, important)
+	while xp < xp_table[level]:
+		level -= 1
+		var new_hp = GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level))
+		hp -= new_hp
+		max_hp -= new_hp
+		if hp < 1: hp = 1
+		if max_hp < 1: max_hp = 1
+		GameEngine.message("You downgraded to level %d and lost %d hit points!" % [level, new_hp], true)
+	emit_signal("player_stats_changed")
+
 func get_persistent_data():
 	var p = .get_persistent_data()
 	var m = {}
