@@ -17,6 +17,7 @@ export var close_radius = 3
 export var vision_radius = 60
 export var mood = Mood.FRIENDLY setget set_mood
 export var next_action = 0
+export(String) var random_movement_path
 
 onready var navigation : NavigationAgent2D = $Navigation
 var random_movement
@@ -50,16 +51,18 @@ func _ready():
 	add_to_group("Ephemeral")
 	# We don't have the logic for avoidance_enabled in here
 	navigation.avoidance_enabled = false
-	randomize()
+	navigation.max_speed = travel_distance_in_pixels(1)
+	# Force the navigation layer if doing random movement
+	random_movement = get_node(random_movement_path) if random_movement_path != "" else null
+	if random_movement:
+		navigation.navigation_layers = random_movement.navigation_layer
+		random_movement.actor = self
 	$VisionArea.visible = true
 	$CloseArea.visible = true
 	set_vision_range(vision_radius)
 	set_close_range(close_radius)
-	var _err = navigation.connect("velocity_computed", self, "_on_Navigation_velocity_computed")
-	navigation.max_speed = travel_distance_in_pixels(1)
 	if not display_name or display_name == "": display_name = name
 	for c in get_children():
-		if c is ActorRandomMovement: random_movement = c
 		if c is ActorConversation: conversation = c
 	if random_movement: set_destination(random_movement.new_destination())
 	else: stop_navigating()
@@ -83,7 +86,6 @@ func stop_navigating():
 	navigation.set_target_location(global_position)
 
 func set_destination(pos):
-	if random_movement: pos = random_movement.clamp_to_area(pos)
 	navigation.set_target_location(pos)
 
 func capitalized_display_name():
@@ -145,9 +147,13 @@ func killed(_who:Actor):
 	pass
 
 func player_is_close():
+	if random_movement and not random_movement.may_see_player():
+		return false
 	return $CloseArea.player_is_in_sight()
 
 func player_is_in_sight():
+	if random_movement and not random_movement.may_see_player():
+		return false
 	return $VisionArea.player_is_in_sight()
 
 func is_in_sight(who):
@@ -211,7 +217,7 @@ func place_near_player(exclude = []):
 	place_near(GameEngine.player, exclude)
 
 func default_process():
-	if mood == Mood.HOSTILE and $CloseArea.player_is_in_sight():
+	if mood == Mood.HOSTILE and player_is_close():
 		process_attack()
 
 func select_attack():
@@ -232,7 +238,7 @@ func process_attack():
 	if attack: attack(GameEngine.player, attack)
 
 func default_physics_process(delta):
-	if not is_friendly() and $VisionArea.player_is_in_sight():
+	if not is_friendly() and player_is_in_sight():
 		set_destination(GameEngine.player.global_position)
 		if is_neutral() and not conversation: make_hostile()
 
