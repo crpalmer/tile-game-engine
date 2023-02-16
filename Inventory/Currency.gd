@@ -28,6 +28,7 @@ func copy_sprite(name, position):
 	
 func _ready():
 	add_to_group("Trackables")
+	add_to_group("Ephemeral")
 	if random_max > 0:
 		n_units = randi() % (random_max - random_min + 1) + random_min
 		if n_units < 0: n_units = 0
