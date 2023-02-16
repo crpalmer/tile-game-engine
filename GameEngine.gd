@@ -201,6 +201,11 @@ func instantiate(parent, filename, data = null, global_position = null):
 	if thing.has_method("stop_navigating"): thing.stop_navigating()
 	return thing
 
+func give_to_player(filename):
+	var thing = instantiate(current_scene, filename)
+	player.add_to_inventory(thing)
+	GameEngine.message("You get %s" % thing.display_name)
+
 func spawn_near_player(filename, n = 1):
 	var placed = []
 	var spawned = []
