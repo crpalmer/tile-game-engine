@@ -194,8 +194,7 @@ func take_damage(damage:int, from = null, cause = null):
 	emit_signal("player_stats_changed")
 
 func give_hit_points(hp_given):
-	hp += hp_given
-	if hp > max_hp: hp = max_hp
+	.give_hit_points(hp_given)
 	emit_signal("player_stats_changed")
 
 func killed(who):

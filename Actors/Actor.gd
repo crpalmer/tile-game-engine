@@ -111,6 +111,11 @@ func take_damage(damage:int, from:Actor = null, cause = null):
 		died()
 		if from: from.killed(self)
 
+func give_hit_points(hp_given):
+	hp += hp_given
+	if hp > max_hp: hp = max_hp
+	GameEngine.message("%s gained %d HPs" % [ display_name, hp_given ])
+
 func was_attacked_by(_attacker):
 	if mood != Mood.HOSTILE and self != GameEngine.player:
 		set_mood(Mood.HOSTILE)
