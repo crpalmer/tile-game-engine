@@ -18,10 +18,22 @@ func _ready():
 
 func open():
 	make_visible(true)
-	
-func _process(_delta):
-	if visible and Input.is_action_just_released("exit"):
+
+func call_holders(method):
+	for holder in get_all_holders():
+		holder.call(method)
+
+func _unhandled_input(event):
+	if not visible: return
+	if event.is_action_pressed("exit"):
 		make_visible(false)
+	elif event.is_action_pressed("look"):
+		call_holders("look_in_inventory")
+	elif event.is_action_pressed("use"):
+		call_holders("use_in_inventory")
+	else:
+		return
+	get_tree().set_input_as_handled()
 
 func make_visible(is_visible):
 	visible = is_visible

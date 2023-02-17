@@ -52,9 +52,11 @@ func add_thing(thing):
 	return true
 
 func updated(thing):
-	var uses = "%d uses of " % thing.max_uses if thing.max_uses > 0 else ""
-	var n = " (x %d)" % thing.n if thing.n > 1 else ""
-	hint_tooltip = "%s %s %s" % [ uses, thing.display_name, n ]
+	var uses = ""
+	var n = ""
+	if thing.max_uses > 0: uses = "%d use%s of " % [thing.max_uses, "s" if thing.max_uses > 1 else "" ]
+	if thing.n > 1: n = " (x %d)"
+	hint_tooltip = "%s%s%s" % [ uses, thing.display_name, n ]
 	emit_signal("inventory_changed")
 
 func has_a_thing_in_group(group_name):
@@ -85,19 +87,20 @@ func on_mouse_entered():
 func on_mouse_exited():
 	mouse_in_control -= 1
 
-func _input(event:InputEvent):
-	if mouse_in_control > 0:
-		if event.is_action_pressed("look"):
-			var thing = get_thing()
-			if thing:
-				var text = thing.description()
-				if text == "": text = thing.display_name
-				GameEngine.message(text)
-		elif event.is_action_pressed("use"):
-			var thing = get_thing()
-			if thing and thing.may_use():
-				thing.used_by(GameEngine.player)
-				if thing.max_uses == 0:
-					thing.queue_free()
-				else:
-					updated(thing)
+func look_in_inventory():
+	if mouse_in_control <= 0: return
+	var thing = get_thing()
+	if not thing: return
+	var text = thing.description()
+	if text == "": text = thing.display_name
+	GameEngine.message("inventory: %s" % text)
+
+func use_in_inventory():
+	if mouse_in_control <= 0: return
+	var thing = get_thing()
+	if thing and thing.may_use():
+		thing.used_by(GameEngine.player)
+		if thing.max_uses == 0:
+			thing.queue_free()
+		else:
+			updated(thing)
