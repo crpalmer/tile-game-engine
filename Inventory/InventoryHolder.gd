@@ -76,6 +76,7 @@ func can_drop_data(_position, data):
 func drop_data(_position, data):
 	data.thing.get_parent().remove_child(data.thing)
 	add_child(data.thing)
+	updated(data.thing)
 	emit_signal("inventory_changed")
 
 func on_mouse_entered():
