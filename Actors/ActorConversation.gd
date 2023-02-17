@@ -30,23 +30,24 @@ func say_hello(): say("Hello.")
 func say_attacked(): say("Die!")
 
 func say_bye(text = "Bye", delay = 0):
-	conversation.say_bye(text, delay)
+	conversation.say_bye(actor.display_name, text, delay)
 
 func end(delay = 2.0):
 	conversation.end(delay)
 
 func say(text):
-	conversation.say(text)
+	conversation.say(actor.display_name, text)
 	add_time()
 
 func say_in_parts(parts:Array):
-	conversation.say_in_parts(parts)
+	conversation.say_in_parts(actor.display_name, parts)
 	add_time()
 
 func add_time():
 	GameEngine.add_to_game_time(seconds_per_interation/60)
 
 func player_said_internal(text, words):
+	GameEngine.message("You> %s" % text)
 	if text.begins_with("buy ") and process_sale(text.substr(4)):
 		# Someone already knows what we're selling, them have it
 		pass
