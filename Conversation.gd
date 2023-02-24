@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 signal more_pressed
+signal done_saying
 
 var actor_conversation
 
@@ -37,35 +38,37 @@ func end(delay = 0):
 	visible = false
 	GameEngine.resume()
 
-func say(who, text):
-	call_deferred("said", who, text)
+func say(who, text, show_player_text_when_done = true):
+	if text is Array:
+		yield(say_in_parts_async(who, text), "completed")
+	else:
+		yield(say_single_async(who, text), "completed")
+	if show_player_text_when_done: show_player_text()
 
-func say_bye(who, text, delay = 0):
-	call_deferred("actor_said", who, text)
-	end(delay)
-
-func said(who, text):
-	actor_said(who, text)
-	show_player_text()
-
-func actor_said(who, text):
+func actor_said(who, text, with_more):
 	speaker_text.text = text
 	if who: GameEngine.message("%s> %s" % [ who, text ])
 	else: GameEngine.message(text)
+	if with_more:
+		more_timer.start(0.5)
+		yield(self, "more_pressed")
+	emit_signal("done_saying")
 
 func show_player_text():
 	player_text.text = ""
 	player_text.visible = true
 	player_text.grab_focus()
 
-func say_in_parts(who, parts:Array):
+func say_single_async(who, text, with_more = false):
+	call_deferred("actor_said", who, text, with_more)
+	yield(self, "done_saying")
+
+func say_in_parts_async(who, parts:Array):
 	var who_first_time = who
 	for i in parts.size()-1:
-		call_deferred("actor_said", who_first_time, parts[i])
+		yield(say_single_async(who_first_time, parts[i], true), "completed")
 		who_first_time = null
-		more_timer.start(0.5)
-		yield(self, "more_pressed")
-	say(who_first_time, parts[parts.size()-1])
+	yield(say_single_async(who_first_time, parts[parts.size()-1]), "completed")
 
 var delimiters = [' ', '	', '\n', ',', '.', '?', '!', '&']
 

@@ -28,19 +28,19 @@ func start():
 
 func say_hello(): say("Hello.")
 func say_attacked(): say("Die!")
+func say_bye(): say("Bye", false)
 
-func say_bye(text = "Bye", delay = 0):
-	conversation.say_bye(actor.display_name, text, delay)
+func say_and_end(text, delay = 2):
+	yield(say(text, false), "completed")
+	var obj = conversation.end(delay)
+	if obj is Object: yield(obj, "completed")
 
-func end(delay = 2.0):
-	conversation.end(delay)
+func end(delay = 0):
+	var obj = conversation.end(delay)
+	if obj is Object: yield(obj, "completed")
 
-func say(text):
-	conversation.say(actor.display_name, text)
-	add_time()
-
-func say_in_parts(parts:Array):
-	conversation.say_in_parts(actor.display_name, parts)
+func say(text, show_player_text_when_done = true):
+	yield(conversation.say(actor.display_name, text, show_player_text_when_done), "completed")
 	add_time()
 
 func add_time():
