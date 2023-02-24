@@ -3,6 +3,7 @@ extends Area2D
 export(Array, String, FILE) var monsters
 export var check_every_hours = 24.0
 export var test_roll = 20
+export var area_priority = 0
 
 var next_check_at = 0
 var player_in_area = 0
@@ -17,11 +18,9 @@ func load_persistent_data(p):
 
 func _ready():
 	add_to_group("PersistentNodes")
+	add_to_group("RandomEncounters")
 	var _err = connect("body_entered", self, "_on_body_entered")
 	_err = connect("body_exited", self, "_on_body_exited")
-	var shape_owners = get_shape_owners()
-	if shape_owners == null or shape_owners.size() == 0:
-		player_in_area = 1
 
 func set_next_check():
 	if monsters.size() > 0:
@@ -30,7 +29,11 @@ func set_next_check():
 		next_check_at = INF
 
 func allowed_to_generate():
-	return player_in_area > 0
+	if player_in_area <= 0: return false
+	for r in get_tree().get_nodes_in_group("RandomEncounters"):
+		if r.area_priority > area_priority and r.player_in_area > 0:
+			return false
+	return true
 
 func _physics_process(_delta):
 	if next_check_at == 0: set_next_check()
