@@ -45,7 +45,7 @@ func used_by(who):
 	if who is Actor:
 		if is_locked:
 			if who.has_a_thing_in_group(key_group): is_locked = false
-			else: GameEngine.message("The door appears to be locked")
+			else: GameEngine.message("The %s appears to be locked." % display_name)
 		if not is_locked:
 			is_closed = not is_closed
 		ensure_state()
