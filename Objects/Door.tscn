@@ -14,8 +14,8 @@ shape = SubResource( 1 )
 [node name="BlockerClosed" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
 
-[node name="Closed" type="Sprite" parent="."]
+[node name="Closed" type="Sprite2D" parent="."]
 
-[node name="Lock" type="Sprite" parent="."]
+[node name="Lock" type="Sprite2D" parent="."]
 
-[node name="Open" type="Sprite" parent="."]
+[node name="Open" type="Sprite2D" parent="."]

@@ -17,7 +17,7 @@ func _ready():
 	hide()
 
 func open():
-	make_visible(true)
+	_make_visible(true)
 
 func call_holders(method):
 	for holder in get_all_holders():
@@ -26,18 +26,18 @@ func call_holders(method):
 func _unhandled_input(event):
 	if not visible: return
 	if event.is_action_pressed("exit"):
-		make_visible(false)
+		_make_visible(false)
 	elif event.is_action_pressed("look"):
 		call_holders("look_in_inventory")
 	elif event.is_action_pressed("use"):
 		call_holders("use_in_inventory")
 	else:
 		return
-	get_tree().set_input_as_handled()
+	get_viewport().set_input_as_handled()
 
-func make_visible(is_visible):
-	visible = is_visible
-	if is_visible: GameEngine.pause()
+func _make_visible(v):
+	visible = v
+	if v: GameEngine.pause()
 	else: GameEngine.resume()
 
 # We need to recurse to ensure that we keep the order of the top level
@@ -89,7 +89,7 @@ func add_thing(thing, auto_equip = false):
 func get_holder_of_thing(thing):
 	for holder in get_all_holders():
 		var existing_thing = holder.get_thing()
-		if existing_thing and existing_thing.filename == thing.filename:
+		if existing_thing and existing_thing.scene_file_path == thing.scene_file_path:
 			return holder
 	return null
 

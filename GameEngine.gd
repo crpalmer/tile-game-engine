@@ -1,7 +1,7 @@
 extends Node
 
 signal player_created # A new player scene was instanced
-signal message
+signal show_message
 signal new_game      # A new game is being created
 
 enum BodyParts { HANDS = 1, HEAD = 2, BODY = 4, FEET = 8, NECK = 16 }
@@ -24,6 +24,8 @@ var current_scene_root
 
 var completed_milestones = {}
 
+var return_to_scenes = []
+
 class CurrencySorter:
 	static func currency_sort_asc(a, b):
 		return a.unit_value < b.unit_value
@@ -32,17 +34,17 @@ class CurrencySorter:
 
 func _ready():
 	config = ResourceLoader.load("res://GameConfiguration.tres") #  "GameConfiguration")
-	fade_canvas = load("%s/Fade.tscn" % config.root).instance()
+	fade_canvas = load("%s/Fade.tscn" % config.root).instantiate()
 	for c in config.currency:
-		var currency = load(c).instance()
+		var currency = load(c).instantiate()
 		currency_ascending.push_back(currency)
 		currency_descending.push_back(currency)
-	currency_ascending.sort_custom(CurrencySorter, "currency_sort_asc")
-	currency_descending.sort_custom(CurrencySorter, "currency_sort_des")
+	currency_ascending.sort_custom(Callable(CurrencySorter,"currency_sort_asc"))
+	currency_descending.sort_custom(Callable(CurrencySorter,"currency_sort_des"))
 	current_scene_root = get_tree().current_scene
 
-func modulate(on):
-	get_tree().current_scene.get_node("CanvasModulate").visible = on
+func modulate(checked):
+	get_tree().current_scene.get_node("CanvasModulate").visible = checked
 
 func pause():
 	paused += 1
@@ -52,15 +54,15 @@ func resume():
 
 func is_paused(): return paused > 0
 
-func complete_milestone(name, data = {}):
-	completed_milestones[name] = data
+func complete_milestone(milestone_name, data = {}):
+	completed_milestones[milestone_name] = data
 
-func has_completed_milestone(name):
-	return completed_milestones.has(name)
+func has_completed_milestone(milestone_name):
+	return completed_milestones.has(milestone_name)
 
-func get_completed_milestone(name):
-	if has_completed_milestone(name):
-		return completed_milestones[name]
+func get_completed_milestone(milestone_name):
+	if has_completed_milestone(milestone_name):
+		return completed_milestones[milestone_name]
 	else:
 		return null
 
@@ -83,17 +85,15 @@ func get_scene_node_or_null(path):
 func remove_player_from_scene():
 	if player and player.get_parent(): player.get_parent().remove_child(player)
 
-func new_game():
-	clear_game()
-	time_in_minutes = config.game_start_time_in_hours * 60
-	
 func clear_game():
 	emit_signal("new_game")
 	create_player()
+	time_in_minutes = config.game_start_time_in_hours * 60
 	Engine.time_scale = 1
 	paused = 0
 	scene_state = {}
 	completed_milestones = {}
+	return_to_scenes = []
 	if current_scene:
 		current_scene.queue_free()
 		current_scene = null
@@ -101,7 +101,7 @@ func clear_game():
 func create_player():
 	remove_player_from_scene()
 	if player: player.call_deferred("free")
-	player = load(config.player).instance()
+	player = load(config.player).instantiate()
 	get_tree().current_scene.add_child(player)
 	emit_signal("player_created")
 
@@ -125,7 +125,7 @@ func get_current_scene_state():
 		if node != player:
 			nodes_data.merge({
 				current_scene.get_path_to(node): {
-				"filename": node.filename,
+				"filename": node.scene_file_path,
 				"data": node.get_persistent_data(),
 				"global_position": node.global_position
 			}})
@@ -134,9 +134,9 @@ func get_current_scene_state():
 	}
 
 func get_save_data():
-	scene_state[current_scene.filename] = get_current_scene_state()
+	scene_state[current_scene.scene_file_path] = get_current_scene_state()
 	return {
-		"current_scene": current_scene.filename,
+		"current_scene": current_scene.scene_file_path,
 		"player": player.get_persistent_data(),
 		"player_global_position": player.global_position,
 		"time_in_minutes": time_in_minutes,
@@ -146,10 +146,10 @@ func get_save_data():
 
 func save_game(filename):
 	var res = load("%s/SaveGameTemplate.tres" % config.root)
-	res.version = 1
+	res.version = "1"
 	res.data = get_save_data()
-	var _err = Directory.new().remove(filename)
-	return ResourceSaver.save(filename, res) == 0
+	#var _err = DirAccess.open("res://").remove(filename)
+	return ResourceSaver.save(res, filename) == 0
 
 func load_scene_state(p):
 	for node in get_persistent_nodes():
@@ -162,7 +162,6 @@ func load_scene_state(p):
 			var data = p.nodes[path]
 			node.load_persistent_data(data.data)
 			node.global_position = data.global_position
-			if node.has_method("stop_navigating"): node.stop_navigating()
 			p.nodes.erase(path)
 	for path in p.nodes.keys():
 		var data = p.nodes[path]
@@ -173,7 +172,7 @@ func load_save_data(p):
 	clear_game()
 	scene_state = p.scene_state
 	if current_scene: current_scene.queue_free()
-	yield(get_tree(), "idle_frame")
+	await get_tree().process_frame
 	current_scene = null
 	time_in_minutes = p.time_in_minutes
 	completed_milestones = p.completed_milestones
@@ -185,16 +184,16 @@ func load_save_data(p):
 	fade_in()
 
 func load_saved_game(filename):
-	var file = File.new()
-	if not file.file_exists(filename): return false
+	var file = FileAccess.open(filename, FileAccess.READ)
+	if not file: return false
 	var save_data = load(filename)
-	assert(save_data.version == 1)
+	file.close()
 	load_save_data(save_data.data)
 	paused = 0
 	return true
 
 func instantiate(parent, filename, data = null, global_position = null):
-	var thing = load(filename).instance()
+	var thing = load(filename).instantiate()
 	if data: thing.load_persistent_data(data)
 	parent.add_child(thing)
 	if global_position: thing.global_position = global_position
@@ -206,19 +205,51 @@ func give_to_player(filename):
 	player.add_to_inventory(thing)
 	GameEngine.message("You get %s" % thing.display_name)
 
+func place_near_internal(spawn, who, exclude):
+	assert(not is_physics_processing())
+	for distance in range(2, 5):
+		var x_dir = range(-distance, distance*2+1, 2)
+		x_dir.append(0)
+		var y_dir = x_dir.duplicate()
+		x_dir.shuffle()
+		y_dir.shuffle()
+		for x in x_dir:
+			for y in y_dir:
+				if x != 0 or y != 0:
+					var place = who.global_position + Vector2(x, y) * GameEngine.feet_to_pixels(1)
+					if not exclude.has(place) and spawn.is_a_good_place_to_place(place):
+						spawn.global_position = place
+						spawn.stop_navigating()
+						return
+
+func place_near(spawn, who, exclude = []):
+	var physics_process = is_physics_processing()
+	if physics_process:
+		set_physics_process(false)
+		await get_tree().idle_frame
+	place_near_internal(spawn, who, exclude)
+	if physics_process:
+		await get_tree().idle_frame
+		set_physics_process(true)
+
+func place_near_player(spawn, exclude = []):
+	place_near(spawn, GameEngine.player, exclude)
+
 func spawn_near_player(filename, n = 1):
 	var placed = []
 	var spawned = []
 	for _i in range(n):
 		var spawn = instantiate(current_scene, filename)
+		spawn.set_process(false)
 		spawn.set_physics_process(false)
 		spawned.append(spawn)
-	yield(get_tree(), "idle_frame")
+	await get_tree().process_frame
 	for spawn in spawned:
-		spawn.place_near_player(placed)
+		place_near_player(spawn, placed)
 		placed.append(spawn.global_position)
-	yield(get_tree(), "idle_frame")
+	await get_tree().process_frame
 	for spawn in spawned:
+		spawn.set_process(true)
 		spawn.set_physics_process(true)
 
 func fade(leave_faded, from, to, duration = 0.5):
@@ -231,9 +262,9 @@ func fade(leave_faded, from, to, duration = 0.5):
 	animation.length = duration
 	if fade_canvas.get_parent() == null:
 		get_tree().current_scene.add_child(fade_canvas)
-		yield(get_tree(), "idle_frame")
+		await get_tree().process_frame
 	animation_player.play("Fade")
-	yield(animation_player, "animation_finished")
+	await animation_player.animation_finished
 	if not leave_faded: get_tree().current_scene.remove_child(fade_canvas)
 	resume()
 
@@ -257,26 +288,29 @@ func fade_to_resting():
 	fade_out(config.resting_alpha)
 
 func enter_sub_scene(sub_scene, entry_point = null):
-	var return_scene = current_scene.filename
+	var return_scene = current_scene.scene_file_path
 	var position = GameEngine.player.global_position
 
 	enter_scene(sub_scene, entry_point)
 
-	current_scene.return_to_scene = return_scene
-	current_scene.return_to_position = position
+	return_to_scenes.push_back({
+		"scene": return_scene,
+		"position": position
+	})
 
-func return_to_scene(scene, entry_position, keep_items_on_return):
+func return_to_scene(keep_items_on_return):
+	var r = return_to_scenes.pop_front()
 	var items = []
 	if keep_items_on_return:
 		for c in current_scene.get_children():
 			if c.is_in_group("Things"):
 				items.append(c)
 				c.get_parent().remove_child(c)
-	enter_scene(scene, null, entry_position)
-	yield(get_tree(), "idle_frame")
+	enter_scene(r.scene, null, r.position)
+	await get_tree().process_frame
 	for item in items:
 		current_scene.add_child(item)
-		item.global_position = entry_position
+		item.global_position = r.position
 
 func enter_scene(scene, entry_point = null, entry_position = null):
 	pause()
@@ -287,13 +321,13 @@ func enter_scene(scene, entry_point = null, entry_position = null):
 
 	remove_player_from_scene()
 	if current_scene:
-		scene_state[current_scene.filename] = get_current_scene_state()
+		scene_state[current_scene.scene_file_path] = get_current_scene_state()
 		current_scene.get_parent().remove_child(current_scene)
 		current_scene.queue_free()
 
-	current_scene = load(scene).instance()
+	current_scene = load(scene).instantiate()
 	current_scene_root.add_child(current_scene)
-	yield(get_tree(), "idle_frame")
+	await get_tree().process_frame
 	if scene_state.has(scene): load_scene_state(scene_state[scene])
 
 	if entry_point or entry_position:
@@ -314,7 +348,7 @@ func enter_scene(scene, entry_point = null, entry_position = null):
 	resume()
 
 func add_scene_at(path:String, global_position:Vector2):
-	var to_add = load(path).instance()
+	var to_add = load(path).instantiate()
 	add_node_at(to_add, global_position)
 	return to_add
 
@@ -350,8 +384,7 @@ func roll_d20():
 func roll(dice, extra_modifier = 0):
 	var total = dice.plus + extra_modifier
 	for i in dice.n:
-		var roll = randi()%dice.d + 1
-		total += roll
+		total += randi()%dice.d + 1
 	if total < 1: return 1
 	return total
 
@@ -379,7 +412,7 @@ func ability_modifier(score):
 		_: return 10
 
 func message(msg, beep = false):
-	emit_signal("message", msg, beep)
+	emit_signal("show_message", msg, beep)
 
 func current_time_of(m):
 	return {
@@ -412,3 +445,50 @@ func time_of_day(m):
 
 func current_time_string():
 	return minutes_to_string(time_in_minutes)
+
+func is_self_or_child_of(node, target):
+	while node != null:
+		if node == target: return true
+		node = node.get_parent()
+	return false
+
+func are_intersecting(space_state, tracker, trackee, collision_mask = 0xffffffff, ignore = []):
+	var physics_parameters = PhysicsPointQueryParameters2D.new()
+	physics_parameters.exclude = ignore
+	physics_parameters.position = tracker.global_position
+	physics_parameters.collision_mask = collision_mask
+	# See if we are checked top of each other
+	var colliding = space_state.intersect_point(physics_parameters)
+	for collision in colliding:
+		if collision.collider == trackee: return true
+	return false
+
+func ray_to_point(space_state, from, ray_target, collision_mask = 0xffffffff, ignore = []):
+	var ray_parameters = PhysicsRayQueryParameters2D.new()
+	ray_parameters.from = from.global_position
+	ray_parameters.to = ray_target
+	ray_parameters.exclude = ignore
+	ray_parameters.collision_mask = collision_mask
+	var in_sight = space_state.intersect_ray(ray_parameters)
+	if in_sight and in_sight.collider:
+		return in_sight.collider
+	return null
+
+func ray_hits(space_state, from, to, ray_target, collision_mask = 0xffffffff, ignore = []):
+	var who = ray_to_point(space_state, from, ray_target, collision_mask, ignore)
+	if who and is_self_or_child_of(who, to):
+		return true
+	return false
+
+func has_LOS(space_state, from, to, collision_mask = 0xffffffff, ignore = []):
+	if are_intersecting(space_state, from, to, collision_mask, ignore): return true
+
+	# Check a ray straight at the object
+	if ray_hits(space_state, from, to, to.global_position, collision_mask, ignore): return true
+
+	# If that doesn't work, try shooting rays at all its active collision shapes
+	# For example a door has a position but open and closed have different collision shapes!
+	for c in to.get_children():
+		if (c is CollisionShape2D or c is CollisionPolygon2D) and not c.disabled:
+			if ray_hits(space_state, from, to, c.global_position, collision_mask, ignore): return true
+	return false

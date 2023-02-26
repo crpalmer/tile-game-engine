@@ -1,12 +1,12 @@
 extends Area2D
 
-export(String, FILE) var scene
-export(String) var entry_point
-export(String) var required_milestone
-export(String) var milestone_needed_message
+@export_file var scene:String
+@export var entry_point: String
+@export var required_milestone: String
+@export var milestone_needed_message: String
 
 func _ready():
-	var _err = connect("body_entered", self, "body_entered")
+	var _err = connect("body_entered",Callable(self,"body_entered"))
 
 func body_entered(body):
 	if required_milestone != "" and not GameEngine.has_completed_milestone(required_milestone):

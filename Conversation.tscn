@@ -7,30 +7,30 @@ layer = 2
 script = ExtResource( 1 )
 
 [node name="SpeakerName" type="Label" parent="."]
-margin_right = 161.0
-margin_bottom = 14.0
+offset_right = 161.0
+offset_bottom = 14.0
 text = "Actor name appears here"
 
 [node name="SpeakerText" type="Label" parent="."]
-margin_left = 3.0
-margin_top = 43.0
-margin_right = 157.0
-margin_bottom = 91.0
+offset_left = 3.0
+offset_top = 43.0
+offset_right = 157.0
+offset_bottom = 91.0
 text = "Whatever the actor says will appear in this box"
 autowrap = true
 
 [node name="PlayerText" type="LineEdit" parent="."]
-margin_left = 13.0
-margin_top = 119.0
-margin_right = 71.0
-margin_bottom = 143.0
+offset_left = 13.0
+offset_top = 119.0
+offset_right = 71.0
+offset_bottom = 143.0
 text = "Player enters what they want to say here"
 caret_blink = true
-caret_blink_speed = 0.5
+caret_blink_interval = 0.5
 
 [node name="More" type="Button" parent="."]
 self_modulate = Color( 1, 1, 1, 0 )
-margin_left = 212.0
-margin_top = 42.0
-margin_right = 260.0
-margin_bottom = 90.0
+offset_left = 212.0
+offset_top = 42.0
+offset_right = 260.0
+offset_bottom = 90.0

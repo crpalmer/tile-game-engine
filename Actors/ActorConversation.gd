@@ -1,7 +1,7 @@
 extends Node2D
 class_name ActorConversation
 
-export var seconds_per_interation = 15
+@export var seconds_per_interation = 15
 
 var things_for_sale = []
 var services_for_sale = []
@@ -9,8 +9,8 @@ var services_for_sale = []
 var in_conversation = false
 var is_selling = false
 
-onready var actor = get_parent()
-onready var conversation = GameEngine.conversation
+@onready var actor = get_parent()
+@onready var conversation = GameEngine.conversation
 
 func get_persistent_data():
 	return {}
@@ -18,12 +18,9 @@ func get_persistent_data():
 func load_persistent_data(_p):
 	pass
 
-func name():
-	return actor.display_name
-
 func start():
 	if not conversation.is_active():
-		conversation.start(name(), self)
+		conversation.start(actor.display_name, self)
 		say_hello()
 
 func say_hello(): say("Hello.")
@@ -31,20 +28,18 @@ func say_attacked(): say("Die!")
 func say_bye(): say("Bye", false)
 
 func say_and_end(text, delay = 2):
-	yield(say(text, false), "completed")
-	var obj = conversation.end(delay)
-	if obj is Object: yield(obj, "completed")
+	await say(text, false)
+	await conversation.end(delay)
 
-func end(delay = 0):
-	var obj = conversation.end(delay)
-	if obj is Object: yield(obj, "completed")
+func end(delay = 0.0):
+	await conversation.end(delay)
 
 func say(text, show_player_text_when_done = true):
-	yield(conversation.say(actor.display_name, text, show_player_text_when_done), "completed")
+	await conversation.say(actor.display_name, text, show_player_text_when_done).completed
 	add_time()
 
 func add_time():
-	GameEngine.add_to_game_time(seconds_per_interation/60)
+	GameEngine.add_to_game_time(seconds_per_interation/60.0)
 
 func player_said_internal(text, words):
 	GameEngine.message("You> %s" % text)
@@ -66,7 +61,7 @@ func player_said(text:String, words:Array):
 	elif "thanks" in words:
 		say("You're welcome.")
 	elif "name" in words:
-		say("My name is " + name())
+		say("My name is " + actor.display_name)
 	elif "bye" in words or text == "":
 		say_bye()
 		end(0.75)

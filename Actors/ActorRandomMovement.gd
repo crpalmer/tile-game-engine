@@ -1,24 +1,24 @@
 extends Area2D
 class_name ActorRandomMovement
 
-export(String) var shape_node = "CollisionPolygon2D"
-export(float, 100) var minimum_distance_percent = 50.0
-export(bool) var only_see_player_when_in_area = true
-export(int) var navigation_layer = 1
+@export var shape_node: String = "CollisionPolygon2D"
+@export var minimum_distance_percent = 50.0 # (float, 100)
+@export var only_see_player_when_in_area: bool = true
+@export var navigation_layer: int = 1
 
-onready var start_position = global_position
+@onready var start_position = global_position
 
 var actor
 var circle : CircleShape2D
 var rect : RectangleShape2D
 var polygon : CollisionPolygon2D
-var triangles : PoolIntArray
+var triangles : PackedInt32Array
 var triangles_area
 var player_is_in_area = 0
 
 func _ready():
-	var _err = connect("body_entered", self, "body_entered")
-	_err = connect("body_exited", self, "body_exited")
+	var _err = connect("body_entered",Callable(self,"body_entered"))
+	_err = connect("body_exited",Callable(self,"body_exited"))
 	var shape = get_node(shape_node)
 	if shape is CollisionShape2D:
 		if shape.shape is CircleShape2D:
@@ -45,7 +45,7 @@ func triangle_area(t):
 	return sqrt(s*(s-l1)*(s-l2)*(s-l3))
 
 func prepare_polygon():
-	triangles = Geometry.triangulate_polygon(polygon.polygon)
+	triangles = Geometry2D.triangulate_polygon(polygon.polygon)
 	triangles_area = 0.0
 	for t in range(0, triangles.size(), 3):
 		triangles_area += triangle_area(t)

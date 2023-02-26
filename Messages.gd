@@ -1,14 +1,14 @@
 extends RichTextLabel
 class_name Messages
 
-export var max_messages = 30
-export var stale_time = 3
-export var new_message_color = Color(255, 255, 255)
-export var stale_message_color = Color(255, 255, 255)
-export var important_message_color = Color(255, 255, 255)
+@export var max_messages = 30
+@export var stale_time = 3
+@export var new_message_color = Color(255, 255, 255)
+@export var stale_message_color = Color(255, 255, 255)
+@export var important_message_color = Color(255, 255, 255)
 var messages = []
 
-onready var audio = $AudioStreamPlayer2D
+@onready var audio = $AudioStreamPlayer2D
 
 class Message:
 	var posted_at
@@ -23,8 +23,8 @@ func CreateMessage(t, beep):
 	return m
 
 func _ready():
-	var _err = GameEngine.connect("message", self, "message")
-	_err = GameEngine.connect("new_game", self, "new_game")
+	var _err = GameEngine.connect("show_message",Callable(self,"message"))
+	_err = GameEngine.connect("new_game",Callable(self,"new_game"))
 	update_messages()
 
 func message(msg, beep = false):

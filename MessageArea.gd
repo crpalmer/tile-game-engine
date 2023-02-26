@@ -1,9 +1,9 @@
 extends Area2D
 
-export(String, MULTILINE) var message
-export(bool) var is_important = true
-export(bool) var one_shot = true
-export(String) var milestone_granted
+@export_multiline var message
+@export var is_important: bool = true
+@export var one_shot: bool = true
+@export var milestone_granted: String
 
 var available = true
 
@@ -14,7 +14,7 @@ func load_persistent_data(p):
 	available = p.available
 
 func _ready():
-	var _err = connect("body_entered", self, "on_body_entered")
+	var _err = connect("body_entered",Callable(self,"on_body_entered"))
 	add_to_group("PersistentNodes")
 
 func on_body_entered(body):

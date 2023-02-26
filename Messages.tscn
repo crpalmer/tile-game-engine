@@ -1,17 +1,17 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=3 format=3 uid="uid://pfiymlp2jke1"]
 
-[ext_resource path="res://GameEngine/Messages.gd" type="Script" id=1]
-[ext_resource path="res://GameEngine/beep.mp3" type="AudioStream" id=2]
+[ext_resource type="Script" path="res://GameEngine/Messages.gd" id="1"]
+[ext_resource type="AudioStream" uid="uid://cf42y5wcp06hm" path="res://GameEngine/beep.mp3" id="2"]
 
 [node name="Messages" type="RichTextLabel"]
-margin_right = 40.0
-margin_bottom = 14.0
+offset_right = 40.0
+offset_bottom = 14.0
 scroll_following = true
-script = ExtResource( 1 )
+script = ExtResource("1")
 
 [node name="RedrawTimer" type="Timer" parent="."]
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource( 2 )
+stream = ExtResource("2")
 
 [connection signal="timeout" from="RedrawTimer" to="." method="_on_RedrawTimer_timeout"]

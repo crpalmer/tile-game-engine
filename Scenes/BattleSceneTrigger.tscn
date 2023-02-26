@@ -1,7 +1,13 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=3 uid="uid://cc5osv54fquq7"]
 
-[ext_resource path="res://GameEngine/Scenes/SubSceneTrigger.tscn" type="PackedScene" id=1]
-[ext_resource path="res://GameEngine/Scenes/BattleSceneTrigger.gd" type="Script" id=2]
+[ext_resource type="PackedScene" uid="uid://wgqy0mgkikpd" path="res://GameEngine/Scenes/SubSceneTrigger.tscn" id="1"]
+[ext_resource type="Script" path="res://GameEngine/Scenes/BattleSceneTrigger.gd" id="2"]
 
-[node name="BattleSceneTrigger" instance=ExtResource( 1 )]
-script = ExtResource( 2 )
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wufsl"]
+size = Vector2(64, 64)
+
+[node name="BattleSceneTrigger" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." index="0"]
+shape = SubResource("RectangleShape2D_wufsl")

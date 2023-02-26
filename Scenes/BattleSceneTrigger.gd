@@ -15,4 +15,5 @@ func load_persistent_data(p):
 	not_yet_triggered = p.not_yet_triggered
 
 func _ready():
+	super()
 	add_to_group("PersistentNodes")

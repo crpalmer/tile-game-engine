@@ -26,7 +26,7 @@ var money = {}
 var hit_dice = GameEngine.Dice(1, 10)
 var xp:int = 0
 var clss:Class
-var animation:AnimatedSprite
+var animation:AnimatedSprite2D
 
 const xp_table = {
 	1: 0,
@@ -76,7 +76,7 @@ func lose_xp(new_xp:int, important = true):
 	emit_signal("player_stats_changed")
 
 func get_persistent_data():
-	var p = .get_persistent_data()
+	var p = super.get_persistent_data()
 	var m = {}
 	for c in money.keys():
 		m.merge( {
@@ -86,7 +86,7 @@ func get_persistent_data():
 			}
 		} )
 	p.merge({
-		"clss": clss.filename,
+		"clss": clss.scene_file_path,
 		"level": level,
 		"hp": hp,
 		"max_hp": max_hp,
@@ -105,8 +105,8 @@ func get_persistent_data():
 	return p
 
 func load_persistent_data(p):
-	.load_persistent_data(p)
-	clss = load(p.clss).instance()
+	super.load_persistent_data(p)
+	clss = load(p.clss).instantiate()
 	level = p.level
 	hp = p.hp
 	xp = p.xp
@@ -142,7 +142,7 @@ func roll_ability_scores():
 		strength = roll_ability_score()
 		dexterity = roll_ability_score()
 		constitution = roll_ability_score()
-		print("Str: " + String(strength) + " Dex: " + String(dexterity) + " Con: " + String(constitution))
+		print("Str: " + str(strength) + " Dex: " + str(dexterity) + " Con: " + str(constitution))
 
 func create_initial_items():
 	var items = []
@@ -166,35 +166,35 @@ func create_character(clss_in):
 	return create_initial_items()
 
 func _ready():
-	animation = get_node_or_null("AnimatedSprite")
+	super()
+	animation = get_node_or_null("AnimatedSprite2D")
 	enter_current_scene()
 	
 func enter_current_scene():
 	emit_signal("player_stats_changed")
 	$Camera2D/AmbientLight.set_radius(vision_radius)
 
-func stop_resting(regained_hp = 0):
+func stop_resting():
 	resting_state = NOT_RESTING
 	GameEngine.fade_from_resting()
-	var rest_time = int(GameEngine.time_in_minutes - resting_started_at)
+	var rest_time:int = int(GameEngine.time_in_minutes - resting_started_at)
 	GameEngine.message("You rested for %d hour%s and %d minute%s" % [
 		rest_time / 60,
 		"s" if rest_time >= 60 and rest_time < 120 else "",
 		rest_time % 60,
 		"" if rest_time % 60 == 1 else "s"
 	])
-	if regained_hp > 0: GameEngine.message("You regained %d HPs" % regained_hp)
 
 func was_attacked_by(_attacker):
 	if resting_state != NOT_RESTING: stop_resting()
 
 func take_damage(damage:int, from = null, cause = null):
 	if resting_state != NOT_RESTING: stop_resting()
-	.take_damage(damage, from, cause)
+	super.take_damage(damage, from, cause)
 	emit_signal("player_stats_changed")
 
 func give_hit_points(hp_given):
-	.give_hit_points(hp_given)
+	super.give_hit_points(hp_given)
 	emit_signal("player_stats_changed")
 
 func killed(who):
@@ -211,7 +211,7 @@ func default_process():
 	if Input.is_action_just_released("talk"): process_talk()
 	if Input.is_action_just_released("show_inventory"): $Inventory.open()
 	if Input.is_action_just_released("rest"):
-		if Input.is_key_pressed(KEY_CONTROL): long_rest()
+		if Input.is_key_pressed(KEY_CTRL): long_rest()
 		else: short_rest()
 	
 func default_physics_process(delta):
@@ -237,16 +237,19 @@ func default_physics_process(delta):
 			animation.play("walk")
 		if $VisionArea.n_hostiles() == 0:
 			GameEngine.player_traveled_for(delta)
-		var moved = dir.normalized()*travel_distance_in_pixels(delta)
-		var _collision:KinematicCollision2D = move_and_collide(moved)
+		var v = dir.normalized()*travel_distance_in_pixels(delta)
+		if navigation.avoidance_enabled:
+			navigation.set_velocity(v)
+		else:
+			var _collision:KinematicCollision2D = move_and_collide(v)
 	elif animation:
 		animation.stop()
 
 func select_attack():
-	for attack in attacks:
-		if attack.may_use():
-			attack.used_by(self)
-			return attack
+	for attack_to_use in attacks:
+		if attack_to_use.may_use():
+			attack_to_use.used_by(self)
+			return attack_to_use
 	return null
 	
 func select_attack_target():
@@ -261,11 +264,11 @@ func select_attack_target():
 	return null
 	
 func process_attack():
-	var attack = select_attack()
-	if attack == null: return
+	var attack_to_use = select_attack()
+	if attack_to_use == null: return
 	var opponent = select_attack_target()
 	if opponent == null: return
-	attack(opponent, attack, clss.strength_modifier(strength, level))
+	attack(opponent, attack_to_use, clss.strength_modifier(strength, level))
 
 func process_use():
 	for use_on in $CloseArea.in_sight():
@@ -275,12 +278,13 @@ func process_use():
 
 func add_currency(currency, amount = 0):
 	var n_units = currency.n_units if amount == 0 else amount
-	if money.has(currency.filename):
-		money[currency.filename].n_units += n_units
+	var f = currency.scene_file_path
+	if money.has(f):
+		money[f].n_units += n_units
 	else:
-		money[currency.filename] = {}
-		money[currency.filename].n_units = n_units
-		money[currency.filename].unit_value = currency.unit_value
+		money[f] = {}
+		money[f].n_units = n_units
+		money[f].unit_value = currency.unit_value
 	GameEngine.message("You picked up %d %s" % [ n_units, currency.abbreviation ])
 	emit_signal("player_stats_changed")
 
@@ -289,7 +293,7 @@ func get_currency_by_filename(filename):
 	else: return 0
 
 func get_currency(currency):
-	return get_currency_by_filename(currency.filename)
+	return get_currency_by_filename(currency.scene_file_path)
 
 func try_to_pay(units:float):
 	var total = 0.0
@@ -383,18 +387,17 @@ func long_rest():
 func process_resting():
 	if GameEngine.time_in_minutes < resting_until: return
 
-	var old_hp = hp
+	var to_give = 0
 	resting_hostile_ends_at = 0
 	match resting_state:
 		LONG_RESTING:
-			hp = max_hp
+			to_give = max_hp
 			short_rest_spent = 0
 			next_long_rest = GameEngine.time_in_minutes + 8*60
-			emit_signal("player_stats_changed")
 		SHORT_RESTING:
 			if short_rest_spent < level and hp < max_hp:
-				give_hit_points(GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level)))
+				to_give = GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level))
 				short_rest_spent += 1
-				emit_signal("player_stats_changed")
 
-	stop_resting(hp - old_hp)	
+	stop_resting()
+	give_hit_points(to_give)

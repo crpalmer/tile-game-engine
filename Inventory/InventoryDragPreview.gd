@@ -9,7 +9,7 @@ func add_thing(thing):
 	duplicate_all_sprites(thing)
 
 func duplicate_all_sprites(n):
-	if n is Sprite:
+	if n is Sprite2D:
 		var sprite = n.duplicate()
 		n.position = Vector2.ZERO
 		$Thing.add_child(sprite)

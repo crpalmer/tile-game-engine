@@ -1,7 +1,7 @@
-extends Light2D
+extends PointLight2D
 
-export var radius = 30
-export var brightness_percent = 100
+@export var radius = 30
+@export var brightness_percent = 100
 
 func _ready():
 	set_radius(radius)

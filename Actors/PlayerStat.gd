@@ -8,23 +8,26 @@ enum Stat {
 	TO_HIT_MODIFIER
 }
 
-export(int,
-	"Hit Points", "Armour Class", "Maximum Hit Points",
-	"Level", "Experience Points",
-	"Strength", "Dexterity", "Constitution",
-	"Strength Modifier", "Dexterity Modifier", "Constitution Modifier",
-	"To Hit Modifier"
-) var stat
+var modifiers = [ Stat.STRENGTH_MODIFIER, Stat.DEXTERITY_MODIFIER, Stat.CONSTITUTION_MODIFIER]
+@export var stat:Stat
 
 func _ready():
-	var _err = GameEngine.connect("player_created", self, "player_created")
+	var _err = GameEngine.connect("player_created",Callable(self,"player_created"))
 
 func player_created():
-	var _err = GameEngine.player.connect("player_stats_changed", self, "update_my_stat")
+	var _err = GameEngine.player.connect("player_stats_changed",Callable(self,"update_my_stat"))
+
+func modifier_sign(value):
+	if value < 0: return "-"
+	if value > 0: return "+"
+	return ""
 
 func update_my_stat():
 	var value:int = get_stat(GameEngine.player)
-	text = String(value)
+	if modifiers.has(stat):
+		text = "%s%d" % [ modifier_sign(value), value ]
+	else:
+		text = str(value)
 
 func get_stat(p):
 	match stat:

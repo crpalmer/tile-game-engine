@@ -8,41 +8,41 @@ var actor_conversation
 func get_persistent_data(): return {}
 func load_persistent_data(_p): pass
 
-onready var speaker_name = $SpeakerName
-onready var speaker_text = $SpeakerText
-onready var player_text = $PlayerText
-onready var more = $More
-onready var more_timer = $More/Timer
+@onready var speaker_name = $SpeakerName
+@onready var speaker_text = $SpeakerText
+@onready var player_text = $PlayerText
+@onready var more = $More
+@onready var more_timer = $More/Timer
 
 func _ready():
 	GameEngine.conversation = self
 	more.visible = false
 	visible = false
-	more.connect("pressed", self, "_on_More_pressed")
-	player_text.connect("text_entered", self, "_on_PlayerText_text_entered")
-	more_timer.connect("timeout", self, "_on_more_timer_timeout")
+	more.connect("pressed",Callable(self,"_on_More_pressed"))
+	player_text.connect("text_submitted",Callable(self,"_on_PlayerText_text_entered"))
+	more_timer.connect("timeout",Callable(self,"_on_more_timer_timeout"))
 
 func is_active():
 	return actor_conversation != null
 
-func start(name, a_c):
-	speaker_name.text = name
+func start(actor_name, a_c):
+	speaker_name.text = actor_name
 	actor_conversation = a_c
 	visible = true
 	player_text.visible = false
 	GameEngine.pause()
 
 func end(delay = 0):
-	if delay > 0: yield(get_tree().create_timer(delay), "timeout")
+	if delay > 0: await get_tree().create_timer(delay).timeout
 	actor_conversation = null
 	visible = false
 	GameEngine.resume()
 
 func say(who, text, show_player_text_when_done = true):
 	if text is Array:
-		yield(say_in_parts_async(who, text), "completed")
+		await say_in_parts_async(who, text)
 	else:
-		yield(say_single_async(who, text), "completed")
+		await say_single_async(who, text)
 	if show_player_text_when_done: show_player_text()
 
 func actor_said(who, text, with_more):
@@ -51,7 +51,7 @@ func actor_said(who, text, with_more):
 	else: GameEngine.message(text)
 	if with_more:
 		more_timer.start(0.5)
-		yield(self, "more_pressed")
+		await self.more_pressed
 	emit_signal("done_saying")
 
 func show_player_text():
@@ -61,27 +61,27 @@ func show_player_text():
 
 func say_single_async(who, text, with_more = false):
 	call_deferred("actor_said", who, text, with_more)
-	yield(self, "done_saying")
+	await self.done_saying
 
 func say_in_parts_async(who, parts:Array):
 	var who_first_time = who
 	for i in parts.size()-1:
-		yield(say_single_async(who_first_time, parts[i], true), "completed")
+		await say_single_async(who_first_time, parts[i], true)
 		who_first_time = null
-	yield(say_single_async(who_first_time, parts[parts.size()-1]), "completed")
+	await say_single_async(who_first_time, parts[parts.size()-1])
 
 var delimiters = [' ', '	', '\n', ',', '.', '?', '!', '&']
 
 func tokenize(text:String):
 	var words = []
-	var start = 0
+	var start_at = 0
 	var i = 0
 	text = text.to_lower()
 	while i <= text.length():
 		if i == text.length() or text[i] in delimiters:
-			if i > start:
-				words.push_back(text.substr(start, i-start))
-			start = i+1
+			if i > start_at:
+				words.push_back(text.substr(start_at, i-start_at))
+			start_at = i+1
 		i += 1
 	return words
 
@@ -95,7 +95,7 @@ func player_entered(text):
 	var tokenized = tokenize(text)
 	var filtered = []
 	for word in tokenized: if not filtered_words.has(word): filtered.append(word)
-	var filtered_text = PoolStringArray(filtered).join(" ")
+	var filtered_text = " ".join(PackedStringArray(filtered))
 	actor_conversation.player_said_internal(filtered_text, filtered)
 
 func _on_More_pressed():

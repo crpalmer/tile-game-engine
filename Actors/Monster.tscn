@@ -1,13 +1,13 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=3 format=3 uid="uid://bwunorlgiyrww"]
 
-[ext_resource path="res://GameEngine/Actors/Monster.gd" type="Script" id=1]
-[ext_resource path="res://GameEngine/Actors/Actor.tscn" type="PackedScene" id=2]
+[ext_resource type="Script" path="res://GameEngine/Actors/Monster.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c8uqn5d1bgmkb" path="res://GameEngine/Actors/Actor.tscn" id="2"]
 
-[node name="Monster" instance=ExtResource( 2 )]
-script = ExtResource( 1 )
-mood = 1
+[node name="Monster" instance=ExtResource("2")]
+script = ExtResource("1")
 hp_dice = {
 "d": 8,
 "n": 1,
 "plus": 1
 }
+mood = 1

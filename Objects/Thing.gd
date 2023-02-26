@@ -1,13 +1,13 @@
 extends PhysicsBody2D
 class_name Thing
 
-export var display_name:String setget , get_display_name
-export(String, MULTILINE) var long_description
-export(String) var reveal_text
-export(bool) var findable = true
-export var max_uses = -1
-export var use_time = 0
-export var minutes_between_uses = 0.2
+@export var display_name:String : get = get_display_name
+@export var long_description:String # (String, MULTILINE)
+@export var reveal_text: String
+@export var findable: bool = true
+@export var max_uses = -1
+@export var use_time = 0
+@export var minutes_between_uses = 0.2
 
 var next_use_at = 0
 
@@ -25,7 +25,7 @@ func _ready():
 	add_to_group("PersistentNodes")
 	add_to_group("Trackables")
 	add_to_group("Things")
-	if not display_name or display_name == "": display_name = name
+	if display_name == "": display_name = name
 	if minutes_between_uses < use_time: minutes_between_uses = use_time
 
 func get_display_name():

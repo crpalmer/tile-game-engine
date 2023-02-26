@@ -1,10 +1,10 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=3 format=3 uid="uid://bg8yebvtceelt"]
 
-[ext_resource path="res://GameEngine/Scenes/Scene.tscn" type="PackedScene" id=1]
-[ext_resource path="res://GameEngine/Scenes/SubScene.gd" type="Script" id=2]
+[ext_resource type="PackedScene" path="res://GameEngine/Scenes/Scene.tscn" id="1"]
+[ext_resource type="Script" path="res://GameEngine/Scenes/SubScene.gd" id="2"]
 
-[node name="SubScene" instance=ExtResource( 1 )]
-script = ExtResource( 2 )
+[node name="SubScene" instance=ExtResource("1")]
+script = ExtResource("2")
 
 [node name="StartSceneTimer" type="Timer" parent="." index="2"]
 wait_time = 0.5

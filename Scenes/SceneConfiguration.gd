@@ -1,13 +1,13 @@
 extends Node2D
 class_name SceneConfiguration
 
-export(float, 12) var dawn = 5.0
-export(float, 12) var day = 6.0
-export(float, 12) var dusk = 8.0
-export(float, 12) var night = 9.0
-export(float, 100) var day_light = 10.0
-export(float, 100) var night_light = 10.0
-export(float) var travel_time_accelerator = 0.0
+@export var dawn = 5.0 # (float, 12)
+@export var day = 6.0 # (float, 12)
+@export var dusk = 8.0 # (float, 12)
+@export var night = 9.0 # (float, 12)
+@export var day_light = 10.0 # (float, 100)
+@export var night_light = 10.0 # (float, 100)
+@export var travel_time_accelerator: float = 0.0
 
 var ambient_light = 0
 var last_ambient_light = 0

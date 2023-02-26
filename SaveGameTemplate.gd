@@ -1,4 +1,4 @@
 extends Resource
 
-export(String) var version
-export(Dictionary) var data
+@export var version: String
+@export var data: Dictionary

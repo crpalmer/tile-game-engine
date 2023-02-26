@@ -1,13 +1,14 @@
 extends Resource
 class_name GameConfiguration
 
-export(String, DIR) var root = "res://GameEngine"
-export(String, FILE) var player = "res://Player.tscn"
-export(String, FILE) var entry_scene
-export(String) var entry_point
-export(Color) var fade_color = Color.black
-export(float) var rest_time_accelerator = 600.0
-export(float, 1) var resting_alpha = 0.75
-export(float) var pixels_per_foot = 16.0
-export(float, 23) var game_start_time_in_hours = 0.0
-export(Array, String, FILE) var currency
+@export_dir var root = "res://GameEngine"
+@export_file var player = "res://Player.tscn"
+@export_file var damage_popup
+@export var entry_scene:String
+@export var entry_point: String
+@export var fade_color: Color = Color.BLACK
+@export var rest_time_accelerator: float = 600.0
+@export var resting_alpha = 0.75 # (float, 1)
+@export var pixels_per_foot: float = 16.0
+@export var game_start_time_in_hours = 0.0 # (float, 23)
+@export var currency:Array

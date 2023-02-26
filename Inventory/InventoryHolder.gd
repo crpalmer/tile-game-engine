@@ -3,10 +3,10 @@ class_name InventoryHolder
 
 signal inventory_changed
 
-export var combinable = false
-export var is_equipped = false
+@export var combinable = false
+@export var is_equipped = false
 
-export(GameEngine.BodyParts, FLAGS) var requires
+@export var requires:GameEngine.BodyParts # (GameEngine.BodyParts, FLAGS)
 
 var mouse_in_control = 0
 
@@ -14,7 +14,7 @@ func get_persistent_data():
 	var thing = get_thing()
 	if thing:
 		return {
-			"filename": thing.filename,
+			"filename": thing.scene_file_path,
 			"data": thing.get_persistent_data(),
 			"global_position": thing.global_position
 		}
@@ -26,9 +26,9 @@ func load_persistent_data(p):
 
 func _ready():
 	add_to_group("InventoryHolders")
-	var _err = connect("inventory_changed", GameEngine.player, "on_inventory_changed")
-	_err = connect("mouse_entered", self, "on_mouse_entered")
-	_err = connect("mouse_exited", self, "on_mouse_exited")
+	var _err = connect("inventory_changed",Callable(GameEngine.player,"on_inventory_changed"))
+	_err = connect("mouse_entered",Callable(self,"on_mouse_entered"))
+	_err = connect("mouse_exited",Callable(self,"on_mouse_exited"))
 
 func get_thing():
 	for c in get_children():
@@ -40,7 +40,7 @@ func can_accept_thing(thing):
 	return not requires or (requires & thing.acceptable) != 0
 
 func set_thing_position(thing):
-	thing.position = rect_size/2
+	thing.position = size/2
 
 func add_thing(thing):
 	if get_thing(): return false
@@ -56,26 +56,26 @@ func updated(thing):
 	var n = ""
 	if thing.max_uses > 0: uses = "%d use%s of " % [thing.max_uses, "s" if thing.max_uses > 1 else "" ]
 	if thing.n > 1: n = " (x %d)"
-	hint_tooltip = "%s%s%s" % [ uses, thing.display_name, n ]
+	tooltip_text = "%s%s%s" % [ uses, thing.display_name, n ]
 	emit_signal("inventory_changed")
 
 func has_a_thing_in_group(group_name):
 	var my_thing = get_thing()
 	return my_thing and my_thing.is_in_group(group_name)
 
-func get_drag_data(_position):
+func _get_drag_data(_position):
 	var my_thing:InventoryThing = get_thing()
 	if my_thing:
-		var preview = load("%s/Inventory/InventoryDragPreview.tscn" % GameEngine.config.root).instance()
+		var preview = load("%s/Inventory/InventoryDragPreview.tscn" % GameEngine.config.root).instantiate()
 		preview.add_thing(my_thing)
 		get_parent().add_child(preview)
 		return { "holder": self, "thing": my_thing }
 	return false
 	
-func can_drop_data(_position, data):
+func _can_drop_data(_position, data):
 	return get_thing() == null and can_accept_thing(data.thing)
 
-func drop_data(_position, data):
+func _drop_data(_position, data):
 	data.thing.get_parent().remove_child(data.thing)
 	add_child(data.thing)
 	updated(data.thing)

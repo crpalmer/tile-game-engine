@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=2 format=3 uid="uid://canwxvecyg23x"]
 
-[ext_resource path="res://GameEngine/Actors/Actor.tscn" type="PackedScene" id=1]
-[ext_resource path="res://GameEngine/Actors/ActorConversation.gd" type="Script" id=2]
+[ext_resource type="Script" path="res://GameEngine/Actors/ActorConversation.gd" id="2"]
 
-[node name="ConversationalActor" instance=ExtResource( 1 )]
-script = ExtResource( 2 )
+[node name="ConversationalActor" type="Node2D"]
+script = ExtResource("2")

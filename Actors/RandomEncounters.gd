@@ -1,9 +1,9 @@
 extends Area2D
 
-export(Array, String, FILE) var monsters
-export var check_every_hours = 24.0
-export var test_roll = 20
-export var area_priority = 0
+@export var monsters = []
+@export var check_every_hours = 24.0
+@export var test_roll = 20
+@export var area_priority = 0
 
 var next_check_at = 0
 var player_in_area = 0
@@ -19,8 +19,8 @@ func load_persistent_data(p):
 func _ready():
 	add_to_group("PersistentNodes")
 	add_to_group("RandomEncounters")
-	var _err = connect("body_entered", self, "_on_body_entered")
-	_err = connect("body_exited", self, "_on_body_exited")
+	var _err = connect("body_entered",Callable(self,"_on_body_entered"))
+	_err = connect("body_exited",Callable(self,"_on_body_exited"))
 
 func set_next_check():
 	if monsters.size() > 0:
@@ -40,11 +40,10 @@ func _physics_process(_delta):
 	if GameEngine.time_in_minutes >= next_check_at:
 		set_next_check()
 		if allowed_to_generate() and GameEngine.roll_d20() >= test_roll:
-			var m = GameEngine.instantiate(GameEngine.current_scene, monsters[randi() % monsters.size()])
-			m.set_physics_process(false)
-			yield(get_tree(), "idle_frame")
-			m.place_near_player()
-			m.set_physics_process(true)
+			call_deferred("generate_a_monster")
+
+func generate_a_monster():
+	await GameEngine.spawn_near_player(monsters[randi() % monsters.size()])
 
 func _on_body_entered(body):
 	if body == GameEngine.player: player_in_area += 1
