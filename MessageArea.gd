@@ -1,8 +1,8 @@
 extends Area2D
 
 @export_multiline var message
-@export var is_important: bool = true
-@export var one_shot: bool = true
+@export var is_important = false
+@export var one_shot = true
 @export var milestone_granted: String
 
 var available = true
