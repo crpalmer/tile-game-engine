@@ -3,8 +3,6 @@ class_name Thing
 
 @export var display_name:String : get = get_display_name
 @export var long_description:String # (String, MULTILINE)
-@export var reveal_text: String
-@export var findable: bool = true
 @export var max_uses = -1
 @export var use_time = 0
 @export var minutes_between_uses = 0.2
@@ -14,7 +12,6 @@ var next_use_at = 0
 func get_persistent_data():
 	return {
 		"next_use_at": next_use_at,
-		"visible": visible
 	}
 
 func load_persistent_data(p):
@@ -44,8 +41,3 @@ func description():
 
 func may_use():
 	return max_uses != 0 and GameEngine.time_in_minutes >= next_use_at
-
-func looked_at():
-	if not visible and findable:
-		if reveal_text != "": GameEngine.message(reveal_text, true)
-		visible = true
