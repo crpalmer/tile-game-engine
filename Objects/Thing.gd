@@ -16,7 +16,6 @@ func get_persistent_data():
 
 func load_persistent_data(p):
 	next_use_at = p.next_use_at
-	visible = p.visible
 
 func _ready():
 	add_to_group("PersistentNodes")
