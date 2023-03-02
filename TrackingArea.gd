@@ -96,3 +96,10 @@ func n_hostiles():
 	for thing in in_area:
 		if thing.has_method("is_hostile") and thing.is_hostile(): n += 1
 	return n
+
+func actors_in_area():
+	var actors = []
+	for actor in in_area:
+		if actor is Actor:
+			actors.push_back(actor)
+	return actors

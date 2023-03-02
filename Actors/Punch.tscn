@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bjldxtfys6nyh"]
 
-[ext_resource type="PackedScene" path="res://GameEngine/Actors/Attack.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://ypgejynnvhpc" path="res://GameEngine/Actors/Attack.tscn" id="1"]
 
 [node name="Punch" instance=ExtResource("1")]
 display_name = "Punch"

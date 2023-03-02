@@ -13,7 +13,6 @@ const NOT_RESTING = 0
 const SHORT_RESTING = 1
 const LONG_RESTING = 2
 
-var attacks = []
 var resting_until = 0
 var resting_started_at = 0
 var next_long_rest = 0
@@ -51,6 +50,10 @@ const xp_table = {
 	20: 355000
 }
 
+func on_player_stats_changed():
+	attack_modifier = clss.strength_modifier(strength, level)
+	emit_signal("player_stats_changed")
+
 func add_xp(new_xp:int, important = true):
 	xp += new_xp
 	GameEngine.message("You gained %d XP" % new_xp, important)
@@ -60,7 +63,7 @@ func add_xp(new_xp:int, important = true):
 		hp += new_hp
 		max_hp += new_hp
 		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, new_hp], true)
-	emit_signal("player_stats_changed")
+	on_player_stats_changed()
 
 func lose_xp(new_xp:int, important = true):
 	xp -= new_xp
@@ -73,7 +76,7 @@ func lose_xp(new_xp:int, important = true):
 		if hp < 1: hp = 1
 		if max_hp < 1: max_hp = 1
 		GameEngine.message("You downgraded to level %d and lost %d hit points!" % [level, new_hp], true)
-	emit_signal("player_stats_changed")
+	on_player_stats_changed()
 
 func get_persistent_data():
 	var p = super.get_persistent_data()
@@ -171,7 +174,7 @@ func _ready():
 	enter_current_scene()
 	
 func enter_current_scene():
-	emit_signal("player_stats_changed")
+	on_player_stats_changed()
 	$Camera2D/AmbientLight.set_radius(vision_radius)
 
 func stop_resting():
@@ -191,11 +194,11 @@ func was_attacked_by(_attacker):
 func take_damage(damage:int, from = null, cause = null):
 	if resting_state != NOT_RESTING: stop_resting()
 	super.take_damage(damage, from, cause)
-	emit_signal("player_stats_changed")
+	on_player_stats_changed()
 
 func give_hit_points(hp_given):
 	super.give_hit_points(hp_given)
-	emit_signal("player_stats_changed")
+	on_player_stats_changed()
 
 func killed(who):
 	add_xp(who.xp_value, false)
@@ -245,30 +248,10 @@ func default_physics_process(delta):
 	elif animation:
 		animation.stop()
 
-func select_attack():
-	for attack_to_use in attacks:
-		if attack_to_use.may_use():
-			attack_to_use.used_by(self)
-			return attack_to_use
-	return null
-	
-func select_attack_target():
-	var hostiles = []
-	var others = []
-	for who in $CloseArea.in_sight():
-		if who is Actor:
-			if who.mood == Mood.HOSTILE: hostiles.push_back(who)
-			else: others.push_back(who)
-	if hostiles.size() > 0: return hostiles[randi() % hostiles.size()]
-	if others.size() > 0: return others[randi() % others.size()]
-	return null
-	
-func process_attack():
-	var attack_to_use = select_attack()
-	if attack_to_use == null: return
-	var opponent = select_attack_target()
-	if opponent == null: return
-	attack(opponent, attack_to_use, clss.strength_modifier(strength, level))
+func i_would_attack(target, pass_number):
+	if target.is_hostile(): return true
+	if pass_number > 0: return true
+	return false
 
 func process_use():
 	for use_on in $CloseArea.in_sight():
@@ -286,7 +269,7 @@ func add_currency(currency, amount = 0):
 		money[f].n_units = n_units
 		money[f].unit_value = currency.unit_value
 	GameEngine.message("You picked up %d %s" % [ n_units, currency.abbreviation ])
-	emit_signal("player_stats_changed")
+	on_player_stats_changed()
 
 func get_currency_by_filename(filename):
 	if money.has(filename): return money[filename].n_units
@@ -340,6 +323,7 @@ func has_a_thing_in_group(group_name):
 	return $Inventory.has_a_thing_in_group(group_name)
 
 func died():
+	GameEngine.message("You died!", true)
 	print_debug("Player died!")
 	GameEngine.pause()
 	emit_signal("player_died")
@@ -348,14 +332,17 @@ func set_ambient_light(percent):
 	$Camera2D/AmbientLight.set_brightness(percent)
 	$Camera2D/LightSource.set_brightness(100-percent)
 
-func on_inventory_changed():
-	ac = $Inventory.get_ac() + clss.dexterity_modifier(dexterity, level)
-	to_hit_modifier = $Inventory.get_to_hit_modifier() + clss.strength_modifier(strength, level)
+func get_attacks():
 	attacks = []
 	for thing in $Inventory.get_equipped_things():
-		if thing.can_attack_with: attacks.push_back(thing)
+		for attack in thing.get_children():
+			if attack is Attack: attacks.push_back(attack)
 	if attacks.size() == 0: attacks.push_back(punch)
-	emit_signal("player_stats_changed")
+
+func on_inventory_changed():
+	ac = $Inventory.get_ac() + clss.dexterity_modifier(dexterity, level)
+	get_attacks()
+	on_player_stats_changed()
 
 func strength_test(needed): return GameEngine.roll_test(needed, clss.strength_modifier(strength, level))
 func dexterity_test(needed): return GameEngine.roll_test(needed, clss.dexterity_modifier(dexterity, level))

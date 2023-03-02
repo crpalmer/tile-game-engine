@@ -13,10 +13,7 @@ class_name InventoryThing
 @export var weight = 0
 @export var ac = 0
 @export var ac_modifier = 0
-@export var to_hit_modifier = 0
-@export var damage_dice = { "n": 1, "d": 4, "plus": 0}
 
-@export var can_attack_with = false
 @export var always_equipped = false
 
 @export var acceptable:GameEngine.BodyParts # (GameEngine.BodyParts, FLAGS)

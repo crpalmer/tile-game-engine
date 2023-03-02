@@ -119,9 +119,3 @@ func get_ac():
 		if t and t.ac > max_ac: max_ac = t.ac
 		ac_modifier += t.ac_modifier
 	return max_ac + ac_modifier
-
-func get_to_hit_modifier():
-	var to_hit_modifier = 0
-	for t in get_equipped_things():
-		if not t.can_attack_with: to_hit_modifier += t.to_hit_modifier
-	return to_hit_modifier

@@ -4,7 +4,7 @@ class_name Thing
 @export var display_name:String : get = get_display_name
 @export var long_description:String # (String, MULTILINE)
 @export var max_uses = -1
-@export var use_time = 0
+@export var use_time = 0.05
 @export var minutes_between_uses = 0.2
 
 var next_use_at = 0
@@ -32,7 +32,8 @@ func used_by(_thing):
 	next_use_at = GameEngine.time_in_minutes + minutes_between_uses
 
 func capitalized_display_name():
-	return display_name[0].to_upper() + display_name.substr(1)
+	var lower_case_name = get_display_name()
+	return lower_case_name[0].to_upper() + lower_case_name.substr(1)
 
 func description():
 	if visible: return long_description

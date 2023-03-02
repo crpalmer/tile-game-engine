@@ -13,7 +13,7 @@ enum Mood { FRIENDLY = 0, NEUTRAL = 1, HOSTILE =2 }
 @export var ac = 10
 @export var hp = 1
 @export var max_hp = 1
-@export var to_hit_modifier = 0
+@export var attack_modifier = 0
 @export var speed_feet_per_round = 30
 @export var xp_value = 1
 @export var close_radius = 3
@@ -26,6 +26,7 @@ var random_movement
 var conversation
 
 var travel_distance_fudge_factor = 2
+var attacks = null
 var punch = load("%s/Actors/Punch.tscn" % GameEngine.config.root).instantiate()
 
 func get_persistent_data():
@@ -120,13 +121,12 @@ func was_attacked_by(_attacker):
 	if mood != Mood.HOSTILE and self != GameEngine.player:
 		set_mood(Mood.HOSTILE)
 
-func attack(who:Actor, attack_to_use, damage_modifier = 0):
+func roll_attack(who:Actor, attack_to_use):
 	who.was_attacked_by(self)
 	next_action = GameEngine.time_in_minutes + attack_to_use.use_time
-	
-	if GameEngine.roll_test(who.ac, to_hit_modifier + attack_to_use.to_hit_modifier, true):
+	if GameEngine.roll_test(who.ac, attack_modifier + attack_to_use.to_hit_modifier, true):
 		var damage_dice = attack_to_use.damage_dice.duplicate()
-		damage_dice.plus += damage_modifier
+		damage_dice.plus += attack_modifier
 		var damage = GameEngine.roll(damage_dice)
 		who.take_damage(damage, self, attack_to_use)
 	else:
@@ -180,25 +180,42 @@ func is_a_good_place_to_place(pos):
 	return can_see_player_from(position)
 
 func default_process():
-	if mood == Mood.HOSTILE and player_is_close():
-		process_attack()
+	if is_hostile(): process_attack()
 
-func select_attack():
-	var has_attacks = false
-	for attack_to_use in get_children():
-		if attack_to_use is Attack:
-			has_attacks = true
-			if attack_to_use.may_use():
-				attack_to_use.used_by(self)
-				return attack_to_use
-	if not has_attacks and punch.may_use():
-		punch.used_by(self)
-		return punch
+func get_attacks():
+	attacks = []
+	for attack in get_children():
+		if attack is Attack:
+			attacks.append(attack)
+	if attacks.size() == 0: attacks.append(punch)
+
+func i_would_attack(target, _pass_number):
+	return target == GameEngine.player
+
+func i_can_attack_target(attack, target):
+	if (target.global_position - global_position).length() > GameEngine.feet_to_pixels(attack.attack_range):
+		return false
+	if not $VisionArea.is_in_sight(target): return false
+	return true
+
+func select_attack_target(attack):
+	for pass_number in range(2):
+		var targets = []
+		for target in $VisionArea.actors_in_area():
+			if i_would_attack(target, pass_number) and i_can_attack_target(attack, target):
+				targets.push_back(target)
+		if targets.size() > 0: return targets[randi() % targets.size()]
 	return null
 
 func process_attack():
-	var attack_to_use = select_attack()
-	if attack_to_use: attack(GameEngine.player, attack_to_use)
+	if attacks == null: get_attacks()
+	for attack in attacks:
+		if attack.may_use():
+			var target = select_attack_target(attack)
+			if target:
+				attack.used_by(self)
+				roll_attack(target, attack)
+				return
 
 func default_physics_process(delta):
 	if not is_friendly() and player_is_in_sight():
