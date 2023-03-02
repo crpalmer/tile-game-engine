@@ -2,9 +2,9 @@ extends Resource
 class_name GameConfiguration
 
 @export_dir var root = "res://GameEngine"
-@export_file var player = "res://Player.tscn"
-@export_file var damage_popup
-@export var entry_scene:String
+@export_file("*.tscn") var player = "res://Player.tscn"
+@export_file("*.tscn") var damage_popup
+@export_file("*.tscn") var entry_scene:String
 @export var entry_point: String
 @export var fade_color: Color = Color.BLACK
 @export var rest_time_accelerator: float = 600.0

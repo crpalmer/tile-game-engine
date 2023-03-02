@@ -1,6 +1,6 @@
 extends Area2D
 
-@export_file var scene:String
+@export_file("*.tscn") var scene:String
 @export var entry_point: String
 @export var required_milestone: String
 @export var milestone_needed_message: String

@@ -2,7 +2,7 @@ extends Area2D
 class_name SubSceneTrigger
 
 
-@export_file var sub_scene # (String, FILE)
+@export_file("*.tscn") var sub_scene
 @export var entry_point: String = "EntryPoint"
 
 func should_enter_scene():
