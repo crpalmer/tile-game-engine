@@ -1,6 +1,6 @@
 extends Label
 
-@export var currency:String # (String, FILE)
+@export_file("*.tscn") var currency:String
 
 func _ready():
 	var _err = GameEngine.player.connect("player_stats_changed",Callable(self,"on_player_stats_changed"))
