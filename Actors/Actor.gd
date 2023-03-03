@@ -102,11 +102,13 @@ func set_close_range(radius:int):
 	close_radius = radius
 
 func take_damage(damage:int, from:Actor = null, cause = null):
-	hp -= damage
-	var message = "%s takes %d damage" % [ capitalized_display_name(), damage ]
-	if from and from != GameEngine.player: message += " from a %s" % from.display_name
+	var message
+	if from: message = "%s hits %s for" % [from.capitalized_display_name(), display_name]
+	else: message = "%s takes"
+	message += " %d damage" %  damage
 	if cause: message += " by a %s" % cause.display_name
 	GameEngine.message(message)
+	hp -= damage
 	damage_popup(true, damage, from)
 	if hp <= 0:
 		died()
