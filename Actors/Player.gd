@@ -51,7 +51,7 @@ const xp_table = {
 }
 
 func on_player_stats_changed():
-	attack_modifier = clss.strength_modifier(strength, level)
+	if clss: attack_modifier = clss.strength_modifier(strength, level)
 	emit_signal("player_stats_changed")
 
 func add_xp(new_xp:int, important = true):
