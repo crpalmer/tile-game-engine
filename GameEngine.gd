@@ -205,9 +205,10 @@ func give_to_player(filename):
 	player.add_to_inventory(thing)
 	GameEngine.message("You get %s" % thing.display_name)
 
-func place_near_internal(spawn, who, exclude):
+func place_near_internal(spawn, who, distances:Array, exclude):
 	assert(not is_physics_processing())
-	for distance in range(2, 5):
+	distances.shuffle()
+	for distance in distances:
 		var x_dir = range(-distance, distance*2+1, 2)
 		x_dir.append(0)
 		var y_dir = x_dir.duplicate()
@@ -222,30 +223,31 @@ func place_near_internal(spawn, who, exclude):
 						spawn.stop_navigating()
 						return
 
-func place_near(spawn, who, exclude = []):
+func place_near(spawn, who, distances = range(2, 5), exclude = []):
 	var physics_process = is_physics_processing()
 	if physics_process:
 		set_physics_process(false)
 		await get_tree().idle_frame
-	place_near_internal(spawn, who, exclude)
+	place_near_internal(spawn, who, distances, exclude)
 	if physics_process:
 		await get_tree().idle_frame
 		set_physics_process(true)
 
-func place_near_player(spawn, exclude = []):
-	place_near(spawn, GameEngine.player, exclude)
+func place_near_player(spawn, distances = range(2, 5), exclude = []):
+	place_near(spawn, GameEngine.player, distances, exclude)
 
-func spawn_near_player(filename, n = 1):
+func spawn_near_player(filename, distances = range(2, 5), n = 1):
 	var placed = []
 	var spawned = []
 	for _i in range(n):
 		var spawn = instantiate(current_scene, filename)
+		spawn.make_hostile()
 		spawn.set_process(false)
 		spawn.set_physics_process(false)
 		spawned.append(spawn)
 	await get_tree().process_frame
 	for spawn in spawned:
-		place_near_player(spawn, placed)
+		place_near_player(spawn, distances, placed)
 		placed.append(spawn.global_position)
 	await get_tree().process_frame
 	for spawn in spawned:

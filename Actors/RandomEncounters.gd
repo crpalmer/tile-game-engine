@@ -4,6 +4,8 @@ extends Area2D
 @export var check_every_hours = 24.0
 @export var test_roll = 20
 @export var area_priority = 0
+@export var min_distance = 2
+@export var max_distance = 10
 
 var next_check_at = 0
 var player_in_area = 0
@@ -43,7 +45,9 @@ func _physics_process(_delta):
 			call_deferred("generate_a_monster")
 
 func generate_a_monster():
-	await GameEngine.spawn_near_player(monsters[randi() % monsters.size()])
+	var step_size = (max_distance - min_distance) / 10
+	var distances = range(min_distance, max_distance, step_size if step_size > 1 else 1)
+	await GameEngine.spawn_near_player(monsters[randi() % monsters.size()], distances)
 
 func _on_body_entered(body):
 	if body == GameEngine.player: player_in_area += 1
