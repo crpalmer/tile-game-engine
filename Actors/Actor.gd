@@ -22,6 +22,7 @@ enum Mood { FRIENDLY = 0, NEUTRAL = 1, HOSTILE =2 }
 
 @onready var navigation : NavigationAgent2D = $NavigationAgent2D
 var next_action = 0
+var next_move = 0
 var random_movement
 var conversation
 
@@ -123,9 +124,13 @@ func was_attacked_by(_attacker):
 	if mood != Mood.HOSTILE and self != GameEngine.player:
 		set_mood(Mood.HOSTILE)
 
-func roll_attack(who:Actor, attack_to_use):
+func roll_attack(who:Actor, attack_to_use:Attack):
 	who.was_attacked_by(self)
 	next_action = GameEngine.time_in_minutes + attack_to_use.use_time
+	if self != GameEngine.player:
+		# Hack: let the player move so the UI doesn't suck
+		#       don't let the monster move so they keep their ranged attack ability
+		next_move = GameEngine.time_in_minutes + attack_to_use.minutes_between_uses
 	if GameEngine.roll_test(who.ac, attack_modifier + attack_to_use.to_hit_modifier, true):
 		var damage_dice = attack_to_use.damage_dice.duplicate()
 		damage_dice.plus += attack_modifier
@@ -165,7 +170,7 @@ func start_conversation():
 func can_see_actor_from(actor, pos):
 	var space_rid = get_world_2d().space
 	var space_state = PhysicsServer2D.space_get_direct_state(space_rid)
-	return GameEngine.ray_to_point(space_state, actor, pos)
+	return GameEngine.ray_to_point(space_state, actor, pos, 1) == actor
 
 func can_see_player_from(pos):
 	return can_see_actor_from(GameEngine.player, pos)
@@ -179,7 +184,7 @@ func is_a_good_place_to_place(pos):
 	var colliding = space_state.intersect_point(physics_parameters)
 	if  colliding != null and colliding.size() > 0:
 		return false
-	return can_see_player_from(position)
+	return can_see_player_from(pos)
 
 func default_process():
 	if is_hostile(): process_attack()
@@ -187,7 +192,7 @@ func default_process():
 func get_attacks():
 	attacks = []
 	for attack in get_children():
-		if attack is Attack:
+		if attack is Attack or attack is AttackChoice:
 			attacks.append(attack)
 	if attacks.size() == 0: attacks.append(punch)
 
@@ -209,15 +214,24 @@ func select_attack_target(attack):
 		if targets.size() > 0: return targets[randi() % targets.size()]
 	return null
 
-func process_attack():
-	if attacks == null: get_attacks()
-	for attack in attacks:
+func try_to_attack(attack):
+	if not attack.may_use(): return false
+	if attack is Attack:
 		if attack.may_use():
 			var target = select_attack_target(attack)
 			if target:
 				attack.used_by(self)
 				roll_attack(target, attack)
-				return
+				return true
+	elif attack is AttackChoice:
+		for sub in attack.get_attack_choices():
+			if try_to_attack(sub): return true
+	return false
+
+func process_attack():
+	if attacks == null: get_attacks()
+	for attack in attacks:
+		if try_to_attack(attack): return
 
 func default_physics_process(delta):
 	if not is_friendly() and player_is_in_sight():
@@ -253,6 +267,7 @@ func _process(_delta):
 
 func _physics_process(delta):
 	if next_action == null or GameEngine.time_in_minutes < next_action: return
+	if next_move == null or GameEngine.time_in_minutes < next_move: return
 	if GameEngine.is_paused(): return
 	default_physics_process(delta)
 	
