@@ -24,3 +24,9 @@ func get_display_name():
 	if parent is Actor: return parent.display_name
 	if parent is Thing: return parent.get_display_name()
 	return ""
+
+func get_missile() -> Missile:
+	for c in get_children():
+		if c is Missile:
+			return c
+	return null

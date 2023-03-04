@@ -107,7 +107,14 @@ func take_damage(damage:int, from:Actor = null, cause = null):
 	if from: message = "%s hits %s for" % [from.capitalized_display_name(), display_name]
 	else: message = "%s takes"
 	message += " %d damage" %  damage
-	if cause: message += " by a %s" % cause.display_name
+	if cause is Attack:
+		var missile = cause.get_missile()
+		if missile:
+			message += " by a %s from a %s" % [ missile.display_name, cause.display_name ]
+		else:
+			message += " by a %s" % cause.display_name
+	else:
+		message += " by a %s" % cause.display_name
 	GameEngine.message(message)
 	hp -= damage
 	damage_popup(true, damage, from)
@@ -124,20 +131,15 @@ func was_attacked_by(_attacker):
 	if mood != Mood.HOSTILE and self != GameEngine.player:
 		set_mood(Mood.HOSTILE)
 
-func roll_attack(who:Actor, attack_to_use:Attack):
+func roll_attack(who:Actor, attack:Attack):
 	who.was_attacked_by(self)
-	next_action = GameEngine.time_in_minutes + attack_to_use.use_time
-	if self != GameEngine.player:
-		# Hack: let the player move so the UI doesn't suck
-		#       don't let the monster move so they keep their ranged attack ability
-		next_move = GameEngine.time_in_minutes + attack_to_use.minutes_between_uses
-	if GameEngine.roll_test(who.ac, attack_modifier + attack_to_use.to_hit_modifier, true):
-		var damage_dice = attack_to_use.damage_dice.duplicate()
+	if GameEngine.roll_test(who.ac, attack_modifier + attack.to_hit_modifier, true):
+		var damage_dice = attack.damage_dice.duplicate()
 		damage_dice.plus += attack_modifier
 		var damage = GameEngine.roll(damage_dice)
-		who.take_damage(damage, self, attack_to_use)
+		who.take_damage(damage, self, attack)
 	else:
-		GameEngine.message("%s misses %s with a %s" % [ capitalized_display_name(), who.display_name, attack_to_use.display_name ])
+		GameEngine.message("%s misses %s with a %s" % [ capitalized_display_name(), who.display_name, attack.display_name ])
 		who.damage_popup(false, 0, who)
 
 func died():
@@ -196,16 +198,16 @@ func get_attacks():
 			attacks.append(attack)
 	if attacks.size() == 0: attacks.append(punch)
 
-func i_would_attack(target, _pass_number):
+func i_would_attack(target : Actor, _pass_number) -> bool:
 	return target == GameEngine.player
 
-func i_can_attack_target(attack, target):
+func i_can_attack_target(attack, target: Actor) -> bool:
 	if (target.global_position - global_position).length() > GameEngine.feet_to_pixels(attack.attack_range):
 		return false
 	if not $VisionArea.is_in_sight(target): return false
 	return true
 
-func select_attack_target(attack):
+func select_attack_target(attack : Attack) -> Actor:
 	for pass_number in range(2):
 		var targets = []
 		for target in $VisionArea.actors_in_area():
@@ -214,21 +216,34 @@ func select_attack_target(attack):
 		if targets.size() > 0: return targets[randi() % targets.size()]
 	return null
 
-func try_to_attack(attack):
+func melee_or_missile_attack(target : Actor, attack : Attack) -> void:
+	attack.used_by(self)
+	next_action = GameEngine.time_in_minutes + attack.use_time
+	if self != GameEngine.player:
+		# Hack: let the player move so the UI doesn't suck
+		#       don't let the monster move so they keep their ranged attack ability
+		next_move = GameEngine.time_in_minutes + attack.minutes_between_uses
+	var missile = attack.get_missile()
+	if missile:
+		var shot:Missile = missile.duplicate()
+		shot.call_deferred("shoot", self, target, attack)
+	else:
+		roll_attack(target, attack)
+
+func try_to_attack(attack) -> bool:
 	if not attack.may_use(): return false
 	if attack is Attack:
 		if attack.may_use():
 			var target = select_attack_target(attack)
 			if target:
-				attack.used_by(self)
-				roll_attack(target, attack)
+				melee_or_missile_attack(target, attack)
 				return true
 	elif attack is AttackChoice:
 		for sub in attack.get_attack_choices():
 			if try_to_attack(sub): return true
 	return false
 
-func process_attack():
+func process_attack() -> void:
 	if attacks == null: get_attacks()
 	for attack in attacks:
 		if try_to_attack(attack): return
@@ -252,8 +267,9 @@ func default_physics_process(delta):
 func velocity_computed(v):
 	var collision:KinematicCollision2D = move_and_collide(v)
 	var collider = collision.get_collider() if collision else null
-	if collider and collider != GameEngine.player:
-		var _err = move_and_collide(collision.get_remainder().bounce(collision.get_normal().rotated(PI / 300 * (randi()%30))))
+	if collider and collider != GameEngine.player and not collider is Missile:
+		print("%s collided with %s" % [ name, collider.name ])
+		var _err = move_and_collide(collision.get_remainder().bounce(collision.get_normal()))
 
 func travel_distance_in_pixels(delta_elapsed_time):
 	var minutes = GameEngine.real_time_to_game_time(delta_elapsed_time)
@@ -266,9 +282,10 @@ func _process(_delta):
 	default_process()
 
 func _physics_process(delta):
-	if next_action == null or GameEngine.time_in_minutes < next_action: return
-	if next_move == null or GameEngine.time_in_minutes < next_move: return
-	if GameEngine.is_paused(): return
+	if next_move == null: return
+	if GameEngine.time_in_minutes < next_move or GameEngine.is_paused():
+		#var _next_location = navigation.get_next_path_position()
+		return
 	default_physics_process(delta)
 	
 func damage_popup(hit, damage, who):
