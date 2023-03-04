@@ -182,7 +182,7 @@ func stop_resting():
 	GameEngine.fade_from_resting()
 	var rest_time:int = int(GameEngine.time_in_minutes - resting_started_at)
 	GameEngine.message("You rested for %d hour%s and %d minute%s" % [
-		rest_time / 60,
+		floor(rest_time / 60.0),
 		"s" if rest_time >= 60 and rest_time < 120 else "",
 		rest_time % 60,
 		"" if rest_time % 60 == 1 else "s"

@@ -10,7 +10,7 @@ var has_returned_from_scene = false
 func get_persistent_data():
 	return {}
 
-func load_persistent_data(p):
+func load_persistent_data(_p):
 	pass
 	
 func should_return_from_scene():

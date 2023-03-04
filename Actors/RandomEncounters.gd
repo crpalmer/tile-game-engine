@@ -45,7 +45,7 @@ func _physics_process(_delta):
 			call_deferred("generate_a_monster")
 
 func generate_a_monster():
-	var step_size = (max_distance - min_distance) / 10
+	var step_size = floor((max_distance - min_distance) / 10.0)
 	var distances = range(min_distance, max_distance, step_size if step_size > 1 else 1)
 	await GameEngine.spawn_near_player(monsters[randi() % monsters.size()], distances)
 
