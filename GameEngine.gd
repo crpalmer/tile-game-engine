@@ -360,6 +360,9 @@ func add_node_at(to_add:Node, global_position:Vector2):
 	current_scene.add_child(to_add)
 	to_add.global_position = global_position
 
+func pixels_travelled(velocity_feet, real_seconds):
+	return velocity_feet * real_time_to_game_time(real_seconds)
+
 func real_time_to_game_time(t):
 	return t * game_seconds_per_elapsed_second / 60.0
 
