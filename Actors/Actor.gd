@@ -172,7 +172,7 @@ func start_conversation():
 func can_see_actor_from(actor, pos):
 	var space_rid = get_world_2d().space
 	var space_state = PhysicsServer2D.space_get_direct_state(space_rid)
-	return GameEngine.ray_to_point(space_state, actor, pos, 1) == actor
+	return GameEngine.ray_from_point(space_state, pos, actor.global_position, 1) == actor
 
 func can_see_player_from(pos):
 	return can_see_actor_from(GameEngine.player, pos)

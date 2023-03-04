@@ -205,7 +205,7 @@ func give_to_player(filename):
 	player.add_to_inventory(thing)
 	GameEngine.message("You get %s" % thing.display_name)
 
-func place_near_internal(spawn, who, distances:Array, exclude):
+func place_near_internal(spawn, who, distances:Array, exclude) -> bool:
 	assert(not is_physics_processing())
 	distances.shuffle()
 	for distance in distances:
@@ -221,20 +221,22 @@ func place_near_internal(spawn, who, distances:Array, exclude):
 					if not exclude.has(place) and spawn.is_a_good_place_to_place(place):
 						spawn.global_position = place
 						spawn.stop_navigating()
-						return
+						return true
+	return false
 
-func place_near(spawn, who, distances = range(2, 5), exclude = []):
+func place_near(spawn, who, distances = range(2, 5), exclude = []) -> bool:
 	var physics_process = is_physics_processing()
 	if physics_process:
 		set_physics_process(false)
 		await get_tree().idle_frame
-	place_near_internal(spawn, who, distances, exclude)
+	var res = place_near_internal(spawn, who, distances, exclude)
 	if physics_process:
 		await get_tree().idle_frame
 		set_physics_process(true)
+	return res
 
-func place_near_player(spawn, distances = range(2, 5), exclude = []):
-	place_near(spawn, GameEngine.player, distances, exclude)
+func place_near_player(spawn, distances = range(2, 5), exclude = []) -> bool:
+	return await place_near(spawn, GameEngine.player, distances, exclude)
 
 func spawn_near_player(filename, distances = range(2, 5), n = 1):
 	var placed = []
@@ -247,12 +249,16 @@ func spawn_near_player(filename, distances = range(2, 5), n = 1):
 		spawned.append(spawn)
 	await get_tree().process_frame
 	for spawn in spawned:
-		place_near_player(spawn, distances, placed)
+		if not await place_near_player(spawn, distances, placed):
+			spawn.get_parent().remove_child(spawn)
 		placed.append(spawn.global_position)
 	await get_tree().process_frame
 	for spawn in spawned:
-		spawn.set_process(true)
-		spawn.set_physics_process(true)
+		if spawn.get_parent():
+			spawn.set_process(true)
+			spawn.set_physics_process(true)
+		else:
+			spawn.queue_free()
 
 func fade(leave_faded, from, to, duration = 0.5):
 	pause()
@@ -393,7 +399,7 @@ func roll(dice, extra_modifier = 0):
 	if total < 1: return 1
 	return total
 
-func roll_test(success, modifier = 0, always = false):
+func roll_test(success, modifier = 0, always = false) -> bool:
 	var got = roll(D(20), modifier)
 	return got >= success or (always and got == 20)
 
@@ -468,9 +474,9 @@ func are_intersecting(space_state, tracker, trackee, collision_mask = 0xffffffff
 		if collision.collider == trackee: return true
 	return false
 
-func ray_to_point(space_state, from, ray_target, collision_mask = 0xffffffff, ignore = []):
+func ray_from_point(space_state, from, ray_target, collision_mask = 0xffffffff, ignore = []):
 	var ray_parameters = PhysicsRayQueryParameters2D.new()
-	ray_parameters.from = from.global_position
+	ray_parameters.from = from
 	ray_parameters.to = ray_target
 	ray_parameters.exclude = ignore
 	ray_parameters.collision_mask = collision_mask
@@ -480,7 +486,7 @@ func ray_to_point(space_state, from, ray_target, collision_mask = 0xffffffff, ig
 	return null
 
 func ray_hits(space_state, from, to, ray_target, collision_mask = 0xffffffff, ignore = []):
-	var who = ray_to_point(space_state, from, ray_target, collision_mask, ignore)
+	var who = ray_from_point(space_state, from.global_position, ray_target, collision_mask, ignore)
 	if who and is_self_or_child_of(who, to):
 		return true
 	return false
