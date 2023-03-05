@@ -52,7 +52,7 @@ func add_thing(thing):
 	return true
 
 func updated(thing):
-	tooltip_text = thing.get_display_name()
+	tooltip_text = thing.display_name
 	emit_signal("inventory_changed")
 
 func has_a_thing_in_group(group_name):

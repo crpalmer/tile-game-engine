@@ -6,7 +6,7 @@ signal actor_died
 enum Mood { FRIENDLY = 0, NEUTRAL = 1, HOSTILE =2 }
 
 @export_category("Text")
-@export var display_name:String
+@export var display_name:String : get = get_display_name
 @export var long_description:String
 @export var random_movement_path: String
 @export_category("Stats")
@@ -111,7 +111,7 @@ func take_damage(damage:int, from:Actor = null, cause = null, show_popup = true)
 	if from: message = "%s hits %s for" % [from.capitalized_display_name(), get_display_name()]
 	else: message = "%s takes"
 	message += " %d damage" %  damage
-	if cause: message += " by a %s" % cause if cause is String else cause.get_display_name()
+	if cause: message += " with a %s" % (cause if cause is String else cause.display_name)
 	GameEngine.message(message)
 	hp -= damage
 	if show_popup: damage_popup(true, damage, from)

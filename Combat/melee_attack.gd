@@ -8,14 +8,14 @@ func get_cause_string():
 	if display_name != "":
 		var parent = get_parent()
 		if parent is InventoryThing:
-			return "%s by a %s" % [ get_display_name(), parent.get_display_name() ]
-	return get_display_name()
+			return "%s from a %s" % [ display_name, parent.display_name ]
+	return display_name
 
 func get_weapon_string():
 	var parent = get_parent()
 	if parent is InventoryThing:
-		return parent.get_display_name()
-	return get_display_name()
+		return parent.display_name
+	return display_name
 
 func attack(from:Actor, to:Actor) -> bool:
 	var hits = super(from, to)

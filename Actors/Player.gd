@@ -305,7 +305,7 @@ func process_look():
 			any_descriptions = true
 		else:
 			if what.length() > 0: what = what + ", "
-			what += thing.get_display_name() if thing.has_method("get_display_name") else thing.display_name
+			what += thing.display_name
 		if thing.has_method("looked_at"): thing.looked_at()
 	if what == "" and not any_descriptions: what = "nothing"
 	if what != "": GameEngine.message("You %ssee: %s" % [ "also " if any_descriptions else "", what])

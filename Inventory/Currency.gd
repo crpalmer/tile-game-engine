@@ -45,5 +45,5 @@ func value():
 	return n_units * unit_value
 
 func get_display_name():
-	if n_units > 1: return "%d %s" % [ n_units, plural if plural != "" else display_name ]
-	elif n_units == 1: return "a " + display_name
+	if n_units > 1: return "%d %s" % [ n_units, plural if plural != "" else super() ]
+	elif n_units == 1: return "a " + super()

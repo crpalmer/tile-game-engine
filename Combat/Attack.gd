@@ -14,11 +14,12 @@ func _ready():
 	max_range = GameEngine.feet_to_pixels(max_range_feet)
 
 func get_display_name():
-	if display_name != "": return display_name
+	var name = super()
+	if name != "": return name
 	var parent = get_parent()
 	if parent is Actor: return parent.display_name
-	if parent is Thing: return parent.get_display_name()
-	if parent is Attack: return parent.get_display_name()
+	if parent is Thing: return parent.display_name
+	if parent is Attack: return parent.display_name
 	return ""
 
 func attack(from:Actor, to:Actor) -> bool:

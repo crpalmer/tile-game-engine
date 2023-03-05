@@ -1,7 +1,7 @@
 extends PhysicsBody2D
 class_name Thing
 
-@export var display_name:String
+@export var display_name:String : get = get_display_name
 @export_multiline var long_description:String
 @export var max_uses:int = -1
 @export var use_time:float = 0.05
@@ -31,6 +31,9 @@ func _ready():
 func get_display_name() -> String:
 	if cur_uses > 1: return "%d uses of %s" % [ cur_uses, display_name ]
 	else: return display_name
+
+func get_bare_display_name() -> String:
+	return display_name
 
 func used_by(_thing) -> bool:
 	if cur_uses > 0: cur_uses -= 1
