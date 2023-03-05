@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://dywj0kl2eo5t0"]
+
+[ext_resource type="PackedScene" uid="uid://gkepy344g01" path="res://GameEngine/Inventory/InventoryThing.tscn" id="1_tmwl5"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_iorut"]
+resource_local_to_scene = true
+radius = 13.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_12b6n"]
+radius = 24.0
+
+[node name="InventoryThingFindable" instance=ExtResource("1_tmwl5")]
+
+[node name="CollisionShape2D" parent="." index="0"]
+shape = SubResource("CircleShape2D_iorut")
+
+[node name="FindableCollisionShape2D" type="CollisionShape2D" parent="." index="1"]
+shape = SubResource("CircleShape2D_12b6n")
+disabled = true
