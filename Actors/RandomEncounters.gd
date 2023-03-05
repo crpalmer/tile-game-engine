@@ -1,11 +1,11 @@
 extends Area2D
 
-@export var monsters = []
+@export var monsters:Array[String] = []
 @export var check_every_hours = 24.0
 @export var test_roll = 20
 @export var area_priority = 0
 @export var min_distance = 2
-@export var max_distance = 10
+@export var max_distance = 5
 
 var next_check_at = 0
 var player_in_area = 0
