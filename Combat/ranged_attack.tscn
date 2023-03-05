@@ -7,3 +7,5 @@
 script = ExtResource("1_m5f7y")
 damage_modifier = 0
 ammunition_group = ""
+min_range_feet = 5
+max_range_feet = 30

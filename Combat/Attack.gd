@@ -3,7 +3,7 @@ class_name Attack
 
 @export var to_hit_modifier = 0
 @export var min_range_feet = 0
-@export var max_range_feet = 3
+@export var max_range_feet = 5
 
 var min_range
 var max_range
