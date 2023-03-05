@@ -18,7 +18,6 @@ func player_created():
 	var _err = GameEngine.player.connect("player_stats_changed",Callable(self,"update_my_stat"))
 
 func modifier_sign(value):
-	if value < 0: return "-"
 	if value > 0: return "+"
 	return ""
 
