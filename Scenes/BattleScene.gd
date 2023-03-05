@@ -17,7 +17,7 @@ func should_return_from_scene():
 	return n_monsters == 0
 
 func _ready():
-	super._ready()
+	super()
 	for c in get_children():
 		if c is Actor:
 			c.connect("actor_died",Callable(self,"on_monster_died"))

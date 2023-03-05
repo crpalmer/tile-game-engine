@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bjldxtfys6nyh"]
+
+[ext_resource type="PackedScene" uid="uid://nc468kf8di2y" path="res://GameEngine/Combat/melee_attack.tscn" id="1"]
+
+[node name="Punch" instance=ExtResource("1")]
+display_name = "punch"

@@ -15,10 +15,8 @@ visible = false
 visible = false
 layers = 7
 
-[node name="AttackAvailable" type="Timer" parent="."]
-
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 target_desired_distance = 32.0
 radius = 16.0
 
-[connection signal="timeout" from="AttackAvailable" to="." method="_on_AttackAvailable_timeout"]
+[node name="Equipment" type="Node2D" parent="."]

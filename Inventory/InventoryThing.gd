@@ -42,9 +42,16 @@ func _ready():
 	add_to_group("Ephemeral")
 	if group != "": add_to_group(group)
 	
-func get_display_name():
-	if n > 1: return String(n) + " " + plural
-	else: return display_name
+func get_display_name() -> String:
+	if n > 1: return super() + "( x%d)" % n
+	else: return super()
+
+func used_by(thing) -> bool:
+	if super(thing):
+		n -= 1
+		if n > 0: reset_uses()
+		else: return true
+	return false
 
 func looked_at():
 	if not visible and findable:

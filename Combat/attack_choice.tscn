@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://b417tiry0hiyr"]
+
+[ext_resource type="PackedScene" uid="uid://djlfimw31xdgh" path="res://GameEngine/Combat/Attack.tscn" id="1_t5xwu"]
+[ext_resource type="Script" path="res://GameEngine/Combat/attack_choice.gd" id="2_1kmqe"]
+
+[node name="AttackChoice" instance=ExtResource("1_t5xwu")]
+script = ExtResource("2_1kmqe")

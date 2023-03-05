@@ -52,11 +52,7 @@ func add_thing(thing):
 	return true
 
 func updated(thing):
-	var uses = ""
-	var n = ""
-	if thing.max_uses > 0: uses = "%d use%s of " % [thing.max_uses, "s" if thing.max_uses > 1 else "" ]
-	if thing.n > 1: n = " (x %d)"
-	tooltip_text = "%s%s%s" % [ uses, thing.display_name, n ]
+	tooltip_text = thing.get_display_name()
 	emit_signal("inventory_changed")
 
 func has_a_thing_in_group(group_name):
@@ -99,8 +95,7 @@ func use_in_inventory():
 	if mouse_in_control <= 0: return
 	var thing = get_thing()
 	if thing and thing.may_use():
-		thing.used_by(GameEngine.player)
-		if thing.max_uses == 0:
+		if thing.used_by(GameEngine.player):
 			thing.queue_free()
 		else:
 			updated(thing)

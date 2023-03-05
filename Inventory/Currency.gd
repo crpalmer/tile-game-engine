@@ -44,12 +44,6 @@ func _ready():
 func value():
 	return n_units * unit_value
 
-func used_by(who):
-	if who.has_method("add_currency"):
-		who.add_currency(self)
-		get_parent().remove_child(self)
-		queue_free()
-
 func get_display_name():
 	if n_units > 1: return "%d %s" % [ n_units, plural if plural != "" else display_name ]
 	elif n_units == 1: return "a " + display_name

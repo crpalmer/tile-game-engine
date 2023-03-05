@@ -11,3 +11,6 @@ hp_dice = {
 "plus": 1
 }
 mood = 1
+
+[node name="Equipment" parent="." index="3"]
+visible = false

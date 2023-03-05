@@ -238,7 +238,7 @@ func place_near(spawn, who, distances = range(2, 5), exclude = []) -> bool:
 func place_near_player(spawn, distances = range(2, 5), exclude = []) -> bool:
 	return await place_near(spawn, GameEngine.player, distances, exclude)
 
-func spawn_near_player(filename, distances = range(2, 5), n = 1):
+func spawn_near_player(filename, n = 1, distances = range(2, 5)):
 	var placed = []
 	var spawned = []
 	for _i in range(n):

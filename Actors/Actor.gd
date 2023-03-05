@@ -21,14 +21,15 @@ enum Mood { FRIENDLY = 0, NEUTRAL = 1, HOSTILE =2 }
 @export var mood:Mood = Mood.FRIENDLY
 
 @onready var navigation : NavigationAgent2D = $NavigationAgent2D
+@onready var equipment = $Equipment
+
 var next_action = 0
 var next_move = 0
 var random_movement
 var conversation
 
 var travel_distance_fudge_factor = 2
-var attacks = null
-var punch = load("%s/Actors/Punch.tscn" % GameEngine.config.root).instantiate()
+var attacks:Array[Attack]
 
 func get_persistent_data():
 	var c = conversation.get_persistent_data() if conversation else null
@@ -102,22 +103,15 @@ func set_close_range(radius:int):
 	$CloseArea.set_tracking_radius(radius)
 	close_radius = radius
 
-func take_damage(damage:int, from:Actor = null, cause = null):
+func take_damage(damage:int, from:Actor = null, cause = null, show_popup = true) -> void:
 	var message
 	if from: message = "%s hits %s for" % [from.capitalized_display_name(), display_name]
 	else: message = "%s takes"
 	message += " %d damage" %  damage
-	if cause is Attack:
-		var missile = cause.get_missile()
-		if missile:
-			message += " by a %s from a %s" % [ missile.display_name, cause.display_name ]
-		else:
-			message += " by a %s" % cause.display_name
-	else:
-		message += " by a %s" % cause.display_name
+	if cause: message += " by a %s" % cause.display_name
 	GameEngine.message(message)
 	hp -= damage
-	damage_popup(true, damage, from)
+	if show_popup: damage_popup(true, damage, from)
 	if hp <= 0:
 		died()
 		if from: from.killed(self)
@@ -130,17 +124,6 @@ func give_hit_points(hp_given):
 func was_attacked_by(_attacker):
 	if mood != Mood.HOSTILE and self != GameEngine.player:
 		set_mood(Mood.HOSTILE)
-
-func roll_attack(who:Actor, attack:Attack):
-	who.was_attacked_by(self)
-	if GameEngine.roll_test(who.ac, attack_modifier + attack.to_hit_modifier, true):
-		var damage_dice = attack.damage_dice.duplicate()
-		damage_dice.plus += attack_modifier
-		var damage = GameEngine.roll(damage_dice)
-		who.take_damage(damage, self, attack)
-	else:
-		GameEngine.message("%s misses %s with a %s" % [ capitalized_display_name(), who.display_name, attack.display_name ])
-		who.damage_popup(false, 0, who)
 
 func died():
 	GameEngine.message("%s died!" % capitalized_display_name())
@@ -194,57 +177,39 @@ func default_process():
 func get_attacks():
 	attacks = []
 	for attack in get_children():
-		if attack is Attack or attack is AttackChoice:
-			attacks.append(attack)
-	if attacks.size() == 0: attacks.append(punch)
+		if attack is Attack: attacks.append(attack)
+	if attacks.size() == 0: add_punch()
+
+func add_punch():
+	var punch = load("%s/Combat/Punch.tscn" % GameEngine.config.root).instantiate()
+	add_child(punch)
+	attacks.append(punch)
 
 func i_would_attack(target : Actor, _pass_number) -> bool:
 	return target == GameEngine.player
-
-func i_can_attack_target(attack, target: Actor) -> bool:
-	if (target.global_position - global_position).length() > GameEngine.feet_to_pixels(attack.attack_range):
-		return false
-	if not $VisionArea.is_in_sight(target): return false
-	return true
 
 func select_attack_target(attack : Attack) -> Actor:
 	for pass_number in range(2):
 		var targets = []
 		for target in $VisionArea.actors_in_area():
-			if i_would_attack(target, pass_number) and i_can_attack_target(attack, target):
+			if i_would_attack(target, pass_number) and attack.may_attack(self, target) and $VisionArea.is_in_sight(target):
 				targets.push_back(target)
 		if targets.size() > 0: return targets[randi() % targets.size()]
 	return null
 
-func melee_or_missile_attack(target : Actor, attack : Attack) -> void:
-	attack.used_by(self)
+func try_to_attack(attack:Attack) -> bool:
+	var target = select_attack_target(attack)
+	if not target: return false
 	next_action = GameEngine.time_in_minutes + attack.use_time
 	if self != GameEngine.player:
 		# Hack: let the player move so the UI doesn't suck
 		#       don't let the monster move so they keep their ranged attack ability
 		next_move = GameEngine.time_in_minutes + attack.minutes_between_uses
-	var missile = attack.get_missile()
-	if missile:
-		var shot:Missile = missile.duplicate()
-		shot.call_deferred("shoot", self, target, attack)
-	else:
-		roll_attack(target, attack)
-
-func try_to_attack(attack) -> bool:
-	if not attack.may_use(): return false
-	if attack is Attack:
-		if attack.may_use():
-			var target = select_attack_target(attack)
-			if target:
-				melee_or_missile_attack(target, attack)
-				return true
-	elif attack is AttackChoice:
-		for sub in attack.get_attack_choices():
-			if try_to_attack(sub): return true
-	return false
+	attack.attack(self, target)
+	return true
 
 func process_attack() -> void:
-	if attacks == null: get_attacks()
+	if attacks.size() == 0: get_attacks()
 	for attack in attacks:
 		if try_to_attack(attack): return
 
@@ -268,7 +233,6 @@ func velocity_computed(v):
 	var collision:KinematicCollision2D = move_and_collide(v)
 	var collider = collision.get_collider() if collision else null
 	if collider and collider != GameEngine.player and not collider is Missile:
-		print("%s collided with %s" % [ name, collider.name ])
 		var _err = move_and_collide(collision.get_remainder().bounce(collision.get_normal()))
 
 func travel_distance_in_pixels(delta_elapsed_time):
@@ -287,12 +251,23 @@ func _physics_process(delta):
 		#var _next_location = navigation.get_next_path_position()
 		return
 	default_physics_process(delta)
-	
-func damage_popup(hit, damage, who):
+
+func create_damage_popup(hit:bool, damage:int, from:Actor) -> DamagePopup:
 	var delta = Vector2(0, -24)
-	if who and who.global_position.x >= who.global_position.x - 24 and who.global_position.x <= who.global_position.x + 24:
-		if global_position.y > who.global_position.y:
+	if from and global_position.x >= from.global_position.x - 24 and global_position.x <= from.global_position.x + 24:
+		if global_position.y > from.global_position.y:
 			delta = -delta
 	var filename = GameEngine.config.damage_popup if GameEngine.config.damage_popup else "%s/Actors/DamagePopup.tscn" % GameEngine.config.root
-	var popup = GameEngine.instantiate(GameEngine.current_scene, filename, null, global_position + delta)
-	popup.start(hit, damage, delta)
+	var popup:DamagePopup = GameEngine.instantiate(GameEngine.current_scene, filename, null, global_position + delta)
+	popup.setup(hit, damage, delta)
+	return popup
+
+func damage_popup(hit:bool, damage:int, from:Actor) -> void:
+	create_damage_popup(hit, damage, from).run()
+
+func get_equipment_in_group(group:String) -> Array[InventoryThing]:
+	var in_group:Array[InventoryThing] = []
+	for thing in equipment.get_children():
+		if thing.is_in_group(group):
+			in_group.append(thing)
+	return in_group

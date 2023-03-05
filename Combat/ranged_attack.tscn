@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://cub52xr1ua5hw"]
+
+[ext_resource type="Script" path="res://GameEngine/Combat/ranged_attack.gd" id="1_m5f7y"]
+[ext_resource type="PackedScene" uid="uid://djlfimw31xdgh" path="res://GameEngine/Combat/Attack.tscn" id="1_vludl"]
+
+[node name="RangedAttack" instance=ExtResource("1_vludl")]
+script = ExtResource("1_m5f7y")
+damage_modifier = 0
+ammunition_group = ""

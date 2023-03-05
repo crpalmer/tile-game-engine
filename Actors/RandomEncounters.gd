@@ -47,7 +47,7 @@ func _physics_process(_delta):
 func generate_a_monster():
 	var step_size = floor((max_distance - min_distance) / 10.0)
 	var distances = range(min_distance, max_distance, step_size if step_size > 1 else 1)
-	await GameEngine.spawn_near_player(monsters[randi() % monsters.size()], distances)
+	await GameEngine.spawn_near_player(monsters[randi() % monsters.size()], 1, distances)
 
 func _on_body_entered(body):
 	if body == GameEngine.player: player_in_area += 1

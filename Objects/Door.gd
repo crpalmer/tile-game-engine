@@ -47,7 +47,7 @@ func ensure_state_if(this_visible):
 	set_disabled(blocker_open, is_closed, not this_visible)
 	set_disabled(blocker_closed, not is_closed, not this_visible)
 	
-func used_by(who):
+func used_by(who) -> bool:
 	if who is Actor:
 		if is_locked:
 			if who.has_a_thing_in_group(key_group): is_locked = false
@@ -55,3 +55,4 @@ func used_by(who):
 		if not is_locked:
 			is_closed = not is_closed
 		call_deferred("ensure_state")
+	return false

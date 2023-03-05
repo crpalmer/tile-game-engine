@@ -191,9 +191,9 @@ func stop_resting():
 func was_attacked_by(_attacker):
 	if resting_state != NOT_RESTING: stop_resting()
 
-func take_damage(damage:int, from = null, cause = null):
+func take_damage(damage:int, from:Actor = null, cause = null, show_popup = true) -> void:
 	if resting_state != NOT_RESTING: stop_resting()
-	super.take_damage(damage, from, cause)
+	super(damage, from, cause, show_popup)
 	on_player_stats_changed()
 
 func give_hit_points(hp_given):
@@ -256,8 +256,13 @@ func i_would_attack(target, pass_number):
 func process_use():
 	for use_on in $CloseArea.in_sight():
 		if not use_on.visible: pass
+		elif use_on is Currency:
+			add_currency(use_on)
+			use_on.queue_free()
 		elif use_on is InventoryThing: add_to_inventory(use_on)
-		elif use_on is Thing: use_on.used_by(self)
+		elif use_on is Thing:
+			if use_on.used_by(self):
+				queue_free()
 
 func add_currency(currency, amount = 0):
 	var n_units = currency.n_units if amount == 0 else amount
@@ -300,7 +305,7 @@ func process_look():
 			any_descriptions = true
 		else:
 			if what.length() > 0: what = what + ", "
-			what = what + thing.display_name
+			what += thing.get_display_name() if thing.has_method("get_display_name") else thing.display_name
 		if thing.has_method("looked_at"): thing.looked_at()
 	if what == "" and not any_descriptions: what = "nothing"
 	if what != "": GameEngine.message("You %ssee: %s" % [ "also " if any_descriptions else "", what])
@@ -337,7 +342,8 @@ func get_attacks():
 	for thing in $Inventory.get_equipped_things():
 		for attack in thing.get_children():
 			if attack is Attack: attacks.push_back(attack)
-	if attacks.size() == 0: attacks.push_back(punch)
+	if attacks.size() == 0:
+		super.add_punch()
 
 func on_inventory_changed():
 	ac = $Inventory.get_ac() + clss.dexterity_modifier(dexterity, level)
