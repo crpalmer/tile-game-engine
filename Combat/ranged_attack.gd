@@ -17,7 +17,7 @@ func attack(from:Actor, to:Actor) -> bool:
 	var damage = 0
 	if hits:
 		damage = ammo.roll_damage() + damage_modifier
-		to.take_damage(damage, from, self, false)
+		to.take_damage(damage, from, ammo, false)
 	else:
 		GameEngine.message("%s misses %s with a %s from a %s" % [ from.capitalized_display_name(), to.display_name, ammo.display_name, display_name ])
 	ammo.shoot(from, to, to.create_damage_popup(hits, damage, from))

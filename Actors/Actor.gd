@@ -68,6 +68,9 @@ func _ready():
 		if c is ActorConversation: conversation = c
 	if random_movement: set_destination(random_movement.new_destination())
 
+func get_display_name():
+	return display_name
+
 func set_mood(new_mood):
 	mood = new_mood
 
@@ -105,10 +108,10 @@ func set_close_range(radius:int):
 
 func take_damage(damage:int, from:Actor = null, cause = null, show_popup = true) -> void:
 	var message
-	if from: message = "%s hits %s for" % [from.capitalized_display_name(), display_name]
+	if from: message = "%s hits %s for" % [from.capitalized_display_name(), get_display_name()]
 	else: message = "%s takes"
 	message += " %d damage" %  damage
-	if cause: message += " by a %s" % cause.display_name
+	if cause: message += " by a %s" % cause if cause is String else cause.get_display_name()
 	GameEngine.message(message)
 	hp -= damage
 	if show_popup: damage_popup(true, damage, from)
