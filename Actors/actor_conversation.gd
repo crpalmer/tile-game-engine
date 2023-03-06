@@ -56,7 +56,7 @@ func player_said_internal(text, words):
 	else:
 		player_said(text, words)
 
-func player_said(text:String, words:Array):
+func player_said(text:String, words:Array[String]):
 	if "hi" in words:
 		say("Hello.")
 	elif "hello" in words:
