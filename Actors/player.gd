@@ -314,9 +314,9 @@ func process_talk():
 	for thing in $CloseArea.in_sight():
 		if thing.has_method("start_conversation"): thing.start_conversation()
 
-func add_to_inventory(thing, auto_equip = false):
+func add_to_inventory(thing:InventoryThing, silent = false, auto_equip = false):
 	if $Inventory.add_thing(thing, auto_equip):
-		GameEngine.message("You picked up " + thing.display_name)
+		if not silent: GameEngine.message("You picked up " + thing.display_name)
 		return true
 	GameEngine.message("You are carrying too much to pick up " + thing.display_name)
 	return false

@@ -7,7 +7,7 @@ signal new_game      # A new game is being created
 enum BodyParts { HANDS = 1, HEAD = 2, BODY = 4, FEET = 8, NECK = 16 }
 
 var scene_state:Dictionary
-var player
+var player:Player
 var paused:int = 0
 var current_scene
 var game_seconds_per_elapsed_second = 6
@@ -202,7 +202,7 @@ func instantiate(parent, filename, data = null, global_position = null):
 
 func give_to_player(filename):
 	var thing = instantiate(current_scene, filename)
-	player.add_to_inventory(thing)
+	player.add_to_inventory(thing, true)
 	GameEngine.message("You get %s" % thing.display_name)
 
 func place_near_internal(spawn, who, distances:Array, exclude) -> bool:
