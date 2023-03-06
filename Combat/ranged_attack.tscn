@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://bo355gpxjlbe4"]
 
 [ext_resource type="Script" path="res://GameEngine/Combat/ranged_attack.gd" id="1_m5f7y"]
-[ext_resource type="PackedScene" uid="uid://djlfimw31xdgh" path="res://GameEngine/Combat/attack.tscn" id="1_vludl"]
+[ext_resource type="PackedScene" path="res://GameEngine/Combat/attack.tscn" id="1_vludl"]
 
 [node name="RangedAttack" instance=ExtResource("1_vludl")]
 script = ExtResource("1_m5f7y")

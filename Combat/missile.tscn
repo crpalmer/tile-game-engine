@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=5 format=3 uid="uid://1f5cdmnulfqy"]
 
 [ext_resource type="Script" path="res://GameEngine/Combat/missile.gd" id="1_8i0c0"]
-[ext_resource type="PackedScene" uid="uid://gkepy344g01" path="res://GameEngine/Inventory/inventory_thing.tscn" id="1_te2wi"]
+[ext_resource type="PackedScene" path="res://GameEngine/Inventory/inventory_thing.tscn" id="1_te2wi"]
 [ext_resource type="PackedScene" uid="uid://bihokb0mjsrmq" path="res://GameEngine/Combat/missile_shot.tscn" id="3_ulq3t"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_vtodr"]
@@ -16,10 +16,11 @@ damage_dice = {
 "plus": 0
 }
 damage_modifier = 0
+max_uses = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="." index="0"]
 
 [node name="CollisionShape2D" parent="." index="1"]
 shape = SubResource("CircleShape2D_vtodr")
 
-[node name="MissileShot" parent="." index="3" instance=ExtResource("3_ulq3t")]
+[node name="MissileShot" parent="." index="2" instance=ExtResource("3_ulq3t")]
