@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://cyqmhab1p03bt"]
 
 [ext_resource type="Script" path="res://GameEngine/Actors/actor_conversation.gd" id="2"]
 
-[node name="ConversationalActor" type="Node2D"]
+[node name="ActorConversation" type="Node2D"]
 script = ExtResource("2")
