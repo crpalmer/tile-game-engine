@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://nc468kf8di2y"]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="PackedScene" uid="uid://djlfimw31xdgh" path="res://GameEngine/Combat/Attack.tscn" id="1_mreq4"]
+[ext_resource type="PackedScene" uid="uid://djlfimw31xdgh" path="res://GameEngine/Combat/attack.tscn" id="1_mreq4"]
 [ext_resource type="Script" path="res://GameEngine/Combat/melee_attack.gd" id="1_nidk3"]
 
 [node name="MeleeAttack" instance=ExtResource("1_mreq4")]

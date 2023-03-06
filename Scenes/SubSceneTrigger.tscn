@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://wgqy0mgkikpd"]
-
-[ext_resource type="Script" path="res://GameEngine/Scenes/SubSceneTrigger.gd" id="1"]
-
-[node name="SubSceneTrigger" type="Area2D"]
-script = ExtResource("1")

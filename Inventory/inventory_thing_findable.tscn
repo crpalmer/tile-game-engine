@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://dywj0kl2eo5t0"]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="PackedScene" uid="uid://gkepy344g01" path="res://GameEngine/Inventory/InventoryThing.tscn" id="1_tmwl5"]
+[ext_resource type="PackedScene" uid="uid://gkepy344g01" path="res://GameEngine/Inventory/inventory_thing.tscn" id="1_tmwl5"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_iorut"]
 resource_local_to_scene = true

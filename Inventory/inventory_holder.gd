@@ -62,7 +62,7 @@ func has_a_thing_in_group(group_name):
 func _get_drag_data(_position):
 	var my_thing:InventoryThing = get_thing()
 	if my_thing:
-		var preview = load("%s/Inventory/InventoryDragPreview.tscn" % GameEngine.config.root).instantiate()
+		var preview = load("%s/Inventory/inventory_drag_preview.tscn" % GameEngine.config.root).instantiate()
 		preview.add_thing(my_thing)
 		get_parent().add_child(preview)
 		return { "holder": self, "thing": my_thing }

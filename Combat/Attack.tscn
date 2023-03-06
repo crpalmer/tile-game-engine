@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://djlfimw31xdgh"]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://GameEngine/Combat/Attack.gd" id="1_2pqqc"]
+[ext_resource type="Script" path="res://GameEngine/Combat/attack.gd" id="1_2pqqc"]
 
 [node name="Attack" type="CharacterBody2D"]
 script = ExtResource("1_2pqqc")

@@ -2,7 +2,7 @@ extends Resource
 class_name GameConfiguration
 
 @export_dir var root = "res://GameEngine"
-@export_file("*.tscn") var player = "res://Player.tscn"
+@export_file("*.tscn") var player = "res://player.tscn"
 @export_file("*.tscn") var damage_popup
 @export_file("*.tscn") var entry_scene:String
 @export var entry_point: String

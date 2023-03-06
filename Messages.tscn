@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://pfiymlp2jke1"]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://GameEngine/Messages.gd" id="1"]
+[ext_resource type="Script" path="res://GameEngine/messages.gd" id="1"]
 [ext_resource type="AudioStream" uid="uid://cf42y5wcp06hm" path="res://GameEngine/beep.mp3" id="2"]
 
 [node name="Messages" type="RichTextLabel"]

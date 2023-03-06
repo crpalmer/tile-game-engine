@@ -33,8 +33,8 @@ class CurrencySorter:
 		return not currency_sort_asc(a, b)
 
 func _ready():
-	config = ResourceLoader.load("res://GameConfiguration.tres") #  "GameConfiguration")
-	fade_canvas = load("%s/Fade.tscn" % config.root).instantiate()
+	config = ResourceLoader.load("res://game_configuration.tres") #  "GameConfiguration")
+	fade_canvas = load("%s/fade.tscn" % config.root).instantiate()
 	for c in config.currency:
 		var currency = load(c).instantiate()
 		currency_ascending.push_back(currency)
@@ -145,7 +145,7 @@ func get_save_data():
 	}
 
 func save_game(filename):
-	var res = load("%s/SaveGameTemplate.tres" % config.root)
+	var res = load("%s/save_game_template.tres" % config.root)
 	res.version = "1"
 	res.data = get_save_data()
 	#var _err = DirAccess.open("res://").remove(filename)

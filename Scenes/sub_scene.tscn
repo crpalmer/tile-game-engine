@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://bg8yebvtceelt"]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="PackedScene" path="res://GameEngine/Scenes/Scene.tscn" id="1"]
-[ext_resource type="Script" path="res://GameEngine/Scenes/SubScene.gd" id="2"]
+[ext_resource type="PackedScene" path="res://GameEngine/Scenes/scene.tscn" id="1"]
+[ext_resource type="Script" path="res://GameEngine/Scenes/sub_scene.gd" id="2"]
 
 [node name="SubScene" instance=ExtResource("1")]
 script = ExtResource("2")

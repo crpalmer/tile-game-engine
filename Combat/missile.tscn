@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://dukhomkrs7lq3"]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://GameEngine/Combat/missile.gd" id="1_8i0c0"]
-[ext_resource type="PackedScene" uid="uid://gkepy344g01" path="res://GameEngine/Inventory/InventoryThing.tscn" id="1_te2wi"]
+[ext_resource type="PackedScene" uid="uid://gkepy344g01" path="res://GameEngine/Inventory/inventory_thing.tscn" id="1_te2wi"]
 [ext_resource type="PackedScene" uid="uid://bihokb0mjsrmq" path="res://GameEngine/Combat/missile_shot.tscn" id="3_ulq3t"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_vtodr"]

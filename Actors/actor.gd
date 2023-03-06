@@ -184,7 +184,7 @@ func get_attacks():
 	if attacks.size() == 0: add_punch()
 
 func add_punch():
-	var punch = load("%s/Combat/Punch.tscn" % GameEngine.config.root).instantiate()
+	var punch = load("%s/Combat/punch.tscn" % GameEngine.config.root).instantiate()
 	add_child(punch)
 	attacks.append(punch)
 
@@ -260,7 +260,7 @@ func create_damage_popup(hit:bool, damage:int, from:Actor) -> DamagePopup:
 	if from and global_position.x >= from.global_position.x - 24 and global_position.x <= from.global_position.x + 24:
 		if global_position.y > from.global_position.y:
 			delta = -delta
-	var filename = GameEngine.config.damage_popup if GameEngine.config.damage_popup else "%s/Actors/DamagePopup.tscn" % GameEngine.config.root
+	var filename = GameEngine.config.damage_popup if GameEngine.config.damage_popup else "%s/Actors/damage_popup.tscn" % GameEngine.config.root
 	var popup:DamagePopup = GameEngine.instantiate(GameEngine.current_scene, filename, null, global_position + delta)
 	popup.setup(hit, damage, delta)
 	return popup
