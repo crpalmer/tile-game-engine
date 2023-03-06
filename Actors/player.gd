@@ -394,3 +394,9 @@ func process_resting():
 
 	stop_resting()
 	give_hit_points(to_give)
+
+func n_short_rests_remaining() -> int:
+	return level - short_rest_spent
+
+func next_long_rest_at() -> float:
+	return next_long_rest
