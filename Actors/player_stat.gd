@@ -28,7 +28,10 @@ func update_my_stat():
 	if modifiers.has(stat):
 		text = "%s%d" % [ modifier_sign(value), value ]
 	elif times.has(stat):
-		text = GameEngine.time_of_day(value)
+		if value < GameEngine.time_in_minutes:
+			text = "now"
+		else:
+			text = GameEngine.time_of_day(value)
 	else:
 		text = str(value)
 
