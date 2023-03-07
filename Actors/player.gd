@@ -3,6 +3,8 @@ class_name Player
 
 signal player_stats_changed
 signal player_died
+signal ability_improvement_needed
+signal ability_improvement_needed_resume
 
 enum Ability { STRENGTH, DEXTERITY, CONSTITUTION }
 
@@ -25,7 +27,9 @@ var hit_dice = GameEngine.Dice(1, 10)
 var xp:int = 0
 var clss:Class
 var animation:AnimatedSprite2D
+
 var hp_per_level:Array[int] = []
+var abilities_gained:Array[int] = []
 
 const xp_table = {
 	1: 0,
@@ -58,6 +62,13 @@ func strength_modifier(): return clss.strength_modifier(strength(), level)
 func dexterity_modifier(): return clss.dexterity_modifier(dexterity(), level)
 func constitution_modifier(): return clss.constitution_modifier(constitution(), level)
 
+func ability_to_string(ability:Ability) -> String:
+	match ability:
+		Ability.STRENGTH: return "strength"
+		Ability.DEXTERITY: return "dexterity"
+		Ability.CONSTITUTION: return "constitution"
+	return ""
+
 func on_player_stats_changed():
 	if clss: attack_modifier = strength_modifier()
 	emit_signal("player_stats_changed")
@@ -66,6 +77,7 @@ func add_xp(new_xp:int, important = true):
 	xp += new_xp
 	GameEngine.message("You gained %d XP" % new_xp, important)
 	while xp >= xp_table[level+1]:
+		await conditionally_raise_an_ability()
 		while level >= hp_per_level.size():
 			hp_per_level.append(GameEngine.roll(clss.hit_dice(), constitution_modifier()))
 		hp += hp_per_level[level]
@@ -73,6 +85,34 @@ func add_xp(new_xp:int, important = true):
 		level += 1
 		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, hp_per_level[level-1]], true)
 	on_player_stats_changed()
+
+func conditionally_raise_an_ability():
+	var ability_improvements = clss.ability_improvement_at_level(level+1)
+	if clss.ability_improvement_at_level(level) < ability_improvements:
+		if abilities_gained.size() < ability_improvements:
+			await select_ability_gained()
+		var old_cm = constitution_modifier()
+		abilities[abilities_gained[ability_improvements-1]] += 1
+		var new_cm = constitution_modifier()
+		adjust_for_constitution_change(old_cm, new_cm)
+		GameEngine.message("You gained one %s" % ability_to_string(abilities_gained[ability_improvements-1]))
+
+func adjust_for_constitution_change(old_cm:int, new_cm:int) -> void:
+	var delta = new_cm - old_cm
+	for l in hp_per_level.size():
+		hp_per_level[l] += delta
+		hp += delta
+		max_hp += delta
+	hp = clamp(hp, 1, max_hp)
+
+func select_ability_gained():
+	emit_signal("ability_improvement_needed")
+	await ability_improvement_needed_resume
+
+func ability_improvement_selected(ability:Ability):
+	abilities_gained.append(ability)
+	#TODO do I need to retroactively improve the HP for a const gain??
+	emit_signal("ability_improvement_needed_resume")
 
 func lose_xp(new_xp:int, important = true):
 	xp -= new_xp
@@ -84,6 +124,13 @@ func lose_xp(new_xp:int, important = true):
 		if hp < 1: hp = 1
 		if max_hp < 1: max_hp = 1
 		GameEngine.message("You downgraded to level %d and lost %d hit points!" % [level, hp_per_level[level]], true)
+		var ability_improvements = clss.ability_improvement_at_level(level+1)
+		if clss.ability_improvement_at_level(level) < ability_improvements:
+			var old_cm = constitution_modifier()
+			abilities[abilities_gained[ability_improvements-1]] -= 1
+			var new_cm = constitution_modifier()
+			GameEngine.message("You lost one %s" % ability_to_string(abilities_gained[ability_improvements-1]))
+			adjust_for_constitution_change(old_cm, new_cm)
 	on_player_stats_changed()
 
 func get_persistent_data():
@@ -104,6 +151,7 @@ func get_persistent_data():
 		"hp_per_level": hp_per_level,
 		"xp": xp,
 		"abilities": abilities,
+		"abilities_gained": abilities_gained,
 		"resting_state": resting_state,
 		"resting_until": resting_until,
 		"resting_started_at": resting_started_at,
@@ -123,6 +171,7 @@ func load_persistent_data(p):
 	hp_per_level = p.hp_per_level
 	xp = p.xp
 	abilities = p.abilities
+	abilities_gained = p.abilities_gained
 	resting_state = p.resting_state
 	resting_until = p.resting_until
 	resting_started_at = p.resting_started_at
