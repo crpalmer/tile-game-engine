@@ -1,7 +1,7 @@
 extends Area2D
 class_name ActorRandomMovement
 
-@export var shape_node: String = "NavigationPolygon2D"
+@export var shape_node: String = "NavigationRegion2D"
 @export var minimum_distance_percent = 50.0 # (float, 100)
 @export var only_see_player_when_in_area: bool = true
 @export var navigation_layer: int = 1
