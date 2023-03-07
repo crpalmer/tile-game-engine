@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://d33bl42umhea5"]
 
 [ext_resource type="Script" path="res://GameEngine/Inventory/inventory_holder.gd" id="1"]
 
 [node name="InventoryHolder" type="ReferenceRect"]
 offset_right = 16.0
 offset_bottom = 16.0
-script = ExtResource( 1 )
+script = ExtResource("1")

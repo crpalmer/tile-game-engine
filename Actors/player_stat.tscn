@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://cwxftuppv1x47"]
 
 [ext_resource type="Script" path="res://GameEngine/Actors/player_stat.gd" id="1"]
 
