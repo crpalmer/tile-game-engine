@@ -4,11 +4,10 @@ class_name Player
 signal player_stats_changed
 signal player_died
 
-var level = 1
-var strength
-var dexterity
-var constitution
+enum Ability { STRENGTH, DEXTERITY, CONSTITUTION }
 
+var level = 1
+var abilities:Array[Ability]
 const NOT_RESTING = 0
 const SHORT_RESTING = 1
 const LONG_RESTING = 2
@@ -51,8 +50,16 @@ const xp_table = {
 	20: 355000
 }
 
+func strength(): return abilities[Ability.STRENGTH]
+func dexterity(): return abilities[Ability.DEXTERITY]
+func constitution(): return abilities[Ability.CONSTITUTION]
+
+func strength_modifier(): return clss.strength_modifier(strength(), level)
+func dexterity_modifier(): return clss.dexterity_modifier(dexterity(), level)
+func constitution_modifier(): return clss.constitution_modifier(constitution(), level)
+
 func on_player_stats_changed():
-	if clss: attack_modifier = clss.strength_modifier(strength, level)
+	if clss: attack_modifier = strength_modifier()
 	emit_signal("player_stats_changed")
 
 func add_xp(new_xp:int, important = true):
@@ -60,7 +67,7 @@ func add_xp(new_xp:int, important = true):
 	GameEngine.message("You gained %d XP" % new_xp, important)
 	while xp >= xp_table[level+1]:
 		while level >= hp_per_level.size():
-			hp_per_level.append(GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level)))
+			hp_per_level.append(GameEngine.roll(clss.hit_dice(), constitution_modifier()))
 		hp += hp_per_level[level]
 		max_hp += hp_per_level[level]
 		level += 1
@@ -96,9 +103,7 @@ func get_persistent_data():
 		"max_hp": max_hp,
 		"hp_per_level": hp_per_level,
 		"xp": xp,
-		"strength": strength,
-		"dexterity": dexterity,
-		"constitution": constitution,
+		"abilities": abilities,
 		"resting_state": resting_state,
 		"resting_until": resting_until,
 		"resting_started_at": resting_started_at,
@@ -117,9 +122,7 @@ func load_persistent_data(p):
 	max_hp = p.max_hp
 	hp_per_level = p.hp_per_level
 	xp = p.xp
-	strength = p.strength
-	dexterity = p.dexterity
-	constitution = p.constitution
+	abilities = p.abilities
 	resting_state = p.resting_state
 	resting_until = p.resting_until
 	resting_started_at = p.resting_started_at
@@ -141,14 +144,12 @@ func roll_ability_score():
 	return dice[1] + dice[2] + dice[3] + 1   # +1 is the human bonus
 
 func roll_ability_scores():
-	strength = 0
-	dexterity = 0
-	constitution = 0
-	while strength + dexterity + constitution < 36:
-		strength = roll_ability_score()
-		dexterity = roll_ability_score()
-		constitution = roll_ability_score()
-		print("Str: " + str(strength) + " Dex: " + str(dexterity) + " Con: " + str(constitution))
+	while true:
+		abilities = []
+		for _ability in Ability:
+			abilities.append(roll_ability_score())
+		if abilities.reduce(func (accum, ability): return accum + ability, 0) > 12*Ability.size():
+			return
 
 func create_initial_items():
 	var items = []
@@ -167,7 +168,7 @@ func create_character(clss_in):
 	clss = clss_in.duplicate()
 	add_child(clss)
 	roll_ability_scores()
-	hp = clss.initial_hit_points() + clss.constitution_modifier(constitution, level)
+	hp = clss.initial_hit_points() + constitution_modifier()
 	max_hp = hp
 	hp_per_level = [ hp ]
 	return create_initial_items()
@@ -350,13 +351,13 @@ func get_attacks():
 		super.add_punch()
 
 func on_inventory_changed():
-	ac = $Inventory.get_ac() + clss.dexterity_modifier(dexterity, level)
+	ac = $Inventory.get_ac() + dexterity_modifier()
 	get_attacks()
 	on_player_stats_changed()
 
-func strength_test(needed): return GameEngine.roll_test(needed, clss.strength_modifier(strength, level))
-func dexterity_test(needed): return GameEngine.roll_test(needed, clss.dexterity_modifier(dexterity, level))
-func constitution_test(needed): return GameEngine.roll_test(needed, clss.constitution_modifier(constitution, level))
+func strength_test(needed): return GameEngine.roll_test(needed, strength_modifier())
+func dexterity_test(needed): return GameEngine.roll_test(needed, dexterity_modifier())
+func constitution_test(needed): return GameEngine.roll_test(needed, constitution_modifier())
 
 func start_resting(state, minutes):
 	resting_state = state
@@ -393,7 +394,7 @@ func process_resting():
 			next_long_rest = GameEngine.time_in_minutes + 8*60
 		SHORT_RESTING:
 			if short_rest_spent < level and hp < max_hp:
-				to_give = GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level))
+				to_give = GameEngine.roll(clss.hit_dice(), constitution_modifier())
 				short_rest_spent += 1
 
 	stop_resting()

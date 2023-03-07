@@ -42,13 +42,13 @@ func get_stat(p:Player) -> int:
 		Stat.MAX_HP: return p.max_hp
 		Stat.LEVEL: return p.level
 		Stat.XP: return p.xp
-		Stat.TO_HIT_MODIFIER: return p.to_hit_modifier
-		Stat.STRENGTH: return p.strength
-		Stat.DEXTERITY: return p.dexterity
-		Stat.CONSTITUTION: return p.constitution
-		Stat.STRENGTH_MODIFIER: return p.clss.strength_modifier(p.strength, p.level)
-		Stat.DEXTERITY_MODIFIER: return p.clss.dexterity_modifier(p.dexterity, p.level)
-		Stat.CONSTITUTION_MODIFIER: return p.clss.constitution_modifier(p.constitution, p.level)
+		Stat.TO_HIT_MODIFIER: assert(0)
+		Stat.STRENGTH: return p.strength()
+		Stat.DEXTERITY: return p.dexterity()
+		Stat.CONSTITUTION: return p.constitution()
+		Stat.STRENGTH_MODIFIER: return p.strength_modifier()
+		Stat.DEXTERITY_MODIFIER: return p.dexterity_modifier()
+		Stat.CONSTITUTION_MODIFIER: return p.constitution_modifier()
 		Stat.N_SHORT_RESTS: return p.n_short_rests_remaining()
 		Stat.NEXT_LONG_REST_AT: return p.next_long_rest_at()
 	return 0
