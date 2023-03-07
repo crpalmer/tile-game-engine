@@ -23,6 +23,7 @@ func get_persistent_data():
 func load_persistent_data(p):
 	var thing = GameEngine.instantiate(self, p.filename, p.data)
 	set_thing_position(thing)
+	updated(thing)
 
 func _ready():
 	add_to_group("InventoryHolders")
