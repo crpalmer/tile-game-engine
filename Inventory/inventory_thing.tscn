@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://dobw76g84p8sc"]
 
 [ext_resource type="Script" path="res://GameEngine/Inventory/inventory_thing.gd" id="1"]
 
@@ -7,7 +7,7 @@ resource_local_to_scene = true
 radius = 13.0
 
 [node name="InventoryThing" type="CharacterBody2D"]
-collision_layer = 2
+collision_layer = 4
 collision_mask = 0
 script = ExtResource("1")
 
