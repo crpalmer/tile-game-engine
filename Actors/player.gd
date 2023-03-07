@@ -26,6 +26,7 @@ var hit_dice = GameEngine.Dice(1, 10)
 var xp:int = 0
 var clss:Class
 var animation:AnimatedSprite2D
+var hp_per_level:Array[int] = []
 
 const xp_table = {
 	1: 0,
@@ -58,11 +59,12 @@ func add_xp(new_xp:int, important = true):
 	xp += new_xp
 	GameEngine.message("You gained %d XP" % new_xp, important)
 	while xp >= xp_table[level+1]:
+		while level >= hp_per_level.size():
+			hp_per_level.append(GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level)))
+		hp += hp_per_level[level]
+		max_hp += hp_per_level[level]
 		level += 1
-		var new_hp = GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level))
-		hp += new_hp
-		max_hp += new_hp
-		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, new_hp], true)
+		GameEngine.message("You achieved level %d and gained %d hit points!" % [level, hp_per_level[level-1]], true)
 	on_player_stats_changed()
 
 func lose_xp(new_xp:int, important = true):
@@ -70,12 +72,11 @@ func lose_xp(new_xp:int, important = true):
 	GameEngine.message("You lost %d XP" % new_xp, important)
 	while xp < xp_table[level]:
 		level -= 1
-		var new_hp = GameEngine.roll(clss.hit_dice(), clss.constitution_modifier(constitution, level))
-		hp -= new_hp
-		max_hp -= new_hp
+		hp -= hp_per_level[level]
+		max_hp -= hp_per_level[level]
 		if hp < 1: hp = 1
 		if max_hp < 1: max_hp = 1
-		GameEngine.message("You downgraded to level %d and lost %d hit points!" % [level, new_hp], true)
+		GameEngine.message("You downgraded to level %d and lost %d hit points!" % [level, hp_per_level[level]], true)
 	on_player_stats_changed()
 
 func get_persistent_data():
@@ -93,6 +94,7 @@ func get_persistent_data():
 		"level": level,
 		"hp": hp,
 		"max_hp": max_hp,
+		"hp_per_level": hp_per_level,
 		"xp": xp,
 		"strength": strength,
 		"dexterity": dexterity,
@@ -112,8 +114,9 @@ func load_persistent_data(p):
 	clss = load(p.clss).instantiate()
 	level = p.level
 	hp = p.hp
-	xp = p.xp
 	max_hp = p.max_hp
+	hp_per_level = p.hp_per_level
+	xp = p.xp
 	strength = p.strength
 	dexterity = p.dexterity
 	constitution = p.constitution
@@ -166,6 +169,7 @@ func create_character(clss_in):
 	roll_ability_scores()
 	hp = clss.initial_hit_points() + clss.constitution_modifier(constitution, level)
 	max_hp = hp
+	hp_per_level = [ hp ]
 	return create_initial_items()
 
 func _ready():
