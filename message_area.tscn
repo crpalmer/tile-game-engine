@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://cxrp5ccu1qg8h"]
 
 [ext_resource type="Script" path="res://GameEngine/message_area.gd" id="1"]
 
