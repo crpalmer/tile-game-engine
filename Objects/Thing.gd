@@ -45,9 +45,12 @@ func get_display_name() -> String:
 func get_bare_display_name() -> String:
 	return display_name
 
-func used_by(_thing) -> bool:
+func used_by(thing) -> bool:
+	return used_by_with_scale(thing, 1.0)
+
+func used_by_with_scale(_thing, time_scale=1.0) -> bool:
 	if cur_uses > 0: cur_uses -= 1
-	next_use_at = GameEngine.time_in_minutes + minutes_between_uses
+	next_use_at = GameEngine.time_in_minutes + minutes_between_uses*time_scale
 	return cur_uses == 0
 
 func looked_at():

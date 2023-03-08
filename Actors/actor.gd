@@ -14,6 +14,7 @@ enum Mood { FRIENDLY = 0, NEUTRAL = 1, HOSTILE =2 }
 @export var hp = 1
 @export var max_hp = 1
 @export var attack_modifier = 0
+@export var attacks_per_round = 1.0
 @export var speed_feet_per_round = 30
 @export var xp_value = 1
 @export var close_radius = 3
@@ -204,7 +205,7 @@ func select_attack_target(attack : Attack) -> Actor:
 func try_to_attack(attack:Attack) -> bool:
 	var target = select_attack_target(attack)
 	if not target: return false
-	next_action = GameEngine.time_in_minutes + attack.use_time
+	next_action = GameEngine.time_in_minutes + attack.use_time/attacks_per_round
 	if self != GameEngine.player:
 		# Hack: let the player move so the UI doesn't suck
 		#       don't let the monster move so they keep their ranged attack ability

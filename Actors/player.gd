@@ -70,7 +70,9 @@ func ability_to_string(ability:Ability) -> String:
 	return ""
 
 func on_player_stats_changed():
-	if clss: attack_modifier = strength_modifier()
+	if clss:
+		attack_modifier = strength_modifier()
+		attacks_per_round = clss.number_of_attacks(level)
 	emit_signal("player_stats_changed")
 
 func add_xp(new_xp:int, important = true):

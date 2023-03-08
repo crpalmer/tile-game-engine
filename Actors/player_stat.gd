@@ -5,7 +5,7 @@ enum Stat {
 	LEVEL,  XP,
 	STRENGTH, DEXTERITY, CONSTITUTION,
 	STRENGTH_MODIFIER, DEXTERITY_MODIFIER, CONSTITUTION_MODIFIER,
-	TO_HIT_MODIFIER,
+	ATTACKS_PER_ROUND,
 	N_SHORT_RESTS, NEXT_LONG_REST_AT
 }
 
@@ -42,7 +42,7 @@ func get_stat(p:Player) -> int:
 		Stat.MAX_HP: return p.max_hp
 		Stat.LEVEL: return p.level
 		Stat.XP: return p.xp
-		Stat.TO_HIT_MODIFIER: assert(0)
+		Stat.ATTACKS_PER_ROUND: return p.attacks_per_round
 		Stat.STRENGTH: return p.strength()
 		Stat.DEXTERITY: return p.dexterity()
 		Stat.CONSTITUTION: return p.constitution()
