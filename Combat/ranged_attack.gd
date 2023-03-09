@@ -6,12 +6,6 @@ class_name RangedAttack
 
 var ammo:Missile
 
-func used_by(who:Actor) -> bool:
-	var res = super(who)
-	if ammo.used_by(who):
-		ammo.queue_free()
-	return res
-
 func attack(from:Actor, to:Actor) -> bool:
 	var hits = super(from, to)
 	var damage = 0
@@ -22,6 +16,15 @@ func attack(from:Actor, to:Actor) -> bool:
 		GameEngine.message("%s misses %s with a %s from a %s" % [ from.capitalized_display_name(), to.display_name, ammo.display_name, display_name ])
 	ammo.shoot(from, to, to.create_damage_popup(hits, damage, from))
 	return hits
+
+func set_time_scale(scale:float) -> void:
+	ammo.set_time_scale(scale)
+	super(scale)
+
+func used_by(by):
+	if ammo and ammo.used_by(by):
+		ammo.queue_free()
+	return super(by)
 
 func pick_ammo(from:Actor) -> Missile:
 	var ammo_options = from.get_equipment_in_group(ammunition_group)

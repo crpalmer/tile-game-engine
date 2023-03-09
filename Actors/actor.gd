@@ -210,13 +210,15 @@ func try_to_attack(attack:Attack) -> bool:
 		# Hack: let the player move so the UI doesn't suck
 		#       don't let the monster move so they keep their ranged attack ability
 		next_move = GameEngine.time_in_minutes + attack.minutes_between_uses
+	attack.set_time_scale(1.0 / attacks_per_round)
 	attack.attack(self, target)
 	return true
 
 func process_attack() -> void:
 	if attacks.size() == 0: get_attacks()
 	for attack in attacks:
-		if try_to_attack(attack): return
+		if try_to_attack(attack):
+			return
 
 func default_physics_process(delta):
 	if not is_friendly() and player_is_in_sight():

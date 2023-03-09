@@ -23,7 +23,7 @@ func get_display_name():
 
 func attack(from:Actor, to:Actor) -> bool:
 	to.was_attacked_by(from)
-	used_by_with_scale(from, 1.0/from.attacks_per_round)
+	used_by(from)
 	return GameEngine.roll_test(to.ac, from.attack_modifier + to_hit_modifier, true)
 
 func may_attack(from:Actor, to:Actor) -> bool:
