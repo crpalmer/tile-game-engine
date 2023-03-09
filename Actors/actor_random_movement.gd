@@ -63,7 +63,6 @@ func pick_random_triangle():
 	for t in triangles_area.size():
 		A -= triangles_area[t]
 		if A <= 0: return t
-	assert(0)
 	return randi() % triangles_area.size()
 
 func pick_random_point_in_triangle(t):
