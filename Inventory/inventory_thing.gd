@@ -34,7 +34,7 @@ func _ready():
 	if group != "": add_to_group(group)
 	
 func get_display_name() -> String:
-	if n > 1: return super() + "( x%d)" % n
+	if n > 1: return super() + " (x%d)" % n
 	else: return super()
 
 func used_by(thing) -> bool:
