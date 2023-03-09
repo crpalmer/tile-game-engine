@@ -12,7 +12,7 @@ class_name Thing
 
 var next_use_at:float = 0
 var cur_uses:int
-
+var time_scale = 1.0 : set = set_time_scale
 var findable_shape
 
 func get_persistent_data():
@@ -45,10 +45,11 @@ func get_display_name() -> String:
 func get_bare_display_name() -> String:
 	return display_name
 
-func used_by(thing) -> bool:
-	return used_by_with_scale(thing, 1.0)
+func set_time_scale(scale:float) -> void:
+	print("set_time_scale %f" % scale)
+	time_scale = scale
 
-func used_by_with_scale(_thing, time_scale=1.0) -> bool:
+func used_by(_by) -> bool:
 	if cur_uses > 0: cur_uses -= 1
 	next_use_at = GameEngine.time_in_minutes + minutes_between_uses*time_scale
 	return cur_uses == 0
