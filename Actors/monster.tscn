@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://cx1r76lrsrr5w"]
+
+[ext_resource type="Script" path="res://GameEngine/Actors/monster.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://cmu0tfy7nku11" path="res://GameEngine/Actors/actor.tscn" id="2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_tvias"]
+resource_local_to_scene = true
+radius = 13.0
+
+[node name="Monster" instance=ExtResource("2")]
+script = ExtResource("1")
+hp_dice = {
+"d": 8,
+"n": 1,
+"plus": 1
+}
+n_missile_items = -1
+mood = 1
+
+[node name="CollisionShape2D" parent="." index="4"]
+shape = SubResource("CircleShape2D_tvias")
+
+[node name="Equipment" parent="." index="5"]
+visible = false
