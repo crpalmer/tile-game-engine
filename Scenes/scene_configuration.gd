@@ -15,6 +15,7 @@ var last_ambient_light = 0
 func _ready():
 	dusk += 12
 	night += 12
+	GameEngine.player.set_ambient_light(last_ambient_light)
 
 func _process(_delta):
 	var now = GameEngine.current_time()
