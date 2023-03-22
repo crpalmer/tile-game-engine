@@ -20,7 +20,7 @@ visible = false
 layers = 7
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
-target_desired_distance = 32.0
+path_desired_distance = 8.0
 radius = 13.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
