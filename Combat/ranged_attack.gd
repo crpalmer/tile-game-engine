@@ -27,6 +27,9 @@ func used_by(by):
 	return super(by)
 
 func pick_ammo(from:Actor) -> Missile:
+	for option in get_children():
+		if option is Missile and option.may_use():
+			return option as Missile
 	var ammo_options = from.get_equipment_in_group(ammunition_group)
 	for option in ammo_options:
 		if option is Missile and option.may_use():
