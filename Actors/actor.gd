@@ -112,7 +112,7 @@ func take_damage(damage:int, from:Actor = null, cause = null, show_popup = true)
 	if from: message = "%s hits %s for" % [from.capitalized_display_name(), get_display_name()]
 	else: message = "%s takes"
 	message += " %d damage" %  damage
-	if cause: message += " with a %s" % (cause if cause is String else cause.display_name)
+	if cause: message += " with a %s" % (cause if cause is String else cause.get_bare_display_name())
 	GameEngine.message(message)
 	hp -= damage
 	if show_popup: damage_popup(true, damage, from)
