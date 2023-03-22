@@ -50,5 +50,5 @@ func get_stat(p:Player) -> int:
 		Stat.DEXTERITY_MODIFIER: return p.dexterity_modifier()
 		Stat.CONSTITUTION_MODIFIER: return p.constitution_modifier()
 		Stat.N_SHORT_RESTS: return p.n_short_rests_remaining()
-		Stat.NEXT_LONG_REST_AT: return p.next_long_rest_at()
+		Stat.NEXT_LONG_REST_AT: return ceil(p.next_long_rest_at())
 	return 0

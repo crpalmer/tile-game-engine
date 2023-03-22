@@ -9,7 +9,7 @@ var services_for_sale = []
 var in_conversation = false
 var is_selling = false
 
-@onready var actor = get_parent()
+@onready var actor:Actor = get_parent()
 @onready var conversation = GameEngine.conversation
 
 func _ready():
@@ -56,7 +56,7 @@ func player_said_internal(text, words):
 	else:
 		player_said(text, words)
 
-func player_said(text:String, words:Array[String]):
+func player_said(text:String, words):
 	if "hi" in words:
 		say("Hello.")
 	elif "hello" in words:

@@ -56,7 +56,7 @@ func prepare_polygon():
 	for t in range(0, triangles.size(), 3):
 		triangles_area.append(triangle_area(t))
 		total_triangles_area += triangle_area(t)
-	assert(triangles_area.size() == triangles.size() / 3)
+	assert(triangles_area.size() == triangles.size() / 3.0)
 
 func pick_random_triangle():
 	var A = randf() * total_triangles_area

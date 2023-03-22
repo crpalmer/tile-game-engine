@@ -17,9 +17,9 @@ func attack(from:Actor, to:Actor) -> bool:
 	ammo.shoot(from, to, to.create_damage_popup(hits, damage, from))
 	return hits
 
-func set_time_scale(scale:float) -> void:
-	ammo.set_time_scale(scale)
-	super(scale)
+func set_time_scale(value:float) -> void:
+	ammo.set_time_scale(value)
+	super(value)
 
 func used_by(by):
 	if ammo and ammo.used_by(by):

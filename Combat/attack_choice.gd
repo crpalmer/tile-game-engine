@@ -6,8 +6,8 @@ var time_to_switch_in_mins = 0.2
 func attack(from:Actor, to:Actor) -> bool:
 	return selected_attack.attack(from, to)
 
-func set_time_scale(scale:float) -> void:
-	selected_attack.set_time_scale(scale)
+func set_time_scale(value:float) -> void:
+	selected_attack.set_time_scale(value)
 
 func used_by(who:Actor) -> bool:
 	return selected_attack.used_by(who)

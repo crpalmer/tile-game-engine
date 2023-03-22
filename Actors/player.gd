@@ -9,7 +9,7 @@ signal ability_improvement_needed_resume
 enum Ability { STRENGTH, DEXTERITY, CONSTITUTION }
 
 var level = 1
-var abilities:Array[Ability]
+var abilities:Array[int]
 const NOT_RESTING = 0
 const SHORT_RESTING = 1
 const LONG_RESTING = 2
@@ -29,7 +29,7 @@ var clss:Class
 var animation:AnimatedSprite2D
 
 var hp_per_level:Array[int] = []
-var abilities_gained:Array[int] = []
+var abilities_gained:Array[Ability] = []
 
 const xp_table = {
 	1: 0,

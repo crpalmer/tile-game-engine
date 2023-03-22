@@ -45,9 +45,8 @@ func get_display_name() -> String:
 func get_bare_display_name() -> String:
 	return display_name
 
-func set_time_scale(scale:float) -> void:
-	print("set_time_scale %f" % scale)
-	time_scale = scale
+func set_time_scale(value:float) -> void:
+	time_scale = value
 
 func used_by(_by) -> bool:
 	if cur_uses > 0: cur_uses -= 1
